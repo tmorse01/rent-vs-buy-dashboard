@@ -1,75 +1,117 @@
-# React + TypeScript + Vite
+# Rent vs Buy Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive React web dashboard that helps users compare **Rent vs Buy** scenarios over time, using both cash-loss (unrecoverable costs) and net worth (balance-sheet) views.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Interactive Scenario Inputs**: Configure home details, owner costs, rent assumptions, investment returns, and time horizon
+- **Live-Updating Charts**: Four comprehensive charts showing:
+  - Average monthly unrecoverable cost comparison
+  - Monthly cost over time
+  - Net worth over time
+  - Owner wealth stack breakdown at 5/10/15 years
+- **Key Metrics**: Break-even calculations, net worth deltas, and total unrecoverable costs
+- **Export Functionality**: Export scenarios, timeline data, and analysis packets in JSON/CSV formats
+- **Scenario Management**: Save and load scenarios from localStorage
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- React 19 + TypeScript + Vite
+- Mantine UI component library
+- Recharts for data visualization
 
-Note: This will impact Vite dev & build performances.
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (v18 or higher)
+- npm
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Install dependencies:
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Run the development server:
+```bash
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173`
+
+### Build
+
+Build for production:
+```bash
+npm run build
+```
+
+### Preview Production Build
+
+Preview the production build:
+```bash
+npm run preview
+```
+
+## Project Structure
+
+```
+src/
+├── features/
+│   ├── scenario/          # Scenario form and storage
+│   └── charts/            # Chart components
+├── calculations/          # Pure calculation functions
+│   ├── amortization.ts
+│   ├── rent.ts
+│   ├── homeValue.ts
+│   ├── netWorth.ts
+│   ├── timeline.ts
+│   └── metrics.ts
+├── components/           # Reusable UI components
+│   ├── MetricCard.tsx
+│   ├── MetricsDisplay.tsx
+│   └── ExportButtons.tsx
+└── App.tsx               # Main application component
+```
+
+## Usage
+
+1. **Configure Your Scenario**: Use the form on the left to input:
+   - Home price, down payment, interest rate, loan term
+   - Property tax, insurance, maintenance rates
+   - Current rent and rent growth rate
+   - Investment return and home appreciation assumptions
+   - Time horizon (1-30 years)
+
+2. **View Results**: Charts and metrics update automatically as you change inputs
+
+3. **Save Scenarios**: Enter a name and click "Save" to store your scenario in localStorage
+
+4. **Export Data**: Use the export buttons to download:
+   - Scenario JSON (inputs only)
+   - Timeline CSV (monthly data)
+   - Analysis Packet JSON (complete analysis with metrics and snapshots)
+
+## Calculation Details
+
+### Owner Unrecoverable Costs (Monthly)
+- Mortgage interest
+- Property tax (based on current home value)
+- Insurance
+- Maintenance (based on current home value)
+- PMI (if down payment < 20%)
+
+### Net Worth Calculations
+- **Owner**: `(homeValue * (1 - sellingCostRate)) - mortgageBalance`
+- **Renter**: Investment balance with monthly compounding
+
+### Monthly Compounding
+All rates use monthly compounding: `monthlyRate = (1 + annualRate)^(1/12) - 1`
+
+## License
+
+MIT
