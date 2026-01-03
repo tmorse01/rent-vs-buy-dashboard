@@ -152,11 +152,12 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
     const insurance = inputs.insuranceMonthly;
     
     // PMI calculation (only if down < 20% and enabled)
-    // PMI drops when LTV reaches 80% (balance <= loanPrincipal * 0.8)
+    // PMI drops when LTV reaches 80% (mortgageBalance / homeValue <= 0.8)
     let pmi = 0;
     if (inputs.pmiEnabled && inputs.downPaymentPercent < 20) {
-      if (mortgageBalance > loanPrincipal * 0.8) {
-        // PMI typically drops when LTV reaches 80%
+      const ltv = mortgageBalance / homeValue; // Loan-to-value ratio
+      if (ltv > 0.8) {
+        // PMI applies when LTV > 80% and drops when LTV reaches 80%
         pmi = (loanPrincipal * (inputs.pmiRate / 100)) / 12;
       }
     }

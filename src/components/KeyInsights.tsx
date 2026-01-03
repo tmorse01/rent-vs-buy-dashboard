@@ -1,4 +1,4 @@
-import { Grid, Paper, Text, Title, Group, Stack, Tooltip } from "@mantine/core";
+import { Grid, Text, Title, Group, Stack, Tooltip } from "@mantine/core";
 import {
   TrendingUp,
   TrendingDown,
@@ -11,8 +11,9 @@ import type {
   Metrics,
   TimelinePoint,
 } from "../features/scenario/ScenarioInputs";
-import { GRADIENTS } from "../theme/colors";
+import { GRADIENTS, COLORS } from "../theme/colors";
 import { formatCurrency } from "../utils/formatting";
+import { ColorAccentCard } from "./ColorAccentCard";
 
 interface KeyInsightsProps {
   metrics: Metrics;
@@ -21,8 +22,9 @@ interface KeyInsightsProps {
 
 export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
   const getDeltaIcon = (value: number) => {
-    if (value > 0) return <TrendingUp size={20} />;
-    if (value < 0) return <TrendingDown size={20} />;
+    if (value > 0) return <TrendingUp size={20} color="#000000" />;
+    if (value < 0)
+      return <TrendingDown size={20} color={COLORS.error.primary} />;
     return null;
   };
 
@@ -44,21 +46,17 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
     <Grid gutter="md">
       {/* Monthly Payment Breakdown - Larger */}
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-        <Paper
+        <ColorAccentCard
           p="lg"
-          withBorder
           radius="md"
-          style={{
-            height: "100%",
-            background: GRADIENTS.owner,
-            border: "none",
-          }}
+          gradient={GRADIENTS.owner}
+          accentColor="#2563eb"
         >
           <Stack gap="md">
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
-                <CurrencyDollar size={18} color="white" />
-                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                <CurrencyDollar size={18} />
+                <Text size="sm" fw={600}>
                   Monthly Payment
                 </Text>
               </Group>
@@ -96,12 +94,11 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               >
                 <InfoCircle
                   size={16}
-                  color="white"
-                  style={{ opacity: 0.7, cursor: "help" }}
+                  style={{ cursor: "help", opacity: 0.7 }}
                 />
               </Tooltip>
             </Group>
-            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.1 }}>
+            <Title order={2} fw={700} style={{ lineHeight: 1.1 }}>
               {formatCurrency(totalMonthlyPayment)}
             </Title>
             {firstMonth && (
@@ -109,48 +106,48 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 gap="xs"
                 mt="xs"
                 style={{
-                  borderTop: "1px solid rgba(255,255,255,0.2)",
+                  borderTop: "1px solid rgba(0,0,0,0.1)",
                   paddingTop: "12px",
                 }}
               >
                 <Group justify="space-between" gap="xs">
-                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  <Text size="xs" c="dimmed">
                     Mortgage
                   </Text>
-                  <Text size="xs" c="white" fw={600}>
+                  <Text size="xs" fw={600}>
                     {formatCurrency(firstMonth.mortgagePayment)}
                   </Text>
                 </Group>
                 <Group justify="space-between" gap="xs">
-                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  <Text size="xs" c="dimmed">
                     Tax
                   </Text>
-                  <Text size="xs" c="white" fw={600}>
+                  <Text size="xs" fw={600}>
                     {formatCurrency(firstMonth.propertyTax)}
                   </Text>
                 </Group>
                 <Group justify="space-between" gap="xs">
-                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  <Text size="xs" c="dimmed">
                     Insurance
                   </Text>
-                  <Text size="xs" c="white" fw={600}>
+                  <Text size="xs" fw={600}>
                     {formatCurrency(firstMonth.insurance)}
                   </Text>
                 </Group>
                 <Group justify="space-between" gap="xs">
-                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  <Text size="xs" c="dimmed">
                     Maintenance
                   </Text>
-                  <Text size="xs" c="white" fw={600}>
+                  <Text size="xs" fw={600}>
                     {formatCurrency(firstMonth.maintenance)}
                   </Text>
                 </Group>
                 {firstMonth.pmi > 0 && (
                   <Group justify="space-between" gap="xs">
-                    <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                    <Text size="xs" c="dimmed">
                       PMI
                     </Text>
-                    <Text size="xs" c="white" fw={600}>
+                    <Text size="xs" fw={600}>
                       {formatCurrency(firstMonth.pmi)}
                     </Text>
                   </Group>
@@ -158,25 +155,21 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               </Stack>
             )}
           </Stack>
-        </Paper>
+        </ColorAccentCard>
       </Grid.Col>
       {/* Unrecoverable Costs - Larger */}
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-        <Paper
+        <ColorAccentCard
           p="lg"
-          withBorder
           radius="md"
-          style={{
-            height: "100%",
-            background: GRADIENTS.warning,
-            border: "none",
-          }}
+          gradient={GRADIENTS.warning}
+          accentColor="#f59e0b"
         >
           <Stack gap="md">
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
-                <AlertTriangle size={18} color="white" />
-                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                <AlertTriangle size={18} />
+                <Text size="sm" fw={600}>
                   Unrecoverable (10yr)
                 </Text>
               </Group>
@@ -214,15 +207,28 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               >
                 <InfoCircle
                   size={16}
-                  color="white"
-                  style={{ opacity: 0.7, cursor: "help" }}
+                  style={{ cursor: "help", opacity: 0.7 }}
                 />
               </Tooltip>
             </Group>
-            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.1 }}>
+            <Title
+              order={2}
+              fw={700}
+              style={{
+                lineHeight: 1.1,
+                color:
+                  unrecoverableDifference > 0
+                    ? COLORS.error.primary
+                    : "#000000",
+              }}
+            >
               {formatCurrency(Math.abs(unrecoverableDifference))}
             </Title>
-            <Text size="xs" c="white" fw={500} style={{ opacity: 0.9 }}>
+            <Text
+              size="xs"
+              fw={500}
+              c={unrecoverableDifference > 0 ? "red.7" : undefined}
+            >
               {unrecoverableDifference > 0
                 ? "Owner pays more"
                 : "Renter pays more"}
@@ -236,43 +242,39 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               }}
             >
               <Group justify="space-between" gap="xs">
-                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                <Text size="xs" c="dimmed">
                   Owner
                 </Text>
-                <Text size="xs" c="white" fw={600}>
+                <Text size="xs" fw={600}>
                   {formatCurrency(unrecoverableOwner10)}
                 </Text>
               </Group>
               <Group justify="space-between" gap="xs">
-                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                <Text size="xs" c="dimmed">
                   Renter
                 </Text>
-                <Text size="xs" c="white" fw={600}>
+                <Text size="xs" fw={600}>
                   {formatCurrency(unrecoverableRenter10)}
                 </Text>
               </Group>
             </Stack>
           </Stack>
-        </Paper>
+        </ColorAccentCard>
       </Grid.Col>
 
       {/* Combined Break-Even Card */}
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-        <Paper
+        <ColorAccentCard
           p="lg"
-          withBorder
           radius="md"
-          style={{
-            height: "100%",
-            background: GRADIENTS.breakEvenCash,
-            border: "none",
-          }}
+          gradient={GRADIENTS.teal}
+          accentColor="#14b8a6"
         >
           <Stack gap="md">
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
-                <Calendar size={18} color="white" />
-                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                <Calendar size={18} />
+                <Text size="sm" fw={600}>
                   Break-Even
                 </Text>
               </Group>
@@ -320,89 +322,69 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               >
                 <InfoCircle
                   size={16}
-                  color="white"
-                  style={{ opacity: 0.7, cursor: "help" }}
+                  style={{ cursor: "help", opacity: 0.7 }}
                 />
               </Tooltip>
             </Group>
             <Stack gap="md">
               <div
                 style={{
-                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  borderBottom: "1px solid rgba(0,0,0,0.1)",
                   paddingBottom: "12px",
                 }}
               >
-                <Text
-                  size="xs"
-                  c="white"
-                  fw={500}
-                  style={{ opacity: 0.9 }}
-                  mb={4}
-                >
+                <Text size="xs" c="dimmed" fw={500} mb={4}>
                   Cash Flow
                 </Text>
-                <Title order={3} c="white" fw={700} style={{ lineHeight: 1.1 }}>
+                <Title order={3} fw={700} style={{ lineHeight: 1.1 }}>
                   {metrics.cashLossBreakEvenYear
                     ? `${metrics.cashLossBreakEvenYear} years`
                     : "N/A"}
                 </Title>
-                <Text size="xs" c="white" style={{ opacity: 0.8 }} mt={2}>
+                <Text size="xs" c="dimmed" mt={2}>
                   {metrics.cashLossBreakEvenYear
                     ? "Owner costs ≤ rent"
                     : "No break-even found"}
                 </Text>
               </div>
               <div>
-                <Text
-                  size="xs"
-                  c="white"
-                  fw={500}
-                  style={{ opacity: 0.9 }}
-                  mb={4}
-                >
+                <Text size="xs" c="dimmed" fw={500} mb={4}>
                   Net Worth
                 </Text>
-                <Title order={3} c="white" fw={700} style={{ lineHeight: 1.1 }}>
+                <Title order={3} fw={700} style={{ lineHeight: 1.1 }}>
                   {metrics.netWorthBreakEvenYear
                     ? `${metrics.netWorthBreakEvenYear} years`
                     : "N/A"}
                 </Title>
-                <Text size="xs" c="white" style={{ opacity: 0.8 }} mt={2}>
+                <Text size="xs" c="dimmed" mt={2}>
                   {metrics.netWorthBreakEvenYear
                     ? "Owner wealth ≥ renter"
                     : "No break-even in horizon"}
                 </Text>
                 {!metrics.netWorthBreakEvenYear && (
-                  <Text size="xs" c="white" style={{ opacity: 0.7 }} mt={4}>
+                  <Text size="xs" c="dimmed" style={{ opacity: 0.8 }} mt={4}>
                     Gap: {formatCurrency(Math.abs(metrics.netWorthDelta10))}
                   </Text>
                 )}
               </div>
             </Stack>
           </Stack>
-        </Paper>
+        </ColorAccentCard>
       </Grid.Col>
 
       {/* Net Worth Advantage - Multi-timeframe */}
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-        <Paper
+        <ColorAccentCard
           p="lg"
-          withBorder
           radius="md"
-          style={{
-            height: "100%",
-            background:
-              metrics.netWorthDelta10 > 0
-                ? GRADIENTS.positive
-                : GRADIENTS.negative,
-            border: "none",
-          }}
+          gradient={GRADIENTS.positive}
+          accentColor="#10b981"
         >
           <Stack gap="md">
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
-                <CurrencyDollar size={18} color="white" />
-                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                <CurrencyDollar size={18} />
+                <Text size="sm" fw={600}>
                   NW Advantage
                 </Text>
               </Group>
@@ -445,23 +427,32 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               >
                 <InfoCircle
                   size={16}
-                  color="white"
-                  style={{ opacity: 0.7, cursor: "help" }}
+                  style={{ cursor: "help", opacity: 0.7 }}
                 />
               </Tooltip>
             </Group>
             <Group gap="xs" align="center" wrap="nowrap">
               <Title
                 order={2}
-                c="white"
                 fw={700}
-                style={{ lineHeight: 1.1, flex: 1 }}
+                style={{
+                  lineHeight: 1.1,
+                  flex: 1,
+                  color:
+                    metrics.netWorthDelta10 > 0
+                      ? "#000000"
+                      : COLORS.error.primary,
+                }}
               >
                 {formatCurrency(metrics.netWorthDelta10)}
               </Title>
               {getDeltaIcon(metrics.netWorthDelta10)}
             </Group>
-            <Text size="xs" c="white" fw={500} style={{ opacity: 0.9 }}>
+            <Text
+              size="xs"
+              fw={500}
+              c={metrics.netWorthDelta10 > 0 ? undefined : "red.7"}
+            >
               {metrics.netWorthDelta10 > 0
                 ? "Owner advantage (10yr)"
                 : "Renter advantage (10yr)"}
@@ -475,24 +466,32 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               }}
             >
               <Group justify="space-between" gap="xs">
-                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                <Text size="xs" c="dimmed">
                   5yr
                 </Text>
-                <Text size="xs" c="white" fw={600}>
+                <Text
+                  size="xs"
+                  fw={600}
+                  c={metrics.netWorthDelta5 > 0 ? undefined : "red.7"}
+                >
                   {formatCurrency(metrics.netWorthDelta5)}
                 </Text>
               </Group>
               <Group justify="space-between" gap="xs">
-                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                <Text size="xs" c="dimmed">
                   15yr
                 </Text>
-                <Text size="xs" c="white" fw={600}>
+                <Text
+                  size="xs"
+                  fw={600}
+                  c={metrics.netWorthDelta15 > 0 ? undefined : "red.7"}
+                >
                   {formatCurrency(metrics.netWorthDelta15)}
                 </Text>
               </Group>
             </Stack>
           </Stack>
-        </Paper>
+        </ColorAccentCard>
       </Grid.Col>
     </Grid>
   );

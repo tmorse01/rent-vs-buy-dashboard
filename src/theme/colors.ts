@@ -97,13 +97,22 @@ export const GRADIENTS = {
   // Renter - Cyan gradient (same color family)
   renter: "linear-gradient(135deg, #0891b2 0%, #0e7490 100%)",
 
-  // Metric Cards
+  // Metric Cards - Unique colors for each card
   breakEvenCash: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-  breakEvenNetWorth: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", // Changed from violet-indigo to blue gradient
+  breakEvenNetWorth: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)", // Indigo gradient
   positive: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-  negative: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
+  negative: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)", // Violet gradient (replaced slate)
   neutral: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
   warning: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+  // Additional unique gradients for metric cards
+  teal: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)",
+  rose: "linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)",
+  emerald: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+  sky: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
+  purple: "linear-gradient(135deg, #a855f7 0%, #9333ea 100%)",
+  orange: "linear-gradient(135deg, #fb923c 0%, #f97316 100%)",
+  pink: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
+  lime: "linear-gradient(135deg, #84cc16 0%, #65a30d 100%)",
 
   // Backgrounds
   subtle: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",

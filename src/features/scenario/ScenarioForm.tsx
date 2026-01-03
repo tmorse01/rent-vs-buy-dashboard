@@ -269,7 +269,12 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
       <Switch
         label="Enable PMI"
         {...form.getInputProps("pmiEnabled", { type: "checkbox" })}
-        description="Private Mortgage Insurance (only applies if down payment < 20%)"
+        disabled={form.values.downPaymentPercent >= 20}
+        description={
+          form.values.downPaymentPercent >= 20
+            ? "PMI only applies when down payment is less than 20%"
+            : "Private Mortgage Insurance (only applies if down payment < 20%)"
+        }
       />
 
       {form.values.pmiEnabled && form.values.downPaymentPercent < 20 && (

@@ -128,12 +128,61 @@ Use Mantine's built-in semantic colors:
 - `linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)`
 - Professional, modern, trustworthy
 
-**Key Metric Cards**
+**Key Metric Cards (KeyInsights Component)**
 
-- Break-Even (Cash): `linear-gradient(135deg, #2563eb 0%, #1e40af 100%)`
-- Break-Even (Net Worth): `linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)`
-- Positive Advantage: `linear-gradient(135deg, #10b981 0%, #059669 100%)`
-- Negative/Neutral: `linear-gradient(135deg, #64748b 0%, #475569 100%)`
+The top 4 key metric cards in the Key Insights section use a consistent color palette that matches the chart theme. **Purple colors are avoided** in favor of blue, teal, yellow, and emerald:
+
+1. **Monthly Payment**: `GRADIENTS.owner`
+
+   - Blue gradient: `#2563eb` → `#1e40af`
+   - Matches owner color in charts (`blue.6`)
+   - Represents owner-related costs
+
+2. **Unrecoverable (10yr)**: `GRADIENTS.warning`
+
+   - Amber/Yellow gradient: `#f59e0b` → `#d97706`
+   - Highlights important cost information
+   - Matches warning/attention colors in charts
+
+3. **Break-Even**: `GRADIENTS.teal`
+
+   - Teal gradient: `#14b8a6` → `#0d9488`
+   - Distinct color for break-even metrics
+   - Complements the cyan/teal used for renter scenarios
+
+4. **NW Advantage**: `GRADIENTS.positive`
+   - Emerald/Green gradient: `#10b981` → `#059669`
+   - Always uses emerald (matches positive values in charts)
+   - Consistent with success/positive indicators
+
+**Color Philosophy**: The Key Insights cards intentionally avoid purple/indigo/violet colors to maintain consistency with the chart color scheme (blue for owner, cyan/teal for renter, green for positive, yellow/amber for warnings).
+
+**Available Metric Card Gradients**
+
+All gradients are available in `src/theme/colors.ts` via `GRADIENTS`:
+
+**Key Insights Cards (Top Section)** - Uses only these 4:
+
+- `owner`: Blue gradient (`#2563eb` to `#1e40af`) - Monthly Payment
+- `warning`: Amber gradient (`#f59e0b` to `#d97706`) - Unrecoverable
+- `teal`: Teal gradient (`#14b8a6` to `#0d9488`) - Break-Even
+- `positive`: Emerald gradient (`#10b981` to `#059669`) - NW Advantage
+
+**Detailed Metric Cards (MetricsDisplay Component)** - Uses various gradients for uniqueness:
+
+- `renter`: Cyan gradient (`#0891b2` to `#0e7490`)
+- `breakEvenCash`: Blue gradient (`#2563eb` to `#1e40af`)
+- `breakEvenNetWorth`: Indigo gradient (`#6366f1` to `#4f46e5`) - Not used in Key Insights
+- `negative`: Violet gradient (`#7c3aed` to `#6d28d9`) - Not used in Key Insights
+- `rose`: Rose gradient (`#f43f5e` to `#e11d48`)
+- `emerald`: Emerald gradient (`#10b981` to `#059669`)
+- `sky`: Sky blue gradient (`#0ea5e9` to `#0284c7`)
+- `purple`: Purple gradient (`#a855f7` to `#9333ea`) - Not used in Key Insights
+- `orange`: Orange gradient (`#fb923c` to `#f97316`)
+- `pink`: Pink gradient (`#ec4899` to `#db2777`)
+- `lime`: Lime gradient (`#84cc16` to `#65a30d`)
+
+**Note**: Key Insights intentionally avoids purple/indigo/violet colors to maintain consistency with chart colors.
 
 **Subtle Background Gradients**
 
@@ -184,7 +233,7 @@ import { COLORS } from './theme/colors';
 <div style={{ color: COLORS.owner.primary }}>Owner Text</div>
 ```
 
-### Color Constants (Optional)
+### Color Constants (Recommended)
 
 For direct color access without theme, use `src/theme/colors.ts`:
 
@@ -195,10 +244,25 @@ import { COLORS, GRADIENTS } from "./theme/colors";
 const ownerColor = COLORS.owner.primary; // #2563eb
 const renterColor = COLORS.renter.primary; // #0891b2
 
-// Gradients for cards
-const ownerGradient = GRADIENTS.owner;
-const renterGradient = GRADIENTS.renter;
+// Gradients for Key Insights cards (matches chart theme)
+const ownerGradient = GRADIENTS.owner; // Blue - Monthly Payment
+const warningGradient = GRADIENTS.warning; // Yellow/Amber - Unrecoverable
+const tealGradient = GRADIENTS.teal; // Teal - Break-Even
+const positiveGradient = GRADIENTS.positive; // Emerald - NW Advantage
+
+// Additional gradients available for detailed metric cards
+const renterGradient = GRADIENTS.renter; // Cyan
+const negativeGradient = GRADIENTS.negative; // Violet (available but not used in Key Insights)
+const skyGradient = GRADIENTS.sky;
+const purpleGradient = GRADIENTS.purple; // Available but avoided in Key Insights
+// ... and more (see colors.ts for full list)
 ```
+
+**Important Notes**:
+
+- Key Insights cards use: **Blue, Teal, Yellow, and Emerald** (no purple)
+- The `negative` gradient is violet (`#7c3aed` to `#6d28d9`) but is not used in Key Insights
+- Purple/indigo colors are intentionally avoided in Key Insights to match chart color scheme
 
 ## Accessibility Considerations
 
@@ -221,16 +285,71 @@ const renterGradient = GRADIENTS.renter;
 
 ### Metric Cards
 
+**Key Insights Cards (Top Section)**
+
 ```tsx
+import { GRADIENTS } from "./theme/colors";
+
+// Monthly Payment - Blue (owner)
 <Paper
   style={{
-    background: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+    background: GRADIENTS.owner,
     color: "white",
+    border: "none",
   }}
 >
-  Owner Metric
+  Monthly Payment
+</Paper>
+
+// Unrecoverable - Yellow/Amber (warning)
+<Paper
+  style={{
+    background: GRADIENTS.warning,
+    color: "white",
+    border: "none",
+  }}
+>
+  Unrecoverable (10yr)
+</Paper>
+
+// Break-Even - Teal
+<Paper
+  style={{
+    background: GRADIENTS.teal,
+    color: "white",
+    border: "none",
+  }}
+>
+  Break-Even
+</Paper>
+
+// NW Advantage - Emerald (positive)
+<Paper
+  style={{
+    background: GRADIENTS.positive,
+    color: "white",
+    border: "none",
+  }}
+>
+  NW Advantage
 </Paper>
 ```
+
+**Detailed Metric Cards (MetricsDisplay Component)**
+
+```tsx
+import { GRADIENTS } from "./theme/colors";
+import { MetricCard } from "./components/MetricCard";
+
+<MetricCard
+  title="Net Worth Delta (5 years)"
+  value={metrics.netWorthDelta5}
+  cardColor={GRADIENTS.teal} // Unique color for each card
+  // ... other props
+/>;
+```
+
+**Note**: All metric cards use white text when a `cardColor` gradient is applied for optimal contrast and readability.
 
 ### Charts
 
@@ -260,3 +379,14 @@ const renterGradient = GRADIENTS.renter;
 ## Summary
 
 This color theme creates a **professional, trustworthy, and clear** visual experience for a financial decision-making tool. The blue/teal pairing for owner/renter scenarios is distinct yet harmonious, and the overall palette supports excellent readability and accessibility.
+
+### Key Insights Color Strategy
+
+The Key Insights section (top 4 metric cards) uses a focused color palette that directly matches the chart colors:
+
+- **Blue** for owner-related metrics
+- **Teal** for break-even and complementary metrics
+- **Yellow/Amber** for warnings and important cost information
+- **Emerald/Green** for positive outcomes and advantages
+
+This creates visual consistency between the key metrics and the detailed charts below, making it easier for users to connect the summary information with the detailed visualizations.
