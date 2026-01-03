@@ -4,7 +4,6 @@ import type { Metrics } from '../features/scenario/ScenarioInputs';
 import { 
   Calendar, 
   CurrencyDollar, 
-  TrendingUp, 
   Receipt,
   Clock 
 } from 'tabler-icons-react';
@@ -33,7 +32,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
 
       <Tabs.Panel value="decision" pt="md">
         <Grid gutter="md">
-          <Grid.Col span={{ base: 12, sm: 6, md: 6 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="Cash-Loss Break-Even"
               value={metrics.cashLossBreakEvenYear ? `${metrics.cashLossBreakEvenYear} years` : null}
@@ -42,7 +41,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               tooltip="The year when the owner's average monthly unrecoverable costs become less than or equal to the renter's average monthly rent. This is when owning becomes cheaper on a monthly cash-flow basis."
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 6 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="Net-Worth Break-Even"
               value={metrics.netWorthBreakEvenYear ? `${metrics.netWorthBreakEvenYear} years` : null}
@@ -56,7 +55,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
 
       <Tabs.Panel value="financial" pt="md">
         <Grid gutter="md">
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="Net Worth Delta (5 years)"
               value={metrics.netWorthDelta5}
@@ -66,7 +65,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               tooltip="The difference between owner and renter net worth after 5 years. Positive values mean the owner is ahead, negative means the renter is ahead. This helps assess short-term financial impact."
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="Net Worth Delta (10 years)"
               value={metrics.netWorthDelta10}
@@ -76,7 +75,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               tooltip="The difference between owner and renter net worth after 10 years. This is often a key decision point for long-term homeownership. Positive values favor buying, negative values favor renting."
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="Net Worth Delta (15 years)"
               value={metrics.netWorthDelta15}
@@ -94,7 +93,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
           <Box>
             <Title order={4} mb="sm">5-Year Costs</Title>
             <Grid gutter="md">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Unrecoverable Owner (5 years)"
                   value={metrics.totalUnrecoverableOwner5}
@@ -103,7 +102,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   tooltip="Total unrecoverable costs for the owner over 5 years. This includes interest, property taxes, insurance, maintenance, PMI, and closing costs. These are costs that don't build equity."
                 />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Unrecoverable Renter (5 years)"
                   value={metrics.totalUnrecoverableRenter5}
@@ -117,7 +116,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
           <Box>
             <Title order={4} mb="sm">10-Year Costs</Title>
             <Grid gutter="md">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Unrecoverable Owner (10 years)"
                   value={metrics.totalUnrecoverableOwner10}
@@ -126,7 +125,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   tooltip="Total unrecoverable costs for the owner over 10 years. As time passes, principal payments reduce the mortgage balance, but unrecoverable costs continue."
                 />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Unrecoverable Renter (10 years)"
                   value={metrics.totalUnrecoverableRenter10}
@@ -140,7 +139,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
           <Box>
             <Title order={4} mb="sm">15-Year Costs</Title>
             <Grid gutter="md">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Unrecoverable Owner (15 years)"
                   value={metrics.totalUnrecoverableOwner15}
@@ -149,7 +148,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   tooltip="Total unrecoverable costs for the owner over 15 years. By this point, significant principal has been paid down, reducing interest costs."
                 />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
+              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Unrecoverable Renter (15 years)"
                   value={metrics.totalUnrecoverableRenter15}
@@ -165,7 +164,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
 
       <Tabs.Panel value="time" pt="md">
         <Grid gutter="md">
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="5-Year Net Worth"
               value={metrics.netWorthDelta5}
@@ -175,7 +174,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               tooltip="Net worth difference after 5 years. Short-term view of the financial impact. Early years often favor renting due to high upfront costs of buying."
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="10-Year Net Worth"
               value={metrics.netWorthDelta10}
@@ -185,7 +184,7 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               tooltip="Net worth difference after 10 years. This is often the break-even point where homeownership starts to show financial advantages."
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
             <MetricCard
               title="15-Year Net Worth"
               value={metrics.netWorthDelta15}

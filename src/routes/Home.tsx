@@ -7,6 +7,7 @@ import { WealthStackChart } from "../features/charts/WealthStackChart";
 import { KeyInsights } from "../components/KeyInsights";
 import { MetricsDisplay } from "../components/MetricsDisplay";
 import { ExportButtons } from "../components/ExportButtons";
+import { NetWorthStackComparison } from "../components/NetWorthStackComparison";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
 import { useScenario } from "../context/ScenarioContext";
@@ -30,6 +31,13 @@ export function Home() {
             Key Insights
           </Title>
           <KeyInsights metrics={metrics} />
+        </Box>
+
+        <Divider />
+
+        {/* Net Worth Stack Comparison */}
+        <Box>
+          <NetWorthStackComparison timeline={timeline} inputs={inputs} />
         </Box>
 
         <Divider />

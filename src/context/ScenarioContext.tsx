@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
 
 interface ScenarioContextType {
@@ -37,6 +38,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useScenario() {
   const context = useContext(ScenarioContext);
   if (context === undefined) {

@@ -97,6 +97,7 @@ export const GRADIENTS = {
   positive: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
   negative: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
   neutral: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+  warning: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
 
   // Backgrounds
   subtle: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",
