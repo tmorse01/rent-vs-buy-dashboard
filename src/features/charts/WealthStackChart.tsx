@@ -11,6 +11,10 @@ import {
 import { Paper, Title, Stack, Box, Text, useMantineTheme } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 import { COLORS } from "../../theme/colors";
+import {
+  formatCurrencyCompact,
+  formatCurrencyTooltip,
+} from "../../utils/formatting";
 
 interface WealthStackChartProps {
   timeline: TimelinePoint[];
@@ -54,7 +58,10 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
     });
   }
 
-  const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
+  const formatTooltip = (value: number | undefined, name?: string) => {
+    if (value === undefined) return "";
+    return [formatCurrencyTooltip(value), name || ""];
+  };
 
   return (
     <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
@@ -70,15 +77,33 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
         </Box>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.gray[2]} />
-            <XAxis type="number" tickFormatter={formatCurrency} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={theme.colors.gray[2]}
+            />
+            <XAxis
+              type="number"
+              tickFormatter={formatCurrencyCompact}
+              label={{
+                value: "Amount ($)",
+                position: "insideBottom",
+                offset: -5,
+              }}
+            />
             <YAxis dataKey="year" type="category" width={80} />
             <Tooltip
-              formatter={(value: number | undefined) =>
-                formatCurrency(value ?? 0)
-              }
+              formatter={formatTooltip}
+              contentStyle={{
+                backgroundColor: theme.white,
+                border: `1px solid ${theme.colors.gray[3]}`,
+                borderRadius: theme.radius.md,
+              }}
             />
-            <Legend wrapperStyle={{ paddingTop: "20px" }} />
+            <Legend
+              wrapperStyle={{ paddingBottom: "10px" }}
+              iconSize={16}
+              style={{ fontSize: "14px" }}
+            />
             <Bar
               dataKey="principalPaid"
               stackId="wealth"

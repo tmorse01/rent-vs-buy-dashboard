@@ -17,6 +17,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { InfoCircle } from "tabler-icons-react";
 import type { ScenarioInputs } from "./ScenarioInputs";
 import { saveScenario, loadScenario, listScenarios } from "./scenarioStorage";
+import { useScenario } from "../../context/ScenarioContext";
 
 interface ScenarioFormProps {
   onInputsChange: (inputs: ScenarioInputs) => void;
@@ -48,13 +49,14 @@ const defaultInputs: ScenarioInputs = {
 };
 
 export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
+  const { inputs: contextInputs, setInputs: setContextInputs } = useScenario();
   const [scenarioName, setScenarioName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<string[]>(() =>
     listScenarios()
   );
 
   const form = useForm<ScenarioInputs>({
-    initialValues: defaultInputs,
+    initialValues: contextInputs,
     validate: {
       homePrice: (value) =>
         value > 0 ? null : "Home price must be greater than 0",
@@ -110,8 +112,9 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
   const [debouncedInputs] = useDebouncedValue(form.values, 500);
 
   useEffect(() => {
+    setContextInputs(debouncedInputs);
     onInputsChange(debouncedInputs);
-  }, [debouncedInputs, onInputsChange]);
+  }, [debouncedInputs, onInputsChange, setContextInputs]);
 
   const handleSave = () => {
     if (!scenarioName.trim()) {
@@ -129,6 +132,7 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
     const inputs = loadScenario(name);
     if (inputs) {
       form.setValues(inputs);
+      setContextInputs(inputs);
       setScenarioName(name);
     } else {
       alert(`Scenario "${name}" not found`);

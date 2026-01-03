@@ -7,22 +7,13 @@ import {
 } from "tabler-icons-react";
 import type { Metrics } from "../features/scenario/ScenarioInputs";
 import { GRADIENTS } from "../theme/colors";
+import { formatCurrency } from "../utils/formatting";
 
 interface KeyInsightsProps {
   metrics: Metrics;
 }
 
 export function KeyInsights({ metrics }: KeyInsightsProps) {
-  const formatCurrency = (value: number) => {
-    if (Math.abs(value) >= 1000000) {
-      return `$${(value / 1000000).toFixed(1)}M`;
-    }
-    if (Math.abs(value) >= 1000) {
-      return `$${(value / 1000).toFixed(0)}K`;
-    }
-    return `$${Math.round(value).toLocaleString()}`;
-  };
-
   const getDeltaIcon = (value: number) => {
     if (value > 0) return <TrendingUp size={20} />;
     if (value < 0) return <TrendingDown size={20} />;

@@ -9,19 +9,20 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { ScenarioForm } from "../features/scenario/ScenarioForm";
-import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
+import { Navigation } from "./Navigation";
+import { useScenario } from "../context/ScenarioContext";
 import { GRADIENTS } from "../theme/colors";
 
 interface LayoutProps {
   children: ReactNode;
-  onInputsChange: (inputs: ScenarioInputs) => void;
 }
 
 const NAVBAR_WIDTH = 360;
 const HEADER_HEIGHT = 70;
 
-export function Layout({ children, onInputsChange }: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
   const theme = useMantineTheme();
+  const { inputs, setInputs } = useScenario();
 
   return (
     <AppShell
@@ -40,13 +41,16 @@ export function Layout({ children, onInputsChange }: LayoutProps) {
           border: "none",
         }}
       >
-        <Group h="100%" gap="md">
-          <Title order={2} c="white" fw={700}>
-            Rent vs Buy Dashboard
-          </Title>
-          <Text size="sm" c="white" style={{ opacity: 0.9 }}>
-            Compare your options with confidence
-          </Text>
+        <Group h="100%" justify="space-between" wrap="nowrap">
+          <Group gap="md" wrap="nowrap">
+            <Title order={2} c="white" fw={700}>
+              Rent vs Buy Dashboard
+            </Title>
+            <Text size="sm" c="white" style={{ opacity: 0.9 }} visibleFrom="sm">
+              Compare your options with confidence
+            </Text>
+          </Group>
+          <Navigation />
         </Group>
       </AppShell.Header>
 
@@ -62,7 +66,7 @@ export function Layout({ children, onInputsChange }: LayoutProps) {
             <Title order={3} fw={600}>
               Scenario Inputs
             </Title>
-            <ScenarioForm onInputsChange={onInputsChange} />
+            <ScenarioForm onInputsChange={setInputs} />
           </Stack>
         </AppShell.Section>
       </AppShell.Navbar>
