@@ -20,6 +20,7 @@ describe("Timeline Calculations", () => {
     horizonYears: 15,
     pmiEnabled: false,
     pmiRate: 0.5,
+    extraPrincipalPayment: 0,
   });
 
   it("generates correct timeline length", () => {
@@ -101,5 +102,113 @@ describe("Timeline Calculations", () => {
       );
     }
   });
-});
 
+  it("ownerUnrecoverableMonthly excludes principal payment", () => {
+    const inputs = createBaseInputs();
+    const timeline = buildTimeline(inputs);
+
+    // Check first few months to verify calculation
+    for (let i = 0; i < Math.min(12, timeline.length); i++) {
+      const point = timeline[i];
+
+      // Unrecoverable cost should equal: interest + propertyTax + insurance + maintenance + pmi
+      // It should NOT include mortgagePrincipal
+      const expectedUnrecoverable =
+        point.mortgageInterest +
+        point.propertyTax +
+        point.insurance +
+        point.maintenance +
+        point.pmi;
+
+      expect(point.ownerUnrecoverableMonthly).toBeCloseTo(
+        expectedUnrecoverable,
+        2
+      );
+
+      // Verify principal is NOT included - unrecoverable should be less than mortgage payment
+      // (mortgage payment = interest + principal, but unrecoverable = interest + other costs)
+      // Note: unrecoverable can be greater than mortgage payment because it includes
+      // property tax, insurance, maintenance, and PMI which are not part of mortgage payment
+
+      // The key check: unrecoverable should NOT include principal
+      // If we add principal to unrecoverable, it should be different from unrecoverable alone
+      const unrecoverablePlusPrincipal =
+        point.ownerUnrecoverableMonthly + point.mortgagePrincipal;
+      expect(unrecoverablePlusPrincipal).toBeGreaterThan(
+        point.ownerUnrecoverableMonthly
+      );
+
+      // Verify that mortgage payment = interest + principal
+      expect(point.mortgagePayment).toBeCloseTo(
+        point.mortgageInterest + point.mortgagePrincipal,
+        2
+      );
+    }
+  });
+
+  it("mortgage interest decreases over time as loan is paid down", () => {
+    const inputs = createBaseInputs();
+    const timeline = buildTimeline(inputs);
+
+    // Interest should decrease over time as balance decreases
+    for (let i = 1; i < timeline.length; i++) {
+      // Interest should generally decrease (or stay same if balance is same)
+      // Allow small floating point differences
+      expect(timeline[i].mortgageInterest).toBeLessThanOrEqual(
+        timeline[i - 1].mortgageInterest + 0.01
+      );
+    }
+  });
+
+  it("unrecoverable costs trend - interest decreases but property tax/maintenance increase with appreciation", () => {
+    const inputs = createBaseInputs();
+    const timeline = buildTimeline(inputs);
+
+    // Check first year vs later years
+    const firstMonth = timeline[0];
+    const year5Month = timeline[59]; // Month 60 (5 years)
+    const year10Month = timeline[119]; // Month 120 (10 years)
+
+    console.log("\nUnrecoverable Cost Components Over Time:");
+    console.log("Month 1:");
+    console.log("  Interest:", firstMonth.mortgageInterest.toFixed(2));
+    console.log("  Property Tax:", firstMonth.propertyTax.toFixed(2));
+    console.log("  Maintenance:", firstMonth.maintenance.toFixed(2));
+    console.log("  Insurance:", firstMonth.insurance.toFixed(2));
+    console.log("  Total Unrecoverable:", firstMonth.ownerUnrecoverableMonthly.toFixed(2));
+    
+    if (year5Month) {
+      console.log("\nMonth 60 (Year 5):");
+      console.log("  Interest:", year5Month.mortgageInterest.toFixed(2));
+      console.log("  Property Tax:", year5Month.propertyTax.toFixed(2));
+      console.log("  Maintenance:", year5Month.maintenance.toFixed(2));
+      console.log("  Insurance:", year5Month.insurance.toFixed(2));
+      console.log("  Total Unrecoverable:", year5Month.ownerUnrecoverableMonthly.toFixed(2));
+      console.log("  Change from Month 1:", (year5Month.ownerUnrecoverableMonthly - firstMonth.ownerUnrecoverableMonthly).toFixed(2));
+    }
+    
+    if (year10Month) {
+      console.log("\nMonth 120 (Year 10):");
+      console.log("  Interest:", year10Month.mortgageInterest.toFixed(2));
+      console.log("  Property Tax:", year10Month.propertyTax.toFixed(2));
+      console.log("  Maintenance:", year10Month.maintenance.toFixed(2));
+      console.log("  Insurance:", year10Month.insurance.toFixed(2));
+      console.log("  Total Unrecoverable:", year10Month.ownerUnrecoverableMonthly.toFixed(2));
+      console.log("  Change from Month 1:", (year10Month.ownerUnrecoverableMonthly - firstMonth.ownerUnrecoverableMonthly).toFixed(2));
+    }
+
+    // Interest should definitely decrease
+    if (year5Month) {
+      expect(year5Month.mortgageInterest).toBeLessThan(firstMonth.mortgageInterest);
+    }
+    if (year10Month) {
+      expect(year10Month.mortgageInterest).toBeLessThan(year5Month.mortgageInterest);
+    }
+
+    // Property tax and maintenance increase with home appreciation
+    if (year5Month) {
+      expect(year5Month.propertyTax).toBeGreaterThan(firstMonth.propertyTax);
+      expect(year5Month.maintenance).toBeGreaterThan(firstMonth.maintenance);
+    }
+  });
+});

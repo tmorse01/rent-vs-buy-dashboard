@@ -30,7 +30,7 @@ export function Home() {
           <Title order={2} mb="md" fw={600}>
             Key Insights
           </Title>
-          <KeyInsights metrics={metrics} />
+          <KeyInsights metrics={metrics} timeline={timeline} />
         </Box>
 
         <Divider />

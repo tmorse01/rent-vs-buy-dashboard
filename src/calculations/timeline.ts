@@ -59,6 +59,19 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       const ownerUnrecoverableMonthly =
         mortgageInterest + propertyTax + insurance + maintenance + pmi;
       
+      // Debug logging for loan-paid-off scenario
+      if (month === 1 || month % 12 === 0) {
+        console.log(`[DEBUG] Month ${month} (Year ${year}) - Loan Paid Off - Owner Unrecoverable Costs:`);
+        console.log(`  Mortgage Interest: $${mortgageInterest.toFixed(2)} (loan paid off)`);
+        console.log(`  Property Tax: $${propertyTax.toFixed(2)} (homeValue: $${homeValue.toFixed(2)}, rate: ${inputs.propertyTaxRate}%)`);
+        console.log(`  Insurance: $${insurance.toFixed(2)}`);
+        console.log(`  Maintenance: $${maintenance.toFixed(2)} (homeValue: $${homeValue.toFixed(2)}, rate: ${inputs.maintenanceRate}%)`);
+        console.log(`  PMI: $${pmi.toFixed(2)}`);
+        console.log(`  TOTAL Unrecoverable Monthly: $${ownerUnrecoverableMonthly.toFixed(2)}`);
+        console.log(`  Home Value: $${homeValue.toFixed(2)}`);
+        console.log('---');
+      }
+      
       ownerTotalUnrecoverable += ownerUnrecoverableMonthly;
       ownerTotalPrincipalPaid += mortgagePrincipal;
       
@@ -163,6 +176,20 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
     
     const ownerUnrecoverableMonthly =
       mortgageInterest + propertyTax + insurance + maintenance + pmi;
+    
+    // Debug logging for unrecoverable costs (log first month, then every 12 months)
+    if (month === 1 || month % 12 === 0) {
+      console.log(`[DEBUG] Month ${month} (Year ${year}) - Owner Unrecoverable Costs:`);
+      console.log(`  Mortgage Interest: $${mortgageInterest.toFixed(2)}`);
+      console.log(`  Property Tax: $${propertyTax.toFixed(2)} (homeValue: $${homeValue.toFixed(2)}, rate: ${inputs.propertyTaxRate}%)`);
+      console.log(`  Insurance: $${insurance.toFixed(2)}`);
+      console.log(`  Maintenance: $${maintenance.toFixed(2)} (homeValue: $${homeValue.toFixed(2)}, rate: ${inputs.maintenanceRate}%)`);
+      console.log(`  PMI: $${pmi.toFixed(2)}`);
+      console.log(`  TOTAL Unrecoverable Monthly: $${ownerUnrecoverableMonthly.toFixed(2)}`);
+      console.log(`  Mortgage Balance: $${mortgageBalance.toFixed(2)}`);
+      console.log(`  Home Value: $${homeValue.toFixed(2)}`);
+      console.log('---');
+    }
     
     ownerTotalUnrecoverable += ownerUnrecoverableMonthly;
     ownerTotalPrincipalPaid += mortgagePrincipal;
