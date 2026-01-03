@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import { theme } from "./theme/theme";
 import { ScenarioProvider } from "./context/ScenarioContext";
 import { Layout } from "./components/Layout";
@@ -10,6 +11,7 @@ import { About } from "./routes/About";
 function App() {
   return (
     <MantineProvider theme={theme}>
+      <Notifications position="top-center" />
       <ScenarioProvider>
         <Layout>
           <Routes>

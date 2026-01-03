@@ -1,12 +1,12 @@
-import { useState, useMemo } from "react";
-import { Container, Grid, Title, Stack, Divider, Box } from "@mantine/core";
+import { useMemo } from "react";
+import { Container, Grid, Title, Stack, Divider, Box, Group } from "@mantine/core";
 import { UnrecoverableCostChart } from "../features/charts/UnrecoverableCostChart";
 import { MonthlyCostChart } from "../features/charts/MonthlyCostChart";
 import { NetWorthChart } from "../features/charts/NetWorthChart";
 import { WealthStackChart } from "../features/charts/WealthStackChart";
 import { KeyInsights } from "../components/KeyInsights";
 import { MetricsDisplay } from "../components/MetricsDisplay";
-import { ExportButtons } from "../components/ExportButtons";
+import { ExportMenu } from "../components/ExportMenu";
 import { NetWorthStackComparison } from "../components/NetWorthStackComparison";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
@@ -14,7 +14,6 @@ import { useScenario } from "../context/ScenarioContext";
 
 export function Home() {
   const { inputs } = useScenario();
-  const [notes, setNotes] = useState("");
 
   const timeline = useMemo(() => buildTimeline(inputs), [inputs]);
   const metrics = useMemo(
@@ -25,6 +24,11 @@ export function Home() {
   return (
     <Container size="xl" style={{ maxWidth: "100%" }} py="lg">
       <Stack gap="xl">
+        {/* Page Header with Export Menu */}
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Box style={{ flex: 1 }} />
+          <ExportMenu inputs={inputs} timeline={timeline} metrics={metrics} />
+        </Group>
         {/* Key Insights - Hero Section */}
         <Box>
           <Title order={2} mb="md" fw={600}>
@@ -68,24 +72,9 @@ export function Home() {
           <Title order={2} mb="lg" fw={600}>
             Detailed Metrics
           </Title>
-          <MetricsDisplay metrics={metrics} />
+          <MetricsDisplay metrics={metrics} timeline={timeline} />
         </Box>
 
-        <Divider />
-
-        {/* Export Section */}
-        <Box>
-          <Title order={2} mb="lg" fw={600}>
-            Export Data
-          </Title>
-          <ExportButtons
-            inputs={inputs}
-            timeline={timeline}
-            metrics={metrics}
-            notes={notes}
-            onNotesChange={setNotes}
-          />
-        </Box>
       </Stack>
     </Container>
   );

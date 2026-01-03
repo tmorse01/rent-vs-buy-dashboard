@@ -1,4 +1,5 @@
 import { Button, Group, Textarea } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import type {
   ScenarioInputs,
   TimelinePoint,
@@ -33,7 +34,11 @@ export function ExportButtons({
 
   const exportTimelineCSV = () => {
     if (timeline.length === 0) {
-      alert("No timeline data to export");
+      notifications.show({
+        title: "No data to export",
+        message: "There is no timeline data available to export.",
+        color: "orange",
+      });
       return;
     }
 

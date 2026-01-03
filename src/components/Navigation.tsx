@@ -1,7 +1,7 @@
-import { Button, Group, Menu, Burger } from "@mantine/core";
+import { Button, Group, Menu, ActionIcon } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useLocation, Link } from "react-router-dom";
-import { Home, List, InfoCircle } from "tabler-icons-react";
+import { Home, List, InfoCircle, DotsVertical } from "tabler-icons-react";
 
 export function Navigation() {
   const location = useLocation();
@@ -57,13 +57,15 @@ export function Navigation() {
         onChange={toggle}
       >
         <Menu.Target>
-          <Burger
-            opened={opened}
-            size="sm"
+          <ActionIcon
+            size="lg"
+            variant="subtle"
             color="white"
             aria-label="Toggle navigation"
             hiddenFrom="md"
-          />
+          >
+            <DotsVertical size={20} />
+          </ActionIcon>
         </Menu.Target>
 
         <Menu.Dropdown>

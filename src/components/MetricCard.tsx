@@ -1,3 +1,4 @@
+import { useState, useLayoutEffect, useRef } from "react";
 import {
   Paper,
   Text,
@@ -6,7 +7,9 @@ import {
   Tooltip,
   ActionIcon,
   Stack,
+  Box,
 } from "@mantine/core";
+import { Sparkline } from "@mantine/charts";
 import { InfoCircle, TrendingUp, TrendingDown } from "tabler-icons-react";
 import { formatMetricValue } from "../utils/formatting";
 
@@ -17,6 +20,8 @@ interface MetricCardProps {
   icon?: React.ReactNode;
   tooltip?: string;
   trend?: "up" | "down" | "neutral";
+  sparklineData?: number[];
+  sparklineColor?: string;
 }
 
 export function MetricCard({
@@ -26,7 +31,50 @@ export function MetricCard({
   icon,
   tooltip,
   trend,
+  sparklineData,
+  sparklineColor,
 }: MetricCardProps) {
+  const [isReady, setIsReady] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleContainerRef = (node: HTMLDivElement | null) => {
+    if (node && sparklineData && sparklineData.length > 0) {
+      containerRef.current = node;
+      // Use requestAnimationFrame to ensure DOM is laid out
+      requestAnimationFrame(() => {
+        const { width, height } = node.getBoundingClientRect();
+        if (width > 0 && height > 0) {
+          setIsReady(true);
+        }
+      });
+    } else {
+      setIsReady(false);
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (!sparklineData || sparklineData.length === 0) {
+      setIsReady(false);
+      return;
+    }
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          setIsReady(true);
+        }
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [sparklineData]);
+
   const displayValue = formatMetricValue(value);
   const isPositive = typeof value === "number" && value > 0;
   const isNegative = typeof value === "number" && value < 0;
@@ -46,6 +94,14 @@ export function MetricCard({
     if (isPositive) return "green.7";
     if (isNegative) return "red.7";
     return undefined;
+  };
+
+  const getSparklineColor = () => {
+    if (sparklineColor) return sparklineColor;
+    const valueColor = getValueColor();
+    if (valueColor === "green.7") return "green";
+    if (valueColor === "red.7") return "red";
+    return "blue";
   };
 
   return (
@@ -81,6 +137,25 @@ export function MetricCard({
             <div style={{ color: getValueColor() }}>{getTrendIcon()}</div>
           )}
         </Group>
+        {sparklineData && sparklineData.length > 0 && (
+          <Box
+            ref={handleContainerRef}
+            mt="xs"
+            style={{ minWidth: 0, width: "100%", minHeight: 60, height: 60 }}
+          >
+            {isReady && (
+              <Sparkline
+                w="100%"
+                h={60}
+                data={sparklineData}
+                curveType="linear"
+                color={getSparklineColor()}
+                fillOpacity={0.6}
+                strokeWidth={2}
+              />
+            )}
+          </Box>
+        )}
         {description && (
           <Text size="sm" c="dimmed" mt="xs">
             {description}

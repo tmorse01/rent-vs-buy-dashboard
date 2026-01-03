@@ -1,6 +1,6 @@
 import { Grid, Tabs, Title, Stack, Box } from '@mantine/core';
 import { MetricCard } from './MetricCard';
-import type { Metrics } from '../features/scenario/ScenarioInputs';
+import type { Metrics, TimelinePoint } from '../features/scenario/ScenarioInputs';
 import { 
   Calendar, 
   CurrencyDollar, 
@@ -10,9 +10,36 @@ import {
 
 interface MetricsDisplayProps {
   metrics: Metrics;
+  timeline: TimelinePoint[];
 }
 
-export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
+export function MetricsDisplay({ metrics, timeline }: MetricsDisplayProps) {
+  // Generate sparkline data for net worth delta over time (yearly)
+  const netWorthDeltaData: number[] = [];
+  for (let year = 1; year <= Math.ceil(timeline.length / 12); year++) {
+    const month = year * 12;
+    if (month > timeline.length) break;
+    const point = timeline[month - 1];
+    netWorthDeltaData.push(Math.round(point.ownerNetWorth - point.renterNetWorth));
+  }
+
+  // Generate sparkline data for owner unrecoverable costs (yearly)
+  const ownerUnrecoverableData: number[] = [];
+  for (let year = 1; year <= Math.ceil(timeline.length / 12); year++) {
+    const month = year * 12;
+    if (month > timeline.length) break;
+    const point = timeline[month - 1];
+    ownerUnrecoverableData.push(Math.round(point.ownerTotalUnrecoverable));
+  }
+
+  // Generate sparkline data for renter unrecoverable costs (yearly)
+  const renterUnrecoverableData: number[] = [];
+  for (let year = 1; year <= Math.ceil(timeline.length / 12); year++) {
+    const month = year * 12;
+    if (month > timeline.length) break;
+    const point = timeline[month - 1];
+    renterUnrecoverableData.push(Math.round(point.renterTotalUnrecoverable));
+  }
   return (
     <Tabs defaultValue="decision">
       <Tabs.List>
@@ -63,6 +90,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               icon={<CurrencyDollar size={20} />}
               trend={metrics.netWorthDelta5 > 0 ? 'up' : metrics.netWorthDelta5 < 0 ? 'down' : 'neutral'}
               tooltip="The difference between owner and renter net worth after 5 years. Positive values mean the owner is ahead, negative means the renter is ahead. This helps assess short-term financial impact."
+              sparklineData={netWorthDeltaData}
+              sparklineColor={metrics.netWorthDelta5 > 0 ? 'green' : metrics.netWorthDelta5 < 0 ? 'red' : 'blue'}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -73,6 +102,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               icon={<CurrencyDollar size={20} />}
               trend={metrics.netWorthDelta10 > 0 ? 'up' : metrics.netWorthDelta10 < 0 ? 'down' : 'neutral'}
               tooltip="The difference between owner and renter net worth after 10 years. This is often a key decision point for long-term homeownership. Positive values favor buying, negative values favor renting."
+              sparklineData={netWorthDeltaData}
+              sparklineColor={metrics.netWorthDelta10 > 0 ? 'green' : metrics.netWorthDelta10 < 0 ? 'red' : 'blue'}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -83,6 +114,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               icon={<CurrencyDollar size={20} />}
               trend={metrics.netWorthDelta15 > 0 ? 'up' : metrics.netWorthDelta15 < 0 ? 'down' : 'neutral'}
               tooltip="The difference between owner and renter net worth after 15 years. This shows the long-term financial impact of the decision. Generally, longer time horizons favor buying due to equity building and appreciation."
+              sparklineData={netWorthDeltaData}
+              sparklineColor={metrics.netWorthDelta15 > 0 ? 'green' : metrics.netWorthDelta15 < 0 ? 'red' : 'blue'}
             />
           </Grid.Col>
         </Grid>
@@ -100,6 +133,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   description="Cumulative owner unrecoverable costs"
                   icon={<Receipt size={20} />}
                   tooltip="Total unrecoverable costs for the owner over 5 years. This includes interest, property taxes, insurance, maintenance, PMI, and closing costs. These are costs that don't build equity."
+                  sparklineData={ownerUnrecoverableData}
+                  sparklineColor="blue"
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -109,6 +144,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   description="Cumulative renter costs"
                   icon={<Receipt size={20} />}
                   tooltip="Total rent paid by the renter over 5 years. This is the renter's primary unrecoverable cost."
+                  sparklineData={renterUnrecoverableData}
+                  sparklineColor="cyan"
                 />
               </Grid.Col>
             </Grid>
@@ -123,6 +160,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   description="Cumulative owner unrecoverable costs"
                   icon={<Receipt size={20} />}
                   tooltip="Total unrecoverable costs for the owner over 10 years. As time passes, principal payments reduce the mortgage balance, but unrecoverable costs continue."
+                  sparklineData={ownerUnrecoverableData}
+                  sparklineColor="blue"
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -132,6 +171,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   description="Cumulative renter costs"
                   icon={<Receipt size={20} />}
                   tooltip="Total rent paid by the renter over 10 years, including rent growth over time."
+                  sparklineData={renterUnrecoverableData}
+                  sparklineColor="cyan"
                 />
               </Grid.Col>
             </Grid>
@@ -146,6 +187,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   description="Cumulative owner unrecoverable costs"
                   icon={<Receipt size={20} />}
                   tooltip="Total unrecoverable costs for the owner over 15 years. By this point, significant principal has been paid down, reducing interest costs."
+                  sparklineData={ownerUnrecoverableData}
+                  sparklineColor="blue"
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -155,6 +198,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
                   description="Cumulative renter costs"
                   icon={<Receipt size={20} />}
                   tooltip="Total rent paid by the renter over 15 years, including cumulative rent growth."
+                  sparklineData={renterUnrecoverableData}
+                  sparklineColor="cyan"
                 />
               </Grid.Col>
             </Grid>
@@ -172,6 +217,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               icon={<Clock size={20} />}
               trend={metrics.netWorthDelta5 > 0 ? 'up' : metrics.netWorthDelta5 < 0 ? 'down' : 'neutral'}
               tooltip="Net worth difference after 5 years. Short-term view of the financial impact. Early years often favor renting due to high upfront costs of buying."
+              sparklineData={netWorthDeltaData}
+              sparklineColor={metrics.netWorthDelta5 > 0 ? 'green' : metrics.netWorthDelta5 < 0 ? 'red' : 'blue'}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -182,6 +229,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               icon={<Clock size={20} />}
               trend={metrics.netWorthDelta10 > 0 ? 'up' : metrics.netWorthDelta10 < 0 ? 'down' : 'neutral'}
               tooltip="Net worth difference after 10 years. This is often the break-even point where homeownership starts to show financial advantages."
+              sparklineData={netWorthDeltaData}
+              sparklineColor={metrics.netWorthDelta10 > 0 ? 'green' : metrics.netWorthDelta10 < 0 ? 'red' : 'blue'}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -192,6 +241,8 @@ export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
               icon={<Clock size={20} />}
               trend={metrics.netWorthDelta15 > 0 ? 'up' : metrics.netWorthDelta15 < 0 ? 'down' : 'neutral'}
               tooltip="Net worth difference after 15 years. Long-term view showing the compounding benefits of homeownership including equity and appreciation."
+              sparklineData={netWorthDeltaData}
+              sparklineColor={metrics.netWorthDelta15 > 0 ? 'green' : metrics.netWorthDelta15 < 0 ? 'red' : 'blue'}
             />
           </Grid.Col>
         </Grid>

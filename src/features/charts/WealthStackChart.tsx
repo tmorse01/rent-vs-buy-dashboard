@@ -1,27 +1,13 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { Paper, Title, Stack, Box, Text, useMantineTheme } from "@mantine/core";
+import { BarChart } from "@mantine/charts";
+import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
-import { COLORS } from "../../theme/colors";
-import {
-  formatCurrencyCompact,
-  formatCurrencyTooltip,
-} from "../../utils/formatting";
+import { formatCurrencyTooltip } from "../../utils/formatting";
 
 interface WealthStackChartProps {
   timeline: TimelinePoint[];
 }
 
 export function WealthStackChart({ timeline }: WealthStackChartProps) {
-  const theme = useMantineTheme();
   const milestones = [5, 10, 15];
   const data = [];
   const initialHomeValue = timeline[0]?.homeValue || 0;
@@ -51,17 +37,12 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
     const principalPaid = point.ownerTotalPrincipalPaid;
 
     data.push({
-      year: `${milestone} years`,
-      principalPaid: Math.round(principalPaid),
-      netAppreciation: Math.round(Math.max(0, netAppreciation)),
-      interestPaid: Math.round(totalInterestPaid), // For narrative overlay
+      milestone: `${milestone} years`,
+      "Principal Paid": Math.round(principalPaid),
+      "Net Appreciation": Math.round(Math.max(0, netAppreciation)),
+      "Interest Paid": Math.round(totalInterestPaid), // For narrative overlay
     });
   }
-
-  const formatTooltip = (value: number | undefined, name?: string) => {
-    if (value === undefined) return "";
-    return [formatCurrencyTooltip(value), name || ""];
-  };
 
   return (
     <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
@@ -75,55 +56,32 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
             milestones
           </Text>
         </Box>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={data} layout="vertical">
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={theme.colors.gray[2]}
-            />
-            <XAxis
-              type="number"
-              tickFormatter={formatCurrencyCompact}
-              label={{
-                value: "Amount ($)",
-                position: "insideBottom",
-                offset: -5,
-              }}
-            />
-            <YAxis dataKey="year" type="category" width={80} />
-            <Tooltip
-              formatter={formatTooltip}
-              contentStyle={{
-                backgroundColor: theme.white,
-                border: `1px solid ${theme.colors.gray[3]}`,
-                borderRadius: theme.radius.md,
-              }}
-            />
-            <Legend
-              wrapperStyle={{ paddingBottom: "10px" }}
-              iconSize={16}
-              style={{ fontSize: "14px" }}
-            />
-            <Bar
-              dataKey="principalPaid"
-              stackId="wealth"
-              fill={COLORS.owner.primary}
-              name="Principal Paid"
-            />
-            <Bar
-              dataKey="netAppreciation"
-              stackId="wealth"
-              fill={COLORS.success.primary}
-              name="Net Appreciation (after selling costs)"
-            />
-            <Bar
-              dataKey="interestPaid"
-              stackId="narrative"
-              fill={COLORS.warning.primary}
-              name="Interest Paid (not part of net worth)"
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        <Box style={{ width: "100%", height: 350 }}>
+          <BarChart
+            w="100%"
+            h={350}
+            data={data}
+            dataKey="milestone"
+            type="stacked"
+            series={[
+              { name: "Principal Paid", color: "blue.6" },
+              { name: "Net Appreciation", color: "green.6" },
+              { name: "Interest Paid", color: "orange.6" },
+            ]}
+            withLegend
+            withTooltip
+            withXAxis
+            withYAxis
+            yAxisProps={{
+              tickFormatter: (value) => `$${value.toLocaleString()}`,
+            }}
+            valueFormatter={(value: number) => formatCurrencyTooltip(value)}
+            tooltipProps={{
+              cursor: { stroke: "blue", strokeWidth: 1 },
+            }}
+            tooltipAnimationDuration={200}
+          />
+        </Box>
       </Stack>
     </Paper>
   );

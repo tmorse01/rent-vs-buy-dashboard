@@ -169,40 +169,16 @@ describe("Timeline Calculations", () => {
     const year5Month = timeline[59]; // Month 60 (5 years)
     const year10Month = timeline[119]; // Month 120 (10 years)
 
-    console.log("\nUnrecoverable Cost Components Over Time:");
-    console.log("Month 1:");
-    console.log("  Interest:", firstMonth.mortgageInterest.toFixed(2));
-    console.log("  Property Tax:", firstMonth.propertyTax.toFixed(2));
-    console.log("  Maintenance:", firstMonth.maintenance.toFixed(2));
-    console.log("  Insurance:", firstMonth.insurance.toFixed(2));
-    console.log("  Total Unrecoverable:", firstMonth.ownerUnrecoverableMonthly.toFixed(2));
-    
-    if (year5Month) {
-      console.log("\nMonth 60 (Year 5):");
-      console.log("  Interest:", year5Month.mortgageInterest.toFixed(2));
-      console.log("  Property Tax:", year5Month.propertyTax.toFixed(2));
-      console.log("  Maintenance:", year5Month.maintenance.toFixed(2));
-      console.log("  Insurance:", year5Month.insurance.toFixed(2));
-      console.log("  Total Unrecoverable:", year5Month.ownerUnrecoverableMonthly.toFixed(2));
-      console.log("  Change from Month 1:", (year5Month.ownerUnrecoverableMonthly - firstMonth.ownerUnrecoverableMonthly).toFixed(2));
-    }
-    
-    if (year10Month) {
-      console.log("\nMonth 120 (Year 10):");
-      console.log("  Interest:", year10Month.mortgageInterest.toFixed(2));
-      console.log("  Property Tax:", year10Month.propertyTax.toFixed(2));
-      console.log("  Maintenance:", year10Month.maintenance.toFixed(2));
-      console.log("  Insurance:", year10Month.insurance.toFixed(2));
-      console.log("  Total Unrecoverable:", year10Month.ownerUnrecoverableMonthly.toFixed(2));
-      console.log("  Change from Month 1:", (year10Month.ownerUnrecoverableMonthly - firstMonth.ownerUnrecoverableMonthly).toFixed(2));
-    }
-
     // Interest should definitely decrease
     if (year5Month) {
-      expect(year5Month.mortgageInterest).toBeLessThan(firstMonth.mortgageInterest);
+      expect(year5Month.mortgageInterest).toBeLessThan(
+        firstMonth.mortgageInterest
+      );
     }
     if (year10Month) {
-      expect(year10Month.mortgageInterest).toBeLessThan(year5Month.mortgageInterest);
+      expect(year10Month.mortgageInterest).toBeLessThan(
+        year5Month.mortgageInterest
+      );
     }
 
     // Property tax and maintenance increase with home appreciation

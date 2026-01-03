@@ -12,6 +12,7 @@ import {
   Divider,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { InfoCircle } from "tabler-icons-react";
 import type { ScenarioInputs } from "./ScenarioInputs";
 import { saveScenario, loadScenario, listScenarios } from "./scenarioStorage";
@@ -99,14 +100,22 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
 
   const handleSave = () => {
     if (!scenarioName.trim()) {
-      alert("Please enter a scenario name");
+      notifications.show({
+        title: "Name required",
+        message: "Please enter a scenario name before saving.",
+        color: "orange",
+      });
       return;
     }
     saveScenario(scenarioName, form.values);
     // Update saved scenarios list after save
     const updated = listScenarios();
     setSavedScenarios(updated);
-    alert(`Scenario "${scenarioName}" saved!`);
+    notifications.show({
+      title: "Scenario saved",
+      message: `Scenario "${scenarioName}" has been saved successfully.`,
+      color: "green",
+    });
   };
 
   const handleLoad = (name: string) => {
@@ -115,8 +124,17 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
       form.setValues(inputs);
       setContextInputs(inputs);
       setScenarioName(name);
+      notifications.show({
+        title: "Scenario loaded",
+        message: `Scenario "${name}" has been loaded successfully.`,
+        color: "blue",
+      });
     } else {
-      alert(`Scenario "${name}" not found`);
+      notifications.show({
+        title: "Scenario not found",
+        message: `Scenario "${name}" could not be found.`,
+        color: "red",
+      });
     }
   };
 

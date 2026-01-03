@@ -1,13 +1,4 @@
-import {
-  Grid,
-  Paper,
-  Text,
-  Title,
-  Group,
-  Stack,
-  Tooltip,
-  ActionIcon,
-} from "@mantine/core";
+import { Grid, Paper, Text, Title, Group, Stack, Tooltip } from "@mantine/core";
 import {
   TrendingUp,
   TrendingDown,
@@ -50,11 +41,11 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
     : 0;
 
   return (
-    <Grid gutter="sm">
-      {/* Monthly Payment Breakdown */}
-      <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+    <Grid gutter="md">
+      {/* Monthly Payment Breakdown - Larger */}
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <Paper
-          p="md"
+          p="lg"
           withBorder
           radius="md"
           style={{
@@ -63,75 +54,116 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             border: "none",
           }}
         >
-          <Stack gap={6}>
-            <Group gap={6} wrap="nowrap">
-              <CurrencyDollar size={20} color="white" />
-              <Text
-                size="xs"
-                fw={600}
-                c="white"
-                style={{ opacity: 0.9 }}
-                lineClamp={1}
+          <Stack gap="md">
+            <Group gap="xs" wrap="nowrap" justify="space-between">
+              <Group gap="xs" wrap="nowrap">
+                <CurrencyDollar size={18} color="white" />
+                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                  Monthly Payment
+                </Text>
+              </Group>
+              <Tooltip
+                label={
+                  <Stack gap={4} style={{ maxWidth: 300 }}>
+                    <Text size="xs" fw={600}>
+                      Monthly Payment Breakdown
+                    </Text>
+                    <Text size="xs">
+                      This is the total monthly cost of homeownership,
+                      including:
+                    </Text>
+                    <Text size="xs">
+                      • Mortgage: Principal + interest payment
+                    </Text>
+                    <Text size="xs">• Tax: Monthly property tax</Text>
+                    <Text size="xs">• Insurance: Homeowners insurance</Text>
+                    <Text size="xs">
+                      • Maintenance: Estimated monthly maintenance costs
+                    </Text>
+                    {firstMonth?.pmi > 0 && (
+                      <Text size="xs">
+                        • PMI: Private mortgage insurance (if applicable)
+                      </Text>
+                    )}
+                    <Text size="xs" mt={4} style={{ opacity: 0.9 }}>
+                      This represents your total monthly cash outflow as a
+                      homeowner.
+                    </Text>
+                  </Stack>
+                }
+                withArrow
+                multiline
               >
-                Monthly Payment
-              </Text>
+                <InfoCircle
+                  size={16}
+                  color="white"
+                  style={{ opacity: 0.7, cursor: "help" }}
+                />
+              </Tooltip>
             </Group>
-            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.2 }}>
+            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.1 }}>
               {formatCurrency(totalMonthlyPayment)}
             </Title>
             {firstMonth && (
-              <Stack gap={3} mt={4}>
-                <Text
-                  size="xs"
-                  c="white"
-                  style={{ opacity: 0.7 }}
-                  lineClamp={1}
-                >
-                  Mortgage: {formatCurrency(firstMonth.mortgagePayment)}
-                </Text>
-                <Text
-                  size="xs"
-                  c="white"
-                  style={{ opacity: 0.7 }}
-                  lineClamp={1}
-                >
-                  Tax: {formatCurrency(firstMonth.propertyTax)}
-                </Text>
-                <Text
-                  size="xs"
-                  c="white"
-                  style={{ opacity: 0.7 }}
-                  lineClamp={1}
-                >
-                  Insurance: {formatCurrency(firstMonth.insurance)}
-                </Text>
-                <Text
-                  size="xs"
-                  c="white"
-                  style={{ opacity: 0.7 }}
-                  lineClamp={1}
-                >
-                  Maint: {formatCurrency(firstMonth.maintenance)}
-                </Text>
-                {firstMonth.pmi > 0 && (
-                  <Text
-                    size="xs"
-                    c="white"
-                    style={{ opacity: 0.7 }}
-                    lineClamp={1}
-                  >
-                    PMI: {formatCurrency(firstMonth.pmi)}
+              <Stack
+                gap="xs"
+                mt="xs"
+                style={{
+                  borderTop: "1px solid rgba(255,255,255,0.2)",
+                  paddingTop: "12px",
+                }}
+              >
+                <Group justify="space-between" gap="xs">
+                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                    Mortgage
                   </Text>
+                  <Text size="xs" c="white" fw={600}>
+                    {formatCurrency(firstMonth.mortgagePayment)}
+                  </Text>
+                </Group>
+                <Group justify="space-between" gap="xs">
+                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                    Tax
+                  </Text>
+                  <Text size="xs" c="white" fw={600}>
+                    {formatCurrency(firstMonth.propertyTax)}
+                  </Text>
+                </Group>
+                <Group justify="space-between" gap="xs">
+                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                    Insurance
+                  </Text>
+                  <Text size="xs" c="white" fw={600}>
+                    {formatCurrency(firstMonth.insurance)}
+                  </Text>
+                </Group>
+                <Group justify="space-between" gap="xs">
+                  <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                    Maintenance
+                  </Text>
+                  <Text size="xs" c="white" fw={600}>
+                    {formatCurrency(firstMonth.maintenance)}
+                  </Text>
+                </Group>
+                {firstMonth.pmi > 0 && (
+                  <Group justify="space-between" gap="xs">
+                    <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                      PMI
+                    </Text>
+                    <Text size="xs" c="white" fw={600}>
+                      {formatCurrency(firstMonth.pmi)}
+                    </Text>
+                  </Group>
                 )}
               </Stack>
             )}
           </Stack>
         </Paper>
       </Grid.Col>
-      {/* Unrecoverable Costs - Combined */}
-      <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+      {/* Unrecoverable Costs - Larger */}
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <Paper
-          p="md"
+          p="lg"
           withBorder
           radius="md"
           style={{
@@ -140,43 +172,94 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             border: "none",
           }}
         >
-          <Stack gap={6}>
-            <Group gap={6} wrap="nowrap">
-              <AlertTriangle size={20} color="white" />
-              <Text
-                size="xs"
-                fw={600}
-                c="white"
-                style={{ opacity: 0.9 }}
-                lineClamp={1}
+          <Stack gap="md">
+            <Group gap="xs" wrap="nowrap" justify="space-between">
+              <Group gap="xs" wrap="nowrap">
+                <AlertTriangle size={18} color="white" />
+                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                  Unrecoverable (10yr)
+                </Text>
+              </Group>
+              <Tooltip
+                label={
+                  <Stack gap={4} style={{ maxWidth: 300 }}>
+                    <Text size="xs" fw={600}>
+                      Unrecoverable Costs (10-Year)
+                    </Text>
+                    <Text size="xs">
+                      Unrecoverable costs are expenses that don't build equity
+                      or wealth:
+                    </Text>
+                    <Text size="xs" fw={600} mt={4}>
+                      Owner unrecoverable costs include:
+                    </Text>
+                    <Text size="xs">• Mortgage interest (not principal)</Text>
+                    <Text size="xs">• Property taxes</Text>
+                    <Text size="xs">• Insurance</Text>
+                    <Text size="xs">• Maintenance & repairs</Text>
+                    <Text size="xs">• PMI (if applicable)</Text>
+                    <Text size="xs">• Closing costs (amortized)</Text>
+                    <Text size="xs" fw={600} mt={4}>
+                      Renter unrecoverable costs:
+                    </Text>
+                    <Text size="xs">• Total rent paid over 10 years</Text>
+                    <Text size="xs" mt={4} style={{ opacity: 0.9 }}>
+                      The difference shows who pays more in non-recoverable
+                      expenses.
+                    </Text>
+                  </Stack>
+                }
+                withArrow
+                multiline
               >
-                Unrecoverable (10yr)
-              </Text>
+                <InfoCircle
+                  size={16}
+                  color="white"
+                  style={{ opacity: 0.7, cursor: "help" }}
+                />
+              </Tooltip>
             </Group>
-            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.2 }}>
+            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.1 }}>
               {formatCurrency(Math.abs(unrecoverableDifference))}
             </Title>
-            <Text size="xs" c="white" style={{ opacity: 0.8 }} lineClamp={1}>
+            <Text size="xs" c="white" fw={500} style={{ opacity: 0.9 }}>
               {unrecoverableDifference > 0
                 ? "Owner pays more"
                 : "Renter pays more"}
             </Text>
-            <Stack gap={3} mt={4}>
-              <Text size="xs" c="white" style={{ opacity: 0.7 }} lineClamp={1}>
-                Owner: {formatCurrency(unrecoverableOwner10)}
-              </Text>
-              <Text size="xs" c="white" style={{ opacity: 0.7 }} lineClamp={1}>
-                Renter: {formatCurrency(unrecoverableRenter10)}
-              </Text>
+            <Stack
+              gap="xs"
+              mt="xs"
+              style={{
+                borderTop: "1px solid rgba(255,255,255,0.2)",
+                paddingTop: "12px",
+              }}
+            >
+              <Group justify="space-between" gap="xs">
+                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  Owner
+                </Text>
+                <Text size="xs" c="white" fw={600}>
+                  {formatCurrency(unrecoverableOwner10)}
+                </Text>
+              </Group>
+              <Group justify="space-between" gap="xs">
+                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  Renter
+                </Text>
+                <Text size="xs" c="white" fw={600}>
+                  {formatCurrency(unrecoverableRenter10)}
+                </Text>
+              </Group>
             </Stack>
           </Stack>
         </Paper>
       </Grid.Col>
 
-      {/* Cash-Loss Break-Even */}
-      <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+      {/* Combined Break-Even Card */}
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <Paper
-          p="md"
+          p="lg"
           withBorder
           radius="md"
           style={{
@@ -185,109 +268,117 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             border: "none",
           }}
         >
-          <Stack gap={6}>
-            <Group gap={6} wrap="nowrap">
-              <Calendar size={20} color="white" />
-              <Text
-                size="xs"
-                fw={600}
-                c="white"
-                style={{ opacity: 0.9 }}
-                lineClamp={1}
-              >
-                Cash Break-Even
-              </Text>
-            </Group>
-            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.2 }}>
-              {metrics.cashLossBreakEvenYear
-                ? `${metrics.cashLossBreakEvenYear}`
-                : "N/A"}
-            </Title>
-            <Text size="xs" c="white" style={{ opacity: 0.8 }} lineClamp={2}>
-              {metrics.cashLossBreakEvenYear
-                ? `years until owner costs ≤ rent`
-                : "No break-even found"}
-            </Text>
-          </Stack>
-        </Paper>
-      </Grid.Col>
-
-      {/* Net-Worth Break-Even */}
-      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-        <Paper
-          p="md"
-          withBorder
-          radius="md"
-          style={{
-            height: "100%",
-            background: GRADIENTS.breakEvenNetWorth,
-            border: "none",
-          }}
-        >
-          <Stack gap={6}>
-            <Group gap={6} wrap="nowrap" justify="space-between">
-              <Group gap={6} wrap="nowrap" style={{ flex: 1 }}>
-                <Calendar size={20} color="white" />
-                <Text
-                  size="xs"
-                  fw={600}
-                  c="white"
-                  style={{ opacity: 0.9 }}
-                  lineClamp={1}
-                >
-                  NW Break-Even
+          <Stack gap="md">
+            <Group gap="xs" wrap="nowrap" justify="space-between">
+              <Group gap="xs" wrap="nowrap">
+                <Calendar size={18} color="white" />
+                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                  Break-Even
                 </Text>
               </Group>
-              {!metrics.netWorthBreakEvenYear && (
-                <Tooltip
-                  label={
-                    <Stack gap={4} style={{ maxWidth: 280 }}>
-                      <Text size="xs" fw={600}>
-                        To achieve break-even, consider:
-                      </Text>
-                      <Text size="xs">• Increase home appreciation rate</Text>
-                      <Text size="xs">• Decrease investment return rate</Text>
-                      <Text size="xs">• Increase down payment %</Text>
-                      <Text size="xs">• Decrease mortgage interest rate</Text>
-                      <Text size="xs">• Increase time horizon</Text>
-                    </Stack>
-                  }
-                  withArrow
-                  multiline
-                >
-                  <ActionIcon
-                    variant="subtle"
-                    size="xs"
-                    color="white"
-                    style={{ opacity: 0.8 }}
-                  >
-                    <InfoCircle size={14} />
-                  </ActionIcon>
-                </Tooltip>
-              )}
+              <Tooltip
+                label={
+                  <Stack gap={4} style={{ maxWidth: 320 }}>
+                    <Text size="xs" fw={600}>
+                      Break-Even Analysis
+                    </Text>
+                    <Text size="xs" fw={600} mt={4}>
+                      Cash Flow Break-Even:
+                    </Text>
+                    <Text size="xs">
+                      The year when the owner's average monthly unrecoverable
+                      costs become less than or equal to the renter's average
+                      monthly rent. This is when owning becomes cheaper on a
+                      monthly cash-flow basis.
+                    </Text>
+                    <Text size="xs" fw={600} mt={4}>
+                      Net Worth Break-Even:
+                    </Text>
+                    <Text size="xs">
+                      The year when the owner's total net worth (home equity +
+                      investments) exceeds the renter's net worth (investments
+                      only). This is when owning becomes more financially
+                      advantageous overall.
+                    </Text>
+                    {(!metrics.cashLossBreakEvenYear ||
+                      !metrics.netWorthBreakEvenYear) && (
+                      <>
+                        <Text size="xs" fw={600} mt={4}>
+                          To achieve break-even, consider:
+                        </Text>
+                        <Text size="xs">• Increase home appreciation rate</Text>
+                        <Text size="xs">• Decrease investment return rate</Text>
+                        <Text size="xs">• Increase down payment %</Text>
+                        <Text size="xs">• Decrease mortgage interest rate</Text>
+                        <Text size="xs">• Increase time horizon</Text>
+                      </>
+                    )}
+                  </Stack>
+                }
+                withArrow
+                multiline
+              >
+                <InfoCircle
+                  size={16}
+                  color="white"
+                  style={{ opacity: 0.7, cursor: "help" }}
+                />
+              </Tooltip>
             </Group>
-            <Title order={2} c="white" fw={700} style={{ lineHeight: 1.2 }}>
-              {metrics.netWorthBreakEvenYear
-                ? `${metrics.netWorthBreakEvenYear}`
-                : "N/A"}
-            </Title>
-            <Text size="xs" c="white" style={{ opacity: 0.8 }} lineClamp={2}>
-              {metrics.netWorthBreakEvenYear
-                ? `years until owner wealth ≥ renter`
-                : "No break-even in horizon"}
-            </Text>
-            {!metrics.netWorthBreakEvenYear && (
-              <Stack gap={3} mt={4}>
+            <Stack gap="md">
+              <div
+                style={{
+                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  paddingBottom: "12px",
+                }}
+              >
                 <Text
                   size="xs"
                   c="white"
-                  style={{ opacity: 0.7 }}
-                  lineClamp={1}
+                  fw={500}
+                  style={{ opacity: 0.9 }}
+                  mb={4}
                 >
-                  Gap: {formatCurrency(Math.abs(metrics.netWorthDelta10))}
+                  Cash Flow
                 </Text>
-              </Stack>
-            )}
+                <Title order={3} c="white" fw={700} style={{ lineHeight: 1.1 }}>
+                  {metrics.cashLossBreakEvenYear
+                    ? `${metrics.cashLossBreakEvenYear} years`
+                    : "N/A"}
+                </Title>
+                <Text size="xs" c="white" style={{ opacity: 0.8 }} mt={2}>
+                  {metrics.cashLossBreakEvenYear
+                    ? "Owner costs ≤ rent"
+                    : "No break-even found"}
+                </Text>
+              </div>
+              <div>
+                <Text
+                  size="xs"
+                  c="white"
+                  fw={500}
+                  style={{ opacity: 0.9 }}
+                  mb={4}
+                >
+                  Net Worth
+                </Text>
+                <Title order={3} c="white" fw={700} style={{ lineHeight: 1.1 }}>
+                  {metrics.netWorthBreakEvenYear
+                    ? `${metrics.netWorthBreakEvenYear} years`
+                    : "N/A"}
+                </Title>
+                <Text size="xs" c="white" style={{ opacity: 0.8 }} mt={2}>
+                  {metrics.netWorthBreakEvenYear
+                    ? "Owner wealth ≥ renter"
+                    : "No break-even in horizon"}
+                </Text>
+                {!metrics.netWorthBreakEvenYear && (
+                  <Text size="xs" c="white" style={{ opacity: 0.7 }} mt={4}>
+                    Gap: {formatCurrency(Math.abs(metrics.netWorthDelta10))}
+                  </Text>
+                )}
+              </div>
+            </Stack>
           </Stack>
         </Paper>
       </Grid.Col>
@@ -295,7 +386,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
       {/* Net Worth Advantage - Multi-timeframe */}
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <Paper
-          p="md"
+          p="lg"
           withBorder
           radius="md"
           style={{
@@ -307,42 +398,98 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             border: "none",
           }}
         >
-          <Stack gap={6}>
-            <Group gap={6} wrap="nowrap">
-              <CurrencyDollar size={20} color="white" />
-              <Text
-                size="xs"
-                fw={600}
-                c="white"
-                style={{ opacity: 0.9 }}
-                lineClamp={1}
+          <Stack gap="md">
+            <Group gap="xs" wrap="nowrap" justify="space-between">
+              <Group gap="xs" wrap="nowrap">
+                <CurrencyDollar size={18} color="white" />
+                <Text size="sm" fw={600} c="white" style={{ opacity: 0.95 }}>
+                  NW Advantage
+                </Text>
+              </Group>
+              <Tooltip
+                label={
+                  <Stack gap={4} style={{ maxWidth: 300 }}>
+                    <Text size="xs" fw={600}>
+                      Net Worth Advantage (10-Year)
+                    </Text>
+                    <Text size="xs">
+                      This shows the difference between owner and renter net
+                      worth after 10 years.
+                    </Text>
+                    <Text size="xs" fw={600} mt={4}>
+                      Owner Net Worth includes:
+                    </Text>
+                    <Text size="xs">
+                      • Home equity (down payment + principal paid)
+                    </Text>
+                    <Text size="xs">• Home appreciation</Text>
+                    <Text size="xs">
+                      • Investment returns on remaining savings
+                    </Text>
+                    <Text size="xs" fw={600} mt={4}>
+                      Renter Net Worth includes:
+                    </Text>
+                    <Text size="xs">
+                      • Investment returns on all savings (down payment +
+                      monthly savings from lower costs)
+                    </Text>
+                    <Text size="xs" mt={4} style={{ opacity: 0.9 }}>
+                      Positive values favor buying, negative values favor
+                      renting. The 5-year and 15-year values show how the
+                      advantage changes over time.
+                    </Text>
+                  </Stack>
+                }
+                withArrow
+                multiline
               >
-                NW Advantage
-              </Text>
+                <InfoCircle
+                  size={16}
+                  color="white"
+                  style={{ opacity: 0.7, cursor: "help" }}
+                />
+              </Tooltip>
             </Group>
-            <Group gap={4} align="center" wrap="nowrap">
+            <Group gap="xs" align="center" wrap="nowrap">
               <Title
                 order={2}
                 c="white"
                 fw={700}
-                style={{ lineHeight: 1.2, flex: 1 }}
+                style={{ lineHeight: 1.1, flex: 1 }}
               >
                 {formatCurrency(metrics.netWorthDelta10)}
               </Title>
               {getDeltaIcon(metrics.netWorthDelta10)}
             </Group>
-            <Text size="xs" c="white" style={{ opacity: 0.8 }} lineClamp={1}>
+            <Text size="xs" c="white" fw={500} style={{ opacity: 0.9 }}>
               {metrics.netWorthDelta10 > 0
                 ? "Owner advantage (10yr)"
                 : "Renter advantage (10yr)"}
             </Text>
-            <Stack gap={3} mt={4}>
-              <Text size="xs" c="white" style={{ opacity: 0.7 }} lineClamp={1}>
-                5yr: {formatCurrency(metrics.netWorthDelta5)}
-              </Text>
-              <Text size="xs" c="white" style={{ opacity: 0.7 }} lineClamp={1}>
-                15yr: {formatCurrency(metrics.netWorthDelta15)}
-              </Text>
+            <Stack
+              gap="xs"
+              mt="xs"
+              style={{
+                borderTop: "1px solid rgba(255,255,255,0.2)",
+                paddingTop: "12px",
+              }}
+            >
+              <Group justify="space-between" gap="xs">
+                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  5yr
+                </Text>
+                <Text size="xs" c="white" fw={600}>
+                  {formatCurrency(metrics.netWorthDelta5)}
+                </Text>
+              </Group>
+              <Group justify="space-between" gap="xs">
+                <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                  15yr
+                </Text>
+                <Text size="xs" c="white" fw={600}>
+                  {formatCurrency(metrics.netWorthDelta15)}
+                </Text>
+              </Group>
             </Stack>
           </Stack>
         </Paper>

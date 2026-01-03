@@ -79,21 +79,27 @@ export const COLORS = {
 } as const;
 
 /**
+ * Solid Colors (replacing gradients where appropriate)
+ */
+export const SOLID_COLORS = {
+  // Hero/Header - Solid blue, no gradient
+  hero: "#2563eb", // Blue 600 - Professional, trustworthy
+} as const;
+
+/**
  * Gradient Definitions
+ * Note: Avoiding blue-to-purple gradients. Using single-color gradients or different color combinations.
  */
 export const GRADIENTS = {
-  // Hero/Header
-  hero: "linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)",
-
-  // Owner
+  // Owner - Blue gradient (same color family)
   owner: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
 
-  // Renter
+  // Renter - Cyan gradient (same color family)
   renter: "linear-gradient(135deg, #0891b2 0%, #0e7490 100%)",
 
   // Metric Cards
   breakEvenCash: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-  breakEvenNetWorth: "linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)",
+  breakEvenNetWorth: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", // Changed from violet-indigo to blue gradient
   positive: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
   negative: "linear-gradient(135deg, #64748b 0%, #475569 100%)",
   neutral: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",

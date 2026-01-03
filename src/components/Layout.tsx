@@ -7,22 +7,27 @@ import {
   Stack,
   ScrollArea,
   useMantineTheme,
+  ActionIcon,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { HomeStats, LayoutSidebar } from "tabler-icons-react";
 import { ScenarioForm } from "../features/scenario/ScenarioForm";
 import { Navigation } from "./Navigation";
 import { useScenario } from "../context/ScenarioContext";
-import { GRADIENTS } from "../theme/colors";
+import { SOLID_COLORS } from "../theme/colors";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const NAVBAR_WIDTH = 360;
-const HEADER_HEIGHT = 70;
+const HEADER_HEIGHT = 56;
 
 export function Layout({ children }: LayoutProps) {
   const theme = useMantineTheme();
   const { setInputs } = useScenario();
+  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
+  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 
   return (
     <AppShell
@@ -30,25 +35,82 @@ export function Layout({ children }: LayoutProps) {
       navbar={{
         width: NAVBAR_WIDTH,
         breakpoint: "md",
+        collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
       padding="md"
     >
       {/* Header */}
       <AppShell.Header
-        px="xl"
+        px="md"
+        className="header-shimmer"
         style={{
-          background: GRADIENTS.hero,
+          background: SOLID_COLORS.hero,
           border: "none",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <Group h="100%" justify="space-between" wrap="nowrap">
-          <Group gap="md" wrap="nowrap">
-            <Title order={2} c="white" fw={700}>
-              Rent vs Buy Dashboard
-            </Title>
-            <Text size="sm" c="white" style={{ opacity: 0.9 }} visibleFrom="sm">
-              Compare your options with confidence
-            </Text>
+        <Group h="100%" justify="space-between" wrap="nowrap" gap="xs">
+          <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+            <ActionIcon
+              onClick={toggleMobile}
+              hiddenFrom="md"
+              size="lg"
+              variant="subtle"
+              color="white"
+              aria-label="Toggle sidebar"
+            >
+              <LayoutSidebar size={20} />
+            </ActionIcon>
+            <ActionIcon
+              onClick={toggleDesktop}
+              visibleFrom="md"
+              size="lg"
+              variant="subtle"
+              color="white"
+              aria-label="Toggle sidebar"
+            >
+              <LayoutSidebar size={20} />
+            </ActionIcon>
+            <HomeStats size={24} color="white" style={{ flexShrink: 0 }} />
+            <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+              <Title
+                order={4}
+                c="white"
+                fw={700}
+                hiddenFrom="sm"
+                style={{
+                  lineHeight: 1.2,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Rent vs Buy
+              </Title>
+              <Title
+                order={3}
+                c="white"
+                fw={700}
+                visibleFrom="sm"
+                style={{
+                  lineHeight: 1.2,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Rent vs Buy Dashboard
+              </Title>
+              <Text
+                size="xs"
+                c="white"
+                style={{ opacity: 0.9 }}
+                visibleFrom="md"
+              >
+                Compare your options with confidence
+              </Text>
+            </Stack>
           </Group>
           <Navigation />
         </Group>
