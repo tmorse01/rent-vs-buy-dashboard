@@ -8,7 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Paper, Title } from "@mantine/core";
+import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 
 interface MonthlyCostChartProps {
@@ -34,47 +34,58 @@ export function MonthlyCostChart({ timeline }: MonthlyCostChartProps) {
   const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
 
   return (
-    <Paper p="md" withBorder>
-      <Title order={4} mb="md">
-        Monthly Cost Over Time
-      </Title>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={yearlyData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="year"
-            label={{ value: "Years", position: "insideBottom", offset: -5 }}
-          />
-          <YAxis
-            tickFormatter={formatCurrency}
-            label={{
-              value: "Monthly Cost ($)",
-              angle: -90,
-              position: "insideLeft",
-            }}
-          />
-          <Tooltip
-            formatter={(value: number | undefined) =>
-              formatCurrency(value ?? 0)
-            }
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="owner"
-            stroke="#228be6"
-            name="Owner Unrecoverable"
-            strokeWidth={2}
-          />
-          <Line
-            type="monotone"
-            dataKey="rent"
-            stroke="#fa5252"
-            name="Rent"
-            strokeWidth={2}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
+      <Stack gap="md">
+        <Box>
+          <Title order={4} mb="xs" fw={600}>
+            Monthly Cost Comparison
+          </Title>
+          <Text size="sm" c="dimmed">
+            Owner's monthly unrecoverable costs vs renter's monthly rent
+          </Text>
+        </Box>
+        <ResponsiveContainer width="100%" height={350}>
+          <LineChart data={yearlyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="year"
+              label={{ value: "Years", position: "insideBottom", offset: -5 }}
+            />
+            <YAxis
+              tickFormatter={formatCurrency}
+              label={{
+                value: "Monthly Cost ($)",
+                angle: -90,
+                position: "insideLeft",
+              }}
+            />
+            <Tooltip
+              formatter={(value: number | undefined) =>
+                formatCurrency(value ?? 0)
+              }
+            />
+            <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="line" />
+            <Line
+              type="monotone"
+              dataKey="owner"
+              stroke="#228be6"
+              name="Owner Monthly Costs"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="rent"
+              stroke="#fa5252"
+              name="Renter Monthly Rent"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Stack>
     </Paper>
   );
 }

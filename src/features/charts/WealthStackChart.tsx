@@ -8,7 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Paper, Title } from "@mantine/core";
+import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 
 interface WealthStackChartProps {
@@ -57,41 +57,49 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
   const COLORS = ["#228be6", "#51cf66", "#ffd43b"];
 
   return (
-    <Paper p="md" withBorder>
-      <Title order={4} mb="md">
-        Owner Wealth Stack at 5/10/15 Years
-      </Title>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" tickFormatter={formatCurrency} />
-          <YAxis dataKey="year" type="category" width={80} />
-          <Tooltip
-            formatter={(value: number | undefined) =>
-              formatCurrency(value ?? 0)
-            }
-          />
-          <Legend />
-          <Bar
-            dataKey="principalPaid"
-            stackId="wealth"
-            fill={COLORS[0]}
-            name="Principal Paid"
-          />
-          <Bar
-            dataKey="netAppreciation"
-            stackId="wealth"
-            fill={COLORS[1]}
-            name="Net Appreciation (after selling costs)"
-          />
-          <Bar
-            dataKey="interestPaid"
-            stackId="narrative"
-            fill={COLORS[2]}
-            name="Interest Paid (not part of net worth)"
-          />
-        </BarChart>
-      </ResponsiveContainer>
+    <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
+      <Stack gap="md">
+        <Box>
+          <Title order={4} mb="xs" fw={600}>
+            Owner Wealth Breakdown
+          </Title>
+          <Text size="sm" c="dimmed">
+            Principal paid, net appreciation, and interest paid at key
+            milestones
+          </Text>
+        </Box>
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={data} layout="vertical">
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis type="number" tickFormatter={formatCurrency} />
+            <YAxis dataKey="year" type="category" width={80} />
+            <Tooltip
+              formatter={(value: number | undefined) =>
+                formatCurrency(value ?? 0)
+              }
+            />
+            <Legend wrapperStyle={{ paddingTop: "20px" }} />
+            <Bar
+              dataKey="principalPaid"
+              stackId="wealth"
+              fill={COLORS[0]}
+              name="Principal Paid"
+            />
+            <Bar
+              dataKey="netAppreciation"
+              stackId="wealth"
+              fill={COLORS[1]}
+              name="Net Appreciation (after selling costs)"
+            />
+            <Bar
+              dataKey="interestPaid"
+              stackId="narrative"
+              fill={COLORS[2]}
+              name="Interest Paid (not part of net worth)"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </Stack>
     </Paper>
   );
 }

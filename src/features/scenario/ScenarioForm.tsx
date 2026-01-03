@@ -136,223 +136,217 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
   };
 
   return (
-    <Paper p="md" withBorder>
-      <Stack gap="md">
-        <Title order={3}>Scenario Inputs</Title>
-
-        <Group>
-          <TextInput
-            placeholder="Scenario name"
-            value={scenarioName}
-            onChange={(e) => setScenarioName(e.target.value)}
+    <Stack gap="md" style={{ width: "100%" }}>
+      <Group>
+        <TextInput
+          placeholder="Scenario name"
+          value={scenarioName}
+          onChange={(e) => setScenarioName(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <Button onClick={handleSave} variant="light">
+          Save
+        </Button>
+        {savedScenarios.length > 0 && (
+          <Select
+            placeholder="Load scenario"
+            data={savedScenarios}
+            onChange={(value) => value && handleLoad(value)}
             style={{ flex: 1 }}
           />
-          <Button onClick={handleSave} variant="light">
-            Save
-          </Button>
-          {savedScenarios.length > 0 && (
-            <Select
-              placeholder="Load scenario"
-              data={savedScenarios}
-              onChange={(value) => value && handleLoad(value)}
-              style={{ flex: 1 }}
-            />
-          )}
-        </Group>
-
-        <Divider label="Home Details" labelPosition="left" />
-
-        <NumberInput
-          label="Home Price"
-          prefix="$"
-          thousandSeparator=","
-          {...form.getInputProps("homePrice")}
-          rightSection={<InfoTooltip label="The purchase price of the home" />}
-        />
-
-        <NumberInput
-          label="Down Payment"
-          suffix="%"
-          min={0}
-          max={100}
-          {...form.getInputProps("downPaymentPercent")}
-          rightSection={
-            <InfoTooltip label="Down payment as percentage of home price" />
-          }
-        />
-
-        <NumberInput
-          label="Interest Rate"
-          suffix="%"
-          min={0}
-          max={30}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("interestRate")}
-          rightSection={<InfoTooltip label="Annual mortgage interest rate" />}
-        />
-
-        <Select
-          label="Loan Term"
-          data={[
-            { value: "15", label: "15 years" },
-            { value: "20", label: "20 years" },
-            { value: "30", label: "30 years" },
-          ]}
-          value={form.values.loanTermYears.toString()}
-          onChange={(value) =>
-            form.setFieldValue("loanTermYears", parseInt(value || "30"))
-          }
-          rightSection={<InfoTooltip label="Mortgage loan term in years" />}
-        />
-
-        <Divider label="Owner Costs" labelPosition="left" />
-
-        <NumberInput
-          label="Property Tax Rate"
-          suffix="%"
-          min={0}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("propertyTaxRate")}
-          rightSection={
-            <InfoTooltip label="Annual property tax as percentage of home value" />
-          }
-        />
-
-        <NumberInput
-          label="Insurance (Monthly)"
-          prefix="$"
-          min={0}
-          {...form.getInputProps("insuranceMonthly")}
-          rightSection={
-            <InfoTooltip label="Monthly homeowners insurance cost" />
-          }
-        />
-
-        <NumberInput
-          label="Maintenance Rate"
-          suffix="%"
-          min={0}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("maintenanceRate")}
-          rightSection={
-            <InfoTooltip label="Annual maintenance as percentage of home value (default: 1%)" />
-          }
-        />
-
-        <NumberInput
-          label="Selling Cost Rate"
-          suffix="%"
-          min={0}
-          max={20}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("sellingCostRate")}
-          rightSection={
-            <InfoTooltip label="Total selling costs as percentage (default: 8% includes realtor fees, etc.)" />
-          }
-        />
-
-        <NumberInput
-          label="Closing Cost Rate"
-          suffix="%"
-          min={0}
-          max={10}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("closingCostRate")}
-          rightSection={
-            <InfoTooltip label="Closing costs as percentage of home price (default: 3%)" />
-          }
-        />
-
-        <Switch
-          label="Enable PMI"
-          {...form.getInputProps("pmiEnabled", { type: "checkbox" })}
-          description="Private Mortgage Insurance (only applies if down payment < 20%)"
-        />
-
-        {form.values.pmiEnabled && form.values.downPaymentPercent < 20 && (
-          <NumberInput
-            label="PMI Rate"
-            suffix="%"
-            min={0}
-            max={2}
-            step={0.1}
-            decimalScale={2}
-            {...form.getInputProps("pmiRate")}
-            rightSection={
-              <InfoTooltip label="Annual PMI rate as percentage of loan amount" />
-            }
-          />
         )}
+      </Group>
 
-        <Divider label="Rent Details" labelPosition="left" />
+      <Divider label="Home Details" labelPosition="left" />
 
+      <NumberInput
+        label="Home Price"
+        prefix="$"
+        thousandSeparator=","
+        {...form.getInputProps("homePrice")}
+        rightSection={<InfoTooltip label="The purchase price of the home" />}
+      />
+
+      <NumberInput
+        label="Down Payment"
+        suffix="%"
+        min={0}
+        max={100}
+        {...form.getInputProps("downPaymentPercent")}
+        rightSection={
+          <InfoTooltip label="Down payment as percentage of home price" />
+        }
+      />
+
+      <NumberInput
+        label="Interest Rate"
+        suffix="%"
+        min={0}
+        max={30}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("interestRate")}
+        rightSection={<InfoTooltip label="Annual mortgage interest rate" />}
+      />
+
+      <Select
+        label="Loan Term"
+        data={[
+          { value: "15", label: "15 years" },
+          { value: "20", label: "20 years" },
+          { value: "30", label: "30 years" },
+        ]}
+        value={form.values.loanTermYears.toString()}
+        onChange={(value) =>
+          form.setFieldValue("loanTermYears", parseInt(value || "30"))
+        }
+        rightSection={<InfoTooltip label="Mortgage loan term in years" />}
+      />
+
+      <Divider label="Owner Costs" labelPosition="left" />
+
+      <NumberInput
+        label="Property Tax Rate"
+        suffix="%"
+        min={0}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("propertyTaxRate")}
+        rightSection={
+          <InfoTooltip label="Annual property tax as percentage of home value" />
+        }
+      />
+
+      <NumberInput
+        label="Insurance (Monthly)"
+        prefix="$"
+        min={0}
+        {...form.getInputProps("insuranceMonthly")}
+        rightSection={<InfoTooltip label="Monthly homeowners insurance cost" />}
+      />
+
+      <NumberInput
+        label="Maintenance Rate"
+        suffix="%"
+        min={0}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("maintenanceRate")}
+        rightSection={
+          <InfoTooltip label="Annual maintenance as percentage of home value (default: 1%)" />
+        }
+      />
+
+      <NumberInput
+        label="Selling Cost Rate"
+        suffix="%"
+        min={0}
+        max={20}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("sellingCostRate")}
+        rightSection={
+          <InfoTooltip label="Total selling costs as percentage (default: 8% includes realtor fees, etc.)" />
+        }
+      />
+
+      <NumberInput
+        label="Closing Cost Rate"
+        suffix="%"
+        min={0}
+        max={10}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("closingCostRate")}
+        rightSection={
+          <InfoTooltip label="Closing costs as percentage of home price (default: 3%)" />
+        }
+      />
+
+      <Switch
+        label="Enable PMI"
+        {...form.getInputProps("pmiEnabled", { type: "checkbox" })}
+        description="Private Mortgage Insurance (only applies if down payment < 20%)"
+      />
+
+      {form.values.pmiEnabled && form.values.downPaymentPercent < 20 && (
         <NumberInput
-          label="Current Rent (Monthly)"
-          prefix="$"
+          label="PMI Rate"
+          suffix="%"
           min={0}
-          {...form.getInputProps("currentRent")}
-          rightSection={<InfoTooltip label="Current monthly rent payment" />}
-        />
-
-        <NumberInput
-          label="Rent Growth Rate"
-          suffix="%"
-          min={-5}
-          max={20}
+          max={2}
           step={0.1}
           decimalScale={2}
-          {...form.getInputProps("rentGrowthRate")}
+          {...form.getInputProps("pmiRate")}
           rightSection={
-            <InfoTooltip label="Annual rent growth rate (default: 3%)" />
+            <InfoTooltip label="Annual PMI rate as percentage of loan amount" />
           }
         />
+      )}
 
-        <Divider label="Investment Assumptions" labelPosition="left" />
+      <Divider label="Rent Details" labelPosition="left" />
 
-        <NumberInput
-          label="Annual Investment Return"
-          suffix="%"
-          min={-10}
-          max={20}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("annualReturnRate")}
-          rightSection={
-            <InfoTooltip label="Expected annual return on investments (default: 6%)" />
-          }
-        />
+      <NumberInput
+        label="Current Rent (Monthly)"
+        prefix="$"
+        min={0}
+        {...form.getInputProps("currentRent")}
+        rightSection={<InfoTooltip label="Current monthly rent payment" />}
+      />
 
-        <NumberInput
-          label="Home Appreciation Rate"
-          suffix="%"
-          min={-10}
-          max={20}
-          step={0.1}
-          decimalScale={2}
-          {...form.getInputProps("annualAppreciationRate")}
-          rightSection={
-            <InfoTooltip label="Annual home appreciation rate (default: 3%)" />
-          }
-        />
+      <NumberInput
+        label="Rent Growth Rate"
+        suffix="%"
+        min={-5}
+        max={20}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("rentGrowthRate")}
+        rightSection={
+          <InfoTooltip label="Annual rent growth rate (default: 3%)" />
+        }
+      />
 
-        <Divider label="Time Horizon" labelPosition="left" />
+      <Divider label="Investment Assumptions" labelPosition="left" />
 
-        <NumberInput
-          label="Analysis Horizon"
-          suffix=" years"
-          min={1}
-          max={30}
-          {...form.getInputProps("horizonYears")}
-          rightSection={
-            <InfoTooltip label="Number of years to analyze (1-30 years)" />
-          }
-        />
-      </Stack>
-    </Paper>
+      <NumberInput
+        label="Annual Investment Return"
+        suffix="%"
+        min={-10}
+        max={20}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("annualReturnRate")}
+        rightSection={
+          <InfoTooltip label="Expected annual return on investments (default: 6%)" />
+        }
+      />
+
+      <NumberInput
+        label="Home Appreciation Rate"
+        suffix="%"
+        min={-10}
+        max={20}
+        step={0.1}
+        decimalScale={2}
+        {...form.getInputProps("annualAppreciationRate")}
+        rightSection={
+          <InfoTooltip label="Annual home appreciation rate (default: 3%)" />
+        }
+      />
+
+      <Divider label="Time Horizon" labelPosition="left" />
+
+      <NumberInput
+        label="Analysis Horizon"
+        suffix=" years"
+        min={1}
+        max={30}
+        {...form.getInputProps("horizonYears")}
+        rightSection={
+          <InfoTooltip label="Number of years to analyze (1-30 years)" />
+        }
+      />
+    </Stack>
   );
 }

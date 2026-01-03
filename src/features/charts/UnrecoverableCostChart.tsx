@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import { Paper, Title } from "@mantine/core";
+import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 
 interface UnrecoverableCostChartProps {
@@ -45,65 +45,77 @@ export function UnrecoverableCostChart({
   const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
 
   return (
-    <Paper p="md" withBorder>
-      <Title order={4} mb="md">
-        Avg Monthly Unrecoverable Cost vs Years
-      </Title>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={yearlyData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="year"
-            label={{ value: "Years", position: "insideBottom", offset: -5 }}
-          />
-          <YAxis
-            tickFormatter={formatCurrency}
-            label={{
-              value: "Monthly Cost ($)",
-              angle: -90,
-              position: "insideLeft",
-            }}
-          />
-          <Tooltip
-            formatter={(value: number | undefined) =>
-              formatCurrency(value ?? 0)
-            }
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="owner"
-            stroke="#228be6"
-            name="Owner (Avg Monthly)"
-            strokeWidth={2}
-          />
-          <Line
-            type="monotone"
-            dataKey="renter"
-            stroke="#fa5252"
-            name="Renter (Avg Monthly)"
-            strokeWidth={2}
-          />
-          <ReferenceLine
-            x={5}
-            stroke="#868e96"
-            strokeDasharray="3 3"
-            label={{ value: "5 years", position: "top" }}
-          />
-          <ReferenceLine
-            x={10}
-            stroke="#868e96"
-            strokeDasharray="3 3"
-            label={{ value: "10 years", position: "top" }}
-          />
-          <ReferenceLine
-            x={15}
-            stroke="#868e96"
-            strokeDasharray="3 3"
-            label={{ value: "15 years", position: "top" }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
+      <Stack gap="md">
+        <Box>
+          <Title order={4} mb="xs" fw={600} style={{ wordBreak: "break-word" }}>
+            Average Monthly Unrecoverable Cost
+          </Title>
+          <Text size="sm" c="dimmed" style={{ wordBreak: "break-word" }}>
+            Compare owner's monthly unrecoverable costs vs renter's monthly rent
+            over time
+          </Text>
+        </Box>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={yearlyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="year"
+              label={{ value: "Years", position: "insideBottom", offset: -5 }}
+            />
+            <YAxis
+              tickFormatter={formatCurrency}
+              label={{
+                value: "Monthly Cost ($)",
+                angle: -90,
+                position: "insideLeft",
+              }}
+            />
+            <Tooltip
+              formatter={(value: number | undefined) =>
+                formatCurrency(value ?? 0)
+              }
+            />
+            <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="line" />
+            <Line
+              type="monotone"
+              dataKey="owner"
+              stroke="#228be6"
+              name="Owner Monthly Costs"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="renter"
+              stroke="#fa5252"
+              name="Renter Monthly Costs"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+            <ReferenceLine
+              x={5}
+              stroke="#868e96"
+              strokeDasharray="3 3"
+              label={{ value: "5 years", position: "top" }}
+            />
+            <ReferenceLine
+              x={10}
+              stroke="#868e96"
+              strokeDasharray="3 3"
+              label={{ value: "10 years", position: "top" }}
+            />
+            <ReferenceLine
+              x={15}
+              stroke="#868e96"
+              strokeDasharray="3 3"
+              label={{ value: "15 years", position: "top" }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Stack>
     </Paper>
   );
 }

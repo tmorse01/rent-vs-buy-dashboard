@@ -8,7 +8,7 @@ interface MetricsDisplayProps {
 
 export function MetricsDisplay({ metrics }: MetricsDisplayProps) {
   return (
-    <Grid>
+    <Grid gutter="md">
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <MetricCard
           title="Cash-Loss Break-Even"

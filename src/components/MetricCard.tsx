@@ -14,7 +14,7 @@ export function MetricCard({ title, value, description }: MetricCardProps) {
   }) : value;
 
   return (
-    <Paper p="md" withBorder style={{ height: '100%' }}>
+    <Paper p="lg" withBorder radius="md" shadow="xs" style={{ height: '100%' }}>
       <Title order={5} mb="xs">
         {title}
       </Title>
