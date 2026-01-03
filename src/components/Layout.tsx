@@ -22,7 +22,7 @@ const HEADER_HEIGHT = 70;
 
 export function Layout({ children }: LayoutProps) {
   const theme = useMantineTheme();
-  const { inputs, setInputs } = useScenario();
+  const { setInputs } = useScenario();
 
   return (
     <AppShell

@@ -1,10 +1,9 @@
-import { NavLink, Burger, Group, Box, useMantineTheme } from "@mantine/core";
+import { Button, Group, Menu, Burger } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useLocation, Link } from "react-router-dom";
 import { Home, List, InfoCircle } from "tabler-icons-react";
 
 export function Navigation() {
-  const theme = useMantineTheme();
   const location = useLocation();
   const [opened, { toggle }] = useDisclosure(false);
 
@@ -15,65 +14,81 @@ export function Navigation() {
   ];
 
   return (
-    <Box>
+    <>
       {/* Desktop Navigation */}
-      <Group gap="xs" visibleFrom="md">
+      <Group gap="xs" visibleFrom="md" wrap="nowrap">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.to;
           return (
-            <NavLink
+            <Button
               key={item.to}
               component={Link}
               to={item.to}
-              label={item.label}
+              variant={isActive ? "filled" : "subtle"}
               leftSection={<Icon size={18} />}
-              active={isActive}
+              size="sm"
               style={{
-                borderRadius: theme.radius.md,
+                color: "white",
+                backgroundColor: isActive
+                  ? "rgba(255, 255, 255, 0.2)"
+                  : "transparent",
               }}
-            />
+              styles={{
+                root: {
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                  },
+                },
+              }}
+            >
+              {item.label}
+            </Button>
           );
         })}
       </Group>
 
       {/* Mobile Navigation */}
-      <Burger opened={opened} onClick={toggle} hiddenFrom="md" size="sm" />
-      {opened && (
-        <Box
-          hiddenFrom="md"
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            background: theme.white,
-            border: `1px solid ${theme.colors.gray[2]}`,
-            borderRadius: theme.radius.md,
-            padding: theme.spacing.md,
-            zIndex: 1000,
-            marginTop: theme.spacing.xs,
-          }}
-        >
-          <Stack gap="xs">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.to;
-              return (
-                <NavLink
-                  key={item.to}
-                  component={Link}
-                  to={item.to}
-                  label={item.label}
-                  leftSection={<Icon size={18} />}
-                  active={isActive}
-                  onClick={() => toggle()}
-                />
-              );
-            })}
-          </Stack>
-        </Box>
-      )}
-    </Box>
+      <Menu
+        shadow="md"
+        width={200}
+        position="bottom-end"
+        opened={opened}
+        onChange={toggle}
+      >
+        <Menu.Target>
+          <Burger
+            opened={opened}
+            size="sm"
+            color="white"
+            aria-label="Toggle navigation"
+            hiddenFrom="md"
+          />
+        </Menu.Target>
+
+        <Menu.Dropdown>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.to;
+            return (
+              <Menu.Item
+                key={item.to}
+                component={Link}
+                to={item.to}
+                leftSection={<Icon size={16} />}
+                onClick={toggle}
+                style={{
+                  backgroundColor: isActive
+                    ? "rgba(37, 99, 235, 0.1)"
+                    : "transparent",
+                }}
+              >
+                {item.label}
+              </Menu.Item>
+            );
+          })}
+        </Menu.Dropdown>
+      </Menu>
+    </>
   );
 }

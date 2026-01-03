@@ -5,8 +5,6 @@ import {
   TextInput,
   Button,
   Stack,
-  Title,
-  Paper,
   Group,
   Switch,
   Select,
@@ -28,25 +26,6 @@ const InfoTooltip = ({ label }: { label: string }) => (
     <InfoCircle size={16} style={{ cursor: "help" }} />
   </Tooltip>
 );
-
-const defaultInputs: ScenarioInputs = {
-  homePrice: 500000,
-  downPaymentPercent: 20,
-  interestRate: 6.5,
-  loanTermYears: 30,
-  propertyTaxRate: 1.2,
-  insuranceMonthly: 150,
-  maintenanceRate: 1,
-  sellingCostRate: 8,
-  closingCostRate: 3,
-  currentRent: 2500,
-  rentGrowthRate: 3,
-  annualReturnRate: 6,
-  annualAppreciationRate: 3,
-  horizonYears: 15,
-  pmiEnabled: true,
-  pmiRate: 0.5,
-};
 
 export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
   const { inputs: contextInputs, setInputs: setContextInputs } = useScenario();
@@ -151,15 +130,15 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
         <Button onClick={handleSave} variant="light">
           Save
         </Button>
-        {savedScenarios.length > 0 && (
-          <Select
-            placeholder="Load scenario"
-            data={savedScenarios}
-            onChange={(value) => value && handleLoad(value)}
-            style={{ flex: 1 }}
-          />
-        )}
       </Group>
+      {savedScenarios.length > 0 && (
+        <Select
+          placeholder="Load scenario"
+          data={savedScenarios}
+          onChange={(value) => value && handleLoad(value)}
+          style={{ flex: 1 }}
+        />
+      )}
 
       <Divider label="Home Details" labelPosition="left" />
 

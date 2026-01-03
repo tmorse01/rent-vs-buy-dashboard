@@ -2,7 +2,7 @@ import { Container, Title, Text, Paper, Stack } from "@mantine/core";
 
 export function Scenarios() {
   return (
-    <Container size="xl">
+    <Container size="xl" py="lg">
       <Stack gap="lg">
         <Title order={1}>Saved Scenarios</Title>
         <Paper p="xl" withBorder radius="md">

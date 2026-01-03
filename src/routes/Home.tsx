@@ -22,7 +22,7 @@ export function Home() {
   );
 
   return (
-    <Container size="xl" style={{ maxWidth: "100%" }}>
+    <Container size="xl" style={{ maxWidth: "100%" }} py="lg">
       <Stack gap="xl">
         {/* Key Insights - Hero Section */}
         <Box>
