@@ -138,11 +138,13 @@ export function Layout({ children }: LayoutProps) {
       <AppShell.Main
         style={{
           background: theme.colors.gray[0],
-          minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
-          paddingTop: 0,
+          paddingTop: `${HEADER_HEIGHT}px`,
+          height: "100vh",
         }}
       >
-        {children}
+        <ScrollArea h={`calc(100vh - ${HEADER_HEIGHT}px)`}>
+          {children}
+        </ScrollArea>
       </AppShell.Main>
     </AppShell>
   );
