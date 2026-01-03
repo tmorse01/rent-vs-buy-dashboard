@@ -24,6 +24,7 @@ describe("Metrics Calculations", () => {
     horizonYears: 15,
     pmiEnabled: false,
     pmiRate: 0.5,
+    extraPrincipalPayment: 0,
   });
 
   describe("Net Worth Break-Even", () => {
@@ -71,12 +72,22 @@ describe("Metrics Calculations", () => {
     it("RENTING SHOULD NOT WIN LONG-TERM - buying always wins by year 10+", () => {
       // This is a critical test: renting should NOT come out on top for net worth long-term
       const inputs = createBaseInputs();
-      
+
       // Test multiple scenarios to ensure buying wins
       const scenarios = [
         { ...inputs }, // Base scenario
-        { ...inputs, annualAppreciationRate: 2.5, annualReturnRate: 7, currentRent: 3000 }, // Low appreciation, high returns, but higher rent
-        { ...inputs, annualAppreciationRate: 3, annualReturnRate: 5, currentRent: 3000 }, // Normal appreciation, modest returns, higher rent
+        {
+          ...inputs,
+          annualAppreciationRate: 2.5,
+          annualReturnRate: 7,
+          currentRent: 3000,
+        }, // Low appreciation, high returns, but higher rent
+        {
+          ...inputs,
+          annualAppreciationRate: 3,
+          annualReturnRate: 5,
+          currentRent: 3000,
+        }, // Normal appreciation, modest returns, higher rent
         { ...inputs, currentRent: 3000, rentGrowthRate: 2 }, // Higher rent, lower growth
         { ...inputs, currentRent: 3200, rentGrowthRate: 4 }, // Higher rent and growth
       ];
@@ -88,14 +99,20 @@ describe("Metrics Calculations", () => {
         // CRITICAL: Buying should win by year 10 in all typical scenarios
         expect(
           metrics.netWorthDelta10,
-          `Scenario ${index + 1}: Buying should win by year 10, but renter is ahead by ${Math.abs(metrics.netWorthDelta10)}`
+          `Scenario ${
+            index + 1
+          }: Buying should win by year 10, but renter is ahead by ${Math.abs(
+            metrics.netWorthDelta10
+          )}`
         ).toBeGreaterThan(0);
 
         // Buying advantage should increase from year 10 to 15
         if (metrics.netWorthDelta10 > 0) {
           expect(
             metrics.netWorthDelta15,
-            `Scenario ${index + 1}: Buying advantage should increase from year 10 to 15`
+            `Scenario ${
+              index + 1
+            }: Buying advantage should increase from year 10 to 15`
           ).toBeGreaterThan(metrics.netWorthDelta10);
         }
       });
@@ -145,7 +162,9 @@ describe("Metrics Calculations", () => {
       const metrics = computeMetrics(timeline, inputs);
 
       // Owner may pay more unrecoverable costs early, but should win long-term
-      if (metrics.totalUnrecoverableOwner10 > metrics.totalUnrecoverableRenter10) {
+      if (
+        metrics.totalUnrecoverableOwner10 > metrics.totalUnrecoverableRenter10
+      ) {
         // Even if owner pays more unrecoverable costs, net worth should still favor buying
         expect(metrics.netWorthDelta10).toBeGreaterThan(0);
       }
@@ -221,4 +240,3 @@ describe("Metrics Calculations", () => {
     });
   });
 });
-
