@@ -6,6 +6,7 @@ import {
   CurrencyDollar,
 } from "tabler-icons-react";
 import type { Metrics } from "../features/scenario/ScenarioInputs";
+import { GRADIENTS } from "../theme/colors";
 
 interface KeyInsightsProps {
   metrics: Metrics;
@@ -38,7 +39,7 @@ export function KeyInsights({ metrics }: KeyInsightsProps) {
           radius="md"
           style={{
             height: "100%",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: GRADIENTS.breakEvenCash,
             border: "none",
           }}
         >
@@ -70,7 +71,7 @@ export function KeyInsights({ metrics }: KeyInsightsProps) {
           radius="md"
           style={{
             height: "100%",
-            background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+            background: GRADIENTS.breakEvenNetWorth,
             border: "none",
           }}
         >
@@ -105,8 +106,8 @@ export function KeyInsights({ metrics }: KeyInsightsProps) {
             height: "100%",
             background:
               metrics.netWorthDelta10 > 0
-                ? "linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)"
-                : "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+                ? GRADIENTS.positive
+                : GRADIENTS.negative,
             border: "none",
           }}
         >
@@ -140,7 +141,7 @@ export function KeyInsights({ metrics }: KeyInsightsProps) {
           radius="md"
           style={{
             height: "100%",
-            background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+            background: GRADIENTS.neutral,
             border: "none",
           }}
         >

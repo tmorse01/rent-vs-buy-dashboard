@@ -1,7 +1,16 @@
 import type { ReactNode } from "react";
-import { AppShell, Title, Group, Text, Stack, ScrollArea } from "@mantine/core";
+import {
+  AppShell,
+  Title,
+  Group,
+  Text,
+  Stack,
+  ScrollArea,
+  useMantineTheme,
+} from "@mantine/core";
 import { ScenarioForm } from "../features/scenario/ScenarioForm";
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
+import { GRADIENTS } from "../theme/colors";
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,6 +21,8 @@ const NAVBAR_WIDTH = 360;
 const HEADER_HEIGHT = 70;
 
 export function Layout({ children, onInputsChange }: LayoutProps) {
+  const theme = useMantineTheme();
+
   return (
     <AppShell
       header={{ height: HEADER_HEIGHT }}
@@ -25,7 +36,7 @@ export function Layout({ children, onInputsChange }: LayoutProps) {
       <AppShell.Header
         px="xl"
         style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: GRADIENTS.hero,
           border: "none",
         }}
       >
@@ -42,8 +53,8 @@ export function Layout({ children, onInputsChange }: LayoutProps) {
       {/* Sidebar */}
       <AppShell.Navbar
         style={{
-          background: "white",
-          borderRight: "1px solid #e9ecef",
+          background: theme.colors.gray[0],
+          borderRight: `1px solid ${theme.colors.gray[2]}`,
         }}
       >
         <AppShell.Section grow component={ScrollArea}>
@@ -59,7 +70,7 @@ export function Layout({ children, onInputsChange }: LayoutProps) {
       {/* Main Content */}
       <AppShell.Main
         style={{
-          background: "#f8f9fa",
+          background: theme.colors.gray[0],
           minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
         }}
       >

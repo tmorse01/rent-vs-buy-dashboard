@@ -8,6 +8,7 @@ import {
   Divider,
   Box,
 } from "@mantine/core";
+import { theme } from "./theme/theme";
 import { UnrecoverableCostChart } from "./features/charts/UnrecoverableCostChart";
 import { MonthlyCostChart } from "./features/charts/MonthlyCostChart";
 import { NetWorthChart } from "./features/charts/NetWorthChart";
@@ -49,7 +50,7 @@ function App() {
   );
 
   return (
-    <MantineProvider>
+    <MantineProvider theme={theme}>
       <Layout onInputsChange={setInputs}>
         <Container size="xl" style={{ maxWidth: "100%" }}>
           <Stack gap="xl">

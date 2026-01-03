@@ -8,14 +8,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Paper, Title, Stack, Box, Text } from "@mantine/core";
+import { Paper, Title, Stack, Box, Text, useMantineTheme } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
+import { COLORS } from "../../theme/colors";
 
 interface WealthStackChartProps {
   timeline: TimelinePoint[];
 }
 
 export function WealthStackChart({ timeline }: WealthStackChartProps) {
+  const theme = useMantineTheme();
   const milestones = [5, 10, 15];
   const data = [];
   const initialHomeValue = timeline[0]?.homeValue || 0;
@@ -54,8 +56,6 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
 
   const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
 
-  const COLORS = ["#228be6", "#51cf66", "#ffd43b"];
-
   return (
     <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
       <Stack gap="md">
@@ -70,7 +70,7 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
         </Box>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.gray[2]} />
             <XAxis type="number" tickFormatter={formatCurrency} />
             <YAxis dataKey="year" type="category" width={80} />
             <Tooltip
@@ -82,19 +82,19 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
             <Bar
               dataKey="principalPaid"
               stackId="wealth"
-              fill={COLORS[0]}
+              fill={COLORS.owner.primary}
               name="Principal Paid"
             />
             <Bar
               dataKey="netAppreciation"
               stackId="wealth"
-              fill={COLORS[1]}
+              fill={COLORS.success.primary}
               name="Net Appreciation (after selling costs)"
             />
             <Bar
               dataKey="interestPaid"
               stackId="narrative"
-              fill={COLORS[2]}
+              fill={COLORS.warning.primary}
               name="Interest Paid (not part of net worth)"
             />
           </BarChart>

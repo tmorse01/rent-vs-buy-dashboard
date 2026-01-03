@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import { Paper, Title, Stack, Box, Text } from "@mantine/core";
+import { Paper, Title, Stack, Box, Text, useMantineTheme } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 
 interface UnrecoverableCostChartProps {
@@ -19,6 +19,8 @@ interface UnrecoverableCostChartProps {
 export function UnrecoverableCostChart({
   timeline,
 }: UnrecoverableCostChartProps) {
+  const theme = useMantineTheme();
+  
   // Calculate average monthly unrecoverable cost per year
   const yearlyData = [];
 
@@ -58,7 +60,7 @@ export function UnrecoverableCostChart({
         </Box>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={yearlyData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.gray[2]} />
             <XAxis
               dataKey="year"
               label={{ value: "Years", position: "insideBottom", offset: -5 }}
@@ -80,7 +82,7 @@ export function UnrecoverableCostChart({
             <Line
               type="monotone"
               dataKey="owner"
-              stroke="#228be6"
+              stroke={theme.colors.blue[6]}
               name="Owner Monthly Costs"
               strokeWidth={3}
               dot={{ r: 4 }}
@@ -89,7 +91,7 @@ export function UnrecoverableCostChart({
             <Line
               type="monotone"
               dataKey="renter"
-              stroke="#fa5252"
+              stroke={theme.colors.cyan[6]}
               name="Renter Monthly Costs"
               strokeWidth={3}
               dot={{ r: 4 }}
@@ -97,19 +99,19 @@ export function UnrecoverableCostChart({
             />
             <ReferenceLine
               x={5}
-              stroke="#868e96"
+              stroke={theme.colors.gray[5]}
               strokeDasharray="3 3"
               label={{ value: "5 years", position: "top" }}
             />
             <ReferenceLine
               x={10}
-              stroke="#868e96"
+              stroke={theme.colors.gray[5]}
               strokeDasharray="3 3"
               label={{ value: "10 years", position: "top" }}
             />
             <ReferenceLine
               x={15}
-              stroke="#868e96"
+              stroke={theme.colors.gray[5]}
               strokeDasharray="3 3"
               label={{ value: "15 years", position: "top" }}
             />
