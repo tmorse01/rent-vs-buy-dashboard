@@ -31,13 +31,13 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <AppShell
-      header={{ height: HEADER_HEIGHT }}
+      header={{ height: HEADER_HEIGHT, offset: false }}
       navbar={{
         width: NAVBAR_WIDTH,
         breakpoint: "md",
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
-      padding="md"
+      padding={0}
     >
       {/* Header */}
       <AppShell.Header
@@ -46,7 +46,6 @@ export function Layout({ children }: LayoutProps) {
         style={{
           background: SOLID_COLORS.hero,
           border: "none",
-          position: "relative",
           overflow: "hidden",
         }}
       >
@@ -121,6 +120,8 @@ export function Layout({ children }: LayoutProps) {
         style={{
           background: theme.colors.gray[0],
           borderRight: `1px solid ${theme.colors.gray[2]}`,
+          top: `${HEADER_HEIGHT}px`,
+          height: `calc(100vh - ${HEADER_HEIGHT}px)`,
         }}
       >
         <AppShell.Section grow component={ScrollArea}>
@@ -138,6 +139,7 @@ export function Layout({ children }: LayoutProps) {
         style={{
           background: theme.colors.gray[0],
           minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+          paddingTop: 0,
         }}
       >
         {children}
