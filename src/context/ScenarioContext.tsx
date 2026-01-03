@@ -29,6 +29,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
     horizonYears: 15,
     pmiEnabled: true,
     pmiRate: 0.5,
+    extraPrincipalPayment: 0,
   });
 
   return (

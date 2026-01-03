@@ -85,6 +85,8 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
           : "Horizon must be between 1 and 30 years",
       pmiRate: (value) =>
         value >= 0 && value <= 2 ? null : "PMI rate must be between 0% and 2%",
+      extraPrincipalPayment: (value) =>
+        value >= 0 ? null : "Extra principal payment must be >= 0",
     },
   });
 
@@ -266,6 +268,16 @@ export function ScenarioForm({ onInputsChange }: ScenarioFormProps) {
           }
         />
       )}
+
+      <NumberInput
+        label="Extra Principal Payment (Monthly)"
+        prefix="$"
+        min={0}
+        {...form.getInputProps("extraPrincipalPayment")}
+        rightSection={
+          <InfoTooltip label="Additional principal payment each month to pay off loan faster and reduce total interest" />
+        }
+      />
 
       <Divider label="Rent Details" labelPosition="left" />
 

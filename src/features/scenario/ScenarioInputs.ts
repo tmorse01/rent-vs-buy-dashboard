@@ -28,6 +28,9 @@ export interface ScenarioInputs {
   // PMI (Private Mortgage Insurance)
   pmiEnabled: boolean;
   pmiRate: number; // Annual percentage (only if down < 20%)
+
+  // Extra principal payments
+  extraPrincipalPayment: number; // Monthly extra principal payment amount
 }
 
 export interface TimelinePoint {
