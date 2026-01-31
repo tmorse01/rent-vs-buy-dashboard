@@ -1,7 +1,14 @@
 import { useMemo } from "react";
-import { Container, Grid, Title, Stack, Divider, Box, Group } from "@mantine/core";
+import {
+  Container,
+  Grid,
+  Title,
+  Stack,
+  Divider,
+  Box,
+  Group,
+} from "@mantine/core";
 import { UnrecoverableCostChart } from "../features/charts/UnrecoverableCostChart";
-import { MonthlyCostChart } from "../features/charts/MonthlyCostChart";
 import { NetWorthChart } from "../features/charts/NetWorthChart";
 import { WealthStackChart } from "../features/charts/WealthStackChart";
 import { KeyInsights } from "../components/KeyInsights";
@@ -18,7 +25,7 @@ export function Home() {
   const timeline = useMemo(() => buildTimeline(inputs), [inputs]);
   const metrics = useMemo(
     () => computeMetrics(timeline, inputs),
-    [timeline, inputs]
+    [timeline, inputs],
   );
 
   return (
@@ -52,14 +59,13 @@ export function Home() {
             Analysis Charts
           </Title>
           <Stack gap="xl">
-            <UnrecoverableCostChart timeline={timeline} />
             <NetWorthChart timeline={timeline} />
             <Grid gutter="lg">
               <Grid.Col span={{ base: 12, md: 6 }}>
-                <MonthlyCostChart timeline={timeline} />
+                <WealthStackChart timeline={timeline} />
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6 }}>
-                <WealthStackChart timeline={timeline} />
+                <UnrecoverableCostChart timeline={timeline} />
               </Grid.Col>
             </Grid>
           </Stack>
@@ -74,7 +80,6 @@ export function Home() {
           </Title>
           <MetricsDisplay metrics={metrics} timeline={timeline} />
         </Box>
-
       </Stack>
     </Container>
   );

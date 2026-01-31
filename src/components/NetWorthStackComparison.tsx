@@ -6,8 +6,10 @@ import {
   Table,
   Group,
   Box,
+  Tooltip,
   Divider,
 } from "@mantine/core";
+import { InfoCircle } from "tabler-icons-react";
 import type {
   TimelinePoint,
   ScenarioInputs,
@@ -61,9 +63,30 @@ export function NetWorthStackComparison({
     <Paper p="xl" withBorder radius="md" shadow="sm">
       <Stack gap="lg">
         <Box>
-          <Title order={3} mb="xs" fw={600}>
-            Net Worth Stack — Side by Side (10 Years)
-          </Title>
+          <Group gap="xs" align="center">
+            <Title order={3} mb="xs" fw={600}>
+              Net Worth Stack — Side by Side (10 Years)
+            </Title>
+            <Tooltip
+              withArrow
+              multiline
+              label={
+                <Stack gap={4}>
+                  <Text size="sm" fw={600}>
+                    That's with:
+                  </Text>
+                  <Text size="sm">• Conservative appreciation assumptions</Text>
+                  <Text size="sm">• No tax benefits included</Text>
+                  <Text size="sm">• No refinance scenarios</Text>
+                  <Text size="sm">• Modest market returns on investments</Text>
+                </Stack>
+              }
+            >
+              <Box style={{ display: "flex", alignItems: "center" }}>
+                <InfoCircle size={16} style={{ cursor: "help" }} />
+              </Box>
+            </Tooltip>
+          </Group>
           <Text size="sm" c="dimmed">
             Breakdown of wealth components for buying vs. renting
           </Text>
@@ -159,31 +182,6 @@ export function NetWorthStackComparison({
             </Text>
           )}
         </Box>
-
-        <Paper
-          p="md"
-          withBorder
-          radius="sm"
-          style={{ backgroundColor: "var(--mantine-color-gray-0)" }}
-        >
-          <Stack gap="xs">
-            <Text size="sm" fw={600}>
-              That's with:
-            </Text>
-            <Text size="sm" c="dimmed">
-              • Conservative appreciation assumptions
-            </Text>
-            <Text size="sm" c="dimmed">
-              • No tax benefits included
-            </Text>
-            <Text size="sm" c="dimmed">
-              • No refinance scenarios
-            </Text>
-            <Text size="sm" c="dimmed">
-              • Modest market returns on investments
-            </Text>
-          </Stack>
-        </Paper>
       </Stack>
     </Paper>
   );
