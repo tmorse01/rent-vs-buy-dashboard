@@ -15,6 +15,7 @@ import { KeyInsights } from "../components/KeyInsights";
 import { MetricsDisplay } from "../components/MetricsDisplay";
 import { ExportMenu } from "../components/ExportMenu";
 import { NetWorthStackComparison } from "../components/NetWorthStackComparison";
+import { BreakEvenRecommendation } from "../components/BreakEvenRecommendation";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
 import { useScenario } from "../context/ScenarioContext";
@@ -46,19 +47,13 @@ export function Home() {
 
         <Divider />
 
-        {/* Net Worth Stack Comparison */}
-        <Box>
-          <NetWorthStackComparison timeline={timeline} inputs={inputs} />
-        </Box>
-
-        <Divider />
-
         {/* Charts Section */}
         <Box>
           <Title order={2} mb="lg" fw={600}>
             Analysis Charts
           </Title>
           <Stack gap="xl">
+            <NetWorthStackComparison timeline={timeline} inputs={inputs} />
             <NetWorthChart timeline={timeline} />
             <Grid gutter="lg">
               <Grid.Col span={{ base: 12, md: 6 }}>
@@ -79,6 +74,16 @@ export function Home() {
             Detailed Metrics
           </Title>
           <MetricsDisplay metrics={metrics} timeline={timeline} />
+        </Box>
+
+        <Divider />
+
+        {/* Break-even analysis and recommendation */}
+        <Box>
+          <Title order={2} mb="lg" fw={600}>
+            Break-even & Recommendation
+          </Title>
+          <BreakEvenRecommendation metrics={metrics} timeline={timeline} />
         </Box>
       </Stack>
     </Container>

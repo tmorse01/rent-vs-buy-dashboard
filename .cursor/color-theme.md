@@ -111,15 +111,15 @@ Use Mantine's built-in semantic colors:
 **Wealth Stack Chart Colors**
 
 - Principal Paid: `#2563eb` (Blue 600)
-- Net Appreciation: `#10b981` (Emerald 500)
+- Net Appreciation: `green[6]` (Mantine success color)
 - Interest Paid (narrative): `#f59e0b` (Amber 500) - Optional, for explanation
 
 **Net Worth Chart**
 
 - Owner: `#2563eb` (Blue 600)
 - Renter: `#0891b2` (Cyan 600)
-- Positive Delta: `#10b981` (Emerald 500)
-- Negative Delta: `#ef4444` (Red 500) - Only if needed
+- Positive Delta: `green[6]` (Mantine success color)
+- Negative Delta: `red[6]` (Mantine danger color)
 
 ### Gradient Combinations
 
@@ -133,19 +133,16 @@ Use Mantine's built-in semantic colors:
 The top 4 key metric cards in the Key Insights section use a consistent color palette that matches the chart theme. **Purple colors are avoided** in favor of blue, teal, yellow, and emerald:
 
 1. **Monthly Payment**: `GRADIENTS.owner`
-
    - Blue gradient: `#2563eb` → `#1e40af`
    - Matches owner color in charts (`blue.6`)
    - Represents owner-related costs
 
 2. **Unrecoverable (10yr)**: `GRADIENTS.warning`
-
    - Amber/Yellow gradient: `#f59e0b` → `#d97706`
    - Highlights important cost information
    - Matches warning/attention colors in charts
 
 3. **Break-Even**: `GRADIENTS.teal`
-
    - Teal gradient: `#14b8a6` → `#0d9488`
    - Distinct color for break-even metrics
    - Complements the cyan/teal used for renter scenarios
@@ -267,12 +264,10 @@ const purpleGradient = GRADIENTS.purple; // Available but avoided in Key Insight
 ## Accessibility Considerations
 
 1. **Contrast Ratios**
-
    - All text meets WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
    - Interactive elements have 3:1 contrast minimum
 
 2. **Color Blindness**
-
    - Blue and Teal are distinguishable for most colorblind users
    - Don't rely solely on color - use icons, patterns, or labels
    - Test with colorblind simulators

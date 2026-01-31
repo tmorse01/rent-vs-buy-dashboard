@@ -8,9 +8,10 @@ import {
   ScrollArea,
   useMantineTheme,
   ActionIcon,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { HomeStats, LayoutSidebar } from "tabler-icons-react";
+import { Folder, HomeStats, LayoutSidebar } from "tabler-icons-react";
 import { ScenarioForm } from "../features/scenario/ScenarioForm";
 import { Navigation } from "./Navigation";
 import { useScenario } from "../context/ScenarioContext";
@@ -28,6 +29,10 @@ export function Layout({ children }: LayoutProps) {
   const { setInputs } = useScenario();
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  const [
+    isScenarioModalOpen,
+    { open: openScenarioModal, close: closeScenarioModal },
+  ] = useDisclosure(false);
 
   return (
     <AppShell
@@ -126,10 +131,27 @@ export function Layout({ children }: LayoutProps) {
       >
         <AppShell.Section grow component={ScrollArea}>
           <Stack gap="md" p="lg">
-            <Title order={3} fw={600}>
-              Scenario Inputs
-            </Title>
-            <ScenarioForm onInputsChange={setInputs} />
+            <Group justify="space-between" align="center" wrap="nowrap">
+              <Title order={3} fw={600}>
+                Scenario Inputs
+              </Title>
+              <Tooltip label="Open or save scenario" withArrow>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="md"
+                  onClick={openScenarioModal}
+                  aria-label="Open or save scenario"
+                >
+                  <Folder size={18} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+            <ScenarioForm
+              onInputsChange={setInputs}
+              isScenarioModalOpen={isScenarioModalOpen}
+              onScenarioModalClose={closeScenarioModal}
+            />
           </Stack>
         </AppShell.Section>
       </AppShell.Navbar>

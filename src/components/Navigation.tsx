@@ -1,11 +1,13 @@
-import { Button, Group, Menu, ActionIcon } from "@mantine/core";
+import { Button, Group, Menu, ActionIcon, rgba } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useLocation, Link } from "react-router-dom";
 import { Home, List, InfoCircle, DotsVertical } from "tabler-icons-react";
+import { useAppTheme } from "../theme/useAppTheme";
 
 export function Navigation() {
   const location = useLocation();
   const [opened, { toggle }] = useDisclosure(false);
+  const { theme } = useAppTheme();
 
   const navItems = [
     { to: "/", label: "Home", icon: Home },
@@ -29,15 +31,15 @@ export function Navigation() {
               leftSection={<Icon size={18} />}
               size="sm"
               style={{
-                color: "white",
+                color: theme.white,
                 backgroundColor: isActive
-                  ? "rgba(255, 255, 255, 0.2)"
+                  ? rgba(theme.white, 0.2)
                   : "transparent",
               }}
               styles={{
                 root: {
                   "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    backgroundColor: rgba(theme.white, 0.15),
                   },
                 },
               }}
@@ -60,7 +62,7 @@ export function Navigation() {
           <ActionIcon
             size="lg"
             variant="subtle"
-            color="white"
+            style={{ color: theme.white }}
             aria-label="Toggle navigation"
             hiddenFrom="md"
           >
@@ -81,7 +83,7 @@ export function Navigation() {
                 onClick={toggle}
                 style={{
                   backgroundColor: isActive
-                    ? "rgba(37, 99, 235, 0.1)"
+                    ? rgba(theme.colors.blue[6], 0.1)
                     : "transparent",
                 }}
               >

@@ -25,39 +25,37 @@ export function NetWorthStackComparison({
   timeline,
   inputs,
 }: NetWorthStackComparisonProps) {
-  // Get data at 10-year milestone
-  const month10 = 10 * 12;
-  if (month10 > timeline.length) {
+  const horizonMonths = timeline.length;
+  if (horizonMonths === 0) {
     return null; // Not enough data
   }
 
-  const point10 = timeline[month10 - 1];
-  const initialHomeValue = timeline[0]?.homeValue || inputs.homePrice;
-  const homeValue10 = point10.homeValue;
+  const point = timeline[horizonMonths - 1];
+  const horizonYears = point.year;
+  const homeValue = point.homeValue;
+  const downPaymentAmount =
+    inputs.homePrice * (inputs.downPaymentPercent / 100);
 
   // Calculate net appreciation (after selling costs)
   const netAppreciation =
-    homeValue10 * (1 - inputs.sellingCostRate / 100) -
-    initialHomeValue * (1 - inputs.sellingCostRate / 100);
+    homeValue * (1 - inputs.sellingCostRate / 100) - inputs.homePrice;
 
   // Get principal paid (cumulative)
-  const principalPaid = point10.ownerTotalPrincipalPaid;
-
-  // Calculate total net gain for buying
-  const buyingTotalNetGain = netAppreciation + principalPaid;
+  const principalPaid = point.ownerTotalPrincipalPaid;
 
   // Calculate cumulative monthly contributions (invested monthly savings)
   let cumulativeContributions = 0;
-  for (let month = 1; month <= month10 && month <= timeline.length; month++) {
+  for (let month = 1; month <= horizonMonths; month++) {
     cumulativeContributions += timeline[month - 1].renterMonthlyContribution;
   }
 
-  // Total net gain for renter is just the invested monthly savings
-  // (the cumulative contributions, not including initial deposit or returns)
-  const renterTotalNetGain = cumulativeContributions;
+  const ownerTotalNetWorth = point.ownerNetWorth;
+  const renterTotalNetWorth = point.renterNetWorth;
+  const renterInvestmentGrowth =
+    renterTotalNetWorth - downPaymentAmount - cumulativeContributions;
 
   // Net difference
-  const netDifference = buyingTotalNetGain - renterTotalNetGain;
+  const netDifference = ownerTotalNetWorth - renterTotalNetWorth;
 
   return (
     <Paper p="xl" withBorder radius="md" shadow="sm">
@@ -65,7 +63,7 @@ export function NetWorthStackComparison({
         <Box>
           <Group gap="xs" align="center">
             <Title order={3} mb="xs" fw={600}>
-              Net Worth Stack — Side by Side (10 Years)
+              Net Worth Stack — Side by Side ({horizonYears} Years)
             </Title>
             <Tooltip
               withArrow
@@ -102,6 +100,17 @@ export function NetWorthStackComparison({
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
+              <Table.Tr>
+                <Table.Td>
+                  <Text fw={500}>Down payment equity</Text>
+                </Table.Td>
+                <Table.Td style={{ textAlign: "right" }}>
+                  <Text fw={600}>{formatCurrency(downPaymentAmount)}</Text>
+                </Table.Td>
+                <Table.Td style={{ textAlign: "right" }}>
+                  <Text c="dimmed">—</Text>
+                </Table.Td>
+              </Table.Tr>
               <Table.Tr>
                 <Table.Td>
                   <Text fw={500}>Appreciation (net of selling)</Text>
@@ -141,18 +150,29 @@ export function NetWorthStackComparison({
               </Table.Tr>
               <Table.Tr>
                 <Table.Td>
+                  <Text fw={500}>Investment growth</Text>
+                </Table.Td>
+                <Table.Td style={{ textAlign: "right" }}>
+                  <Text c="dimmed">—</Text>
+                </Table.Td>
+                <Table.Td style={{ textAlign: "right" }}>
+                  <Text fw={600}>{formatCurrency(renterInvestmentGrowth)}</Text>
+                </Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>
                   <Text fw={700} size="lg">
-                    Total net gain
+                    Total net worth
                   </Text>
                 </Table.Td>
                 <Table.Td style={{ textAlign: "right" }}>
                   <Text fw={700} size="lg" c="green.7">
-                    {formatCurrency(buyingTotalNetGain)}
+                    {formatCurrency(ownerTotalNetWorth)}
                   </Text>
                 </Table.Td>
                 <Table.Td style={{ textAlign: "right" }}>
                   <Text fw={700} size="lg">
-                    {formatCurrency(renterTotalNetGain)}
+                    {formatCurrency(renterTotalNetWorth)}
                   </Text>
                 </Table.Td>
               </Table.Tr>
@@ -178,7 +198,7 @@ export function NetWorthStackComparison({
           </Group>
           {netDifference > 0 && (
             <Text size="sm" c="dimmed" mt="xs">
-              after 10 years
+              after {horizonYears} years
             </Text>
           )}
         </Box>
