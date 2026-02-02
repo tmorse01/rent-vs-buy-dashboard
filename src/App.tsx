@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "./theme/theme";
@@ -6,7 +6,7 @@ import { ScenarioProvider } from "./context/ScenarioContext";
 import { Layout } from "./components/Layout";
 import { Home } from "./routes/Home";
 import { Scenarios } from "./routes/Scenarios";
-import { About } from "./routes/About";
+import { Docs } from "./routes/Docs";
 
 function App() {
   return (
@@ -17,7 +17,15 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/scenarios" element={<Scenarios />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/docs/:page" element={<Docs />} />
+            <Route
+              path="/docs"
+              element={<Navigate to="/docs/overview" replace />}
+            />
+            <Route
+              path="/about"
+              element={<Navigate to="/docs/overview" replace />}
+            />
           </Routes>
         </Layout>
       </ScenarioProvider>

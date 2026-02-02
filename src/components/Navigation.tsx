@@ -10,7 +10,12 @@ export function Navigation() {
   const navItems = [
     { to: "/", label: "Dashboard", icon: Home },
     { to: "/scenarios", label: "Scenarios", icon: AdjustmentsHorizontal },
-    { to: "/about", label: "Documentation", icon: InfoCircle },
+    {
+      to: "/docs/overview",
+      label: "Documentation",
+      icon: InfoCircle,
+      match: (pathname: string) => pathname.startsWith("/docs"),
+    },
   ];
 
   return (
@@ -19,7 +24,9 @@ export function Navigation() {
       <Group gap="xs" visibleFrom="md" wrap="nowrap">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.to;
+          const isActive = item.match
+            ? item.match(location.pathname)
+            : location.pathname === item.to;
           return (
             <Button
               key={item.to}
@@ -31,18 +38,18 @@ export function Navigation() {
               aria-current={isActive ? "page" : undefined}
               styles={{
                 root: {
-                  color: theme.white,
+                  color: isActive ? theme.colors.blue[6] : theme.colors.gray[7],
                   height: 40,
                   paddingInline: 16,
                   borderRadius: theme.radius.md,
                   borderBottom: isActive
-                    ? `3px solid ${theme.white}`
+                    ? `3px solid ${theme.colors.blue[6]}`
                     : "3px solid transparent",
                   backgroundColor: isActive
-                    ? rgba(theme.white, 0.18)
+                    ? rgba(theme.colors.blue[6], 0.12)
                     : "transparent",
                   "&:hover": {
-                    backgroundColor: rgba(theme.white, 0.12),
+                    backgroundColor: rgba(theme.colors.blue[6], 0.08),
                   },
                 },
               }}
@@ -57,7 +64,9 @@ export function Navigation() {
       <Group gap="xs" hiddenFrom="md" wrap="nowrap">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.to;
+          const isActive = item.match
+            ? item.match(location.pathname)
+            : location.pathname === item.to;
           return (
             <ActionIcon
               key={item.to}
@@ -68,9 +77,9 @@ export function Navigation() {
               variant="subtle"
               aria-label={item.label}
               style={{
-                color: theme.white,
+                color: isActive ? theme.colors.blue[6] : theme.colors.gray[7],
                 backgroundColor: isActive
-                  ? rgba(theme.white, 0.18)
+                  ? rgba(theme.colors.blue[6], 0.12)
                   : "transparent",
               }}
             >
