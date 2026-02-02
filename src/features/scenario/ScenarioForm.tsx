@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "@mantine/form";
 import {
   NumberInput,
@@ -41,6 +41,7 @@ export function ScenarioForm({
 }: ScenarioFormProps) {
   const { inputs: contextInputs, setInputs: setContextInputs } = useScenario();
   const [scenarioName, setScenarioName] = useState("");
+  const [, startTransition] = useTransition();
   const [savedScenarios, setSavedScenarios] = useState<string[]>(() =>
     listScenarios(),
   );
@@ -104,8 +105,10 @@ export function ScenarioForm({
   const [debouncedInputs] = useDebouncedValue(form.values, 500);
 
   useEffect(() => {
-    setContextInputs(debouncedInputs);
-    onInputsChange(debouncedInputs);
+    startTransition(() => {
+      setContextInputs(debouncedInputs);
+      onInputsChange(debouncedInputs);
+    });
   }, [debouncedInputs, onInputsChange, setContextInputs]);
 
   const handleSave = () => {
@@ -132,7 +135,9 @@ export function ScenarioForm({
     const inputs = loadScenario(name);
     if (inputs) {
       form.setValues(inputs);
-      setContextInputs(inputs);
+      startTransition(() => {
+        setContextInputs(inputs);
+      });
       setScenarioName(name);
       notifications.show({
         title: "Scenario loaded",

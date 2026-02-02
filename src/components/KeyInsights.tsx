@@ -69,7 +69,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
                 <TrendingUp size={18} />
-                <Text size="sm" fw={600}>
+                <Text size="lg" fw={700}>
                   Scenario Leader
                 </Text>
               </Group>
@@ -148,7 +148,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
                 <CurrencyDollar size={18} />
-                <Text size="sm" fw={600}>
+                <Text size="lg" fw={700}>
                   Net Worth Comparison
                 </Text>
               </Group>
@@ -243,7 +243,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
                 <AlertTriangle size={18} />
-                <Text size="sm" fw={600}>
+                <Text size="lg" fw={700}>
                   Unrecoverable Costs
                 </Text>
               </Group>
@@ -324,7 +324,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
             <Group gap="xs" wrap="nowrap" justify="space-between">
               <Group gap="xs" wrap="nowrap">
                 <Calendar size={18} />
-                <Text size="sm" fw={600}>
+                <Text size="lg" fw={700}>
                   Break-Even Point
                 </Text>
               </Group>

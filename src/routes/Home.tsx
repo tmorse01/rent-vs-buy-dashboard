@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { lazy, Suspense, useDeferredValue, useMemo } from "react";
 import {
   Container,
   Grid,
@@ -7,26 +7,65 @@ import {
   Divider,
   Box,
   Group,
+  Text,
 } from "@mantine/core";
-import { UnrecoverableCostChart } from "../features/charts/UnrecoverableCostChart";
-import { NetWorthChart } from "../features/charts/NetWorthChart";
-import { WealthStackChart } from "../features/charts/WealthStackChart";
 import { KeyInsights } from "../components/KeyInsights";
 import { MetricsDisplay } from "../components/MetricsDisplay";
 import { ExportMenu } from "../components/ExportMenu";
-import { NetWorthStackComparison } from "../components/NetWorthStackComparison";
 import { BreakEvenRecommendation } from "../components/BreakEvenRecommendation";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
 import { useScenario } from "../context/ScenarioContext";
 
+const NetWorthStackComparison = lazy(() =>
+  import("../components/NetWorthStackComparison").then((module) => ({
+    default: module.NetWorthStackComparison,
+  })),
+);
+const NetWorthChart = lazy(() =>
+  import("../features/charts/NetWorthChart").then((module) => ({
+    default: module.NetWorthChart,
+  })),
+);
+const WealthStackChart = lazy(() =>
+  import("../features/charts/WealthStackChart").then((module) => ({
+    default: module.WealthStackChart,
+  })),
+);
+const UnrecoverableCostChart = lazy(() =>
+  import("../features/charts/UnrecoverableCostChart").then((module) => ({
+    default: module.UnrecoverableCostChart,
+  })),
+);
+
+function ChartFallback({ label }: { label: string }) {
+  return (
+    <Box
+      p="md"
+      style={{
+        border: "1px solid var(--mantine-color-gray-3)",
+        borderRadius: 12,
+        background: "var(--mantine-color-gray-0)",
+      }}
+    >
+      <Text size="sm" c="dimmed">
+        Loading {label}...
+      </Text>
+    </Box>
+  );
+}
+
 export function Home() {
   const { inputs } = useScenario();
 
-  const timeline = useMemo(() => buildTimeline(inputs), [inputs]);
+  const deferredInputs = useDeferredValue(inputs);
+  const timeline = useMemo(
+    () => buildTimeline(deferredInputs),
+    [deferredInputs],
+  );
   const metrics = useMemo(
-    () => computeMetrics(timeline, inputs),
-    [timeline, inputs],
+    () => computeMetrics(timeline, deferredInputs),
+    [timeline, deferredInputs],
   );
 
   return (
@@ -35,7 +74,11 @@ export function Home() {
         {/* Page Header with Export Menu */}
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ flex: 1 }} />
-          <ExportMenu inputs={inputs} timeline={timeline} metrics={metrics} />
+          <ExportMenu
+            inputs={deferredInputs}
+            timeline={timeline}
+            metrics={metrics}
+          />
         </Group>
         {/* Key Insights - Hero Section */}
         <Box>
@@ -53,14 +96,27 @@ export function Home() {
             Analysis Charts
           </Title>
           <Stack gap="xl">
-            <NetWorthStackComparison timeline={timeline} inputs={inputs} />
-            <NetWorthChart timeline={timeline} />
+            <Suspense fallback={<ChartFallback label="Net Worth Comparison" />}>
+              <NetWorthStackComparison
+                timeline={timeline}
+                inputs={deferredInputs}
+              />
+            </Suspense>
+            <Suspense fallback={<ChartFallback label="Net Worth" />}>
+              <NetWorthChart timeline={timeline} />
+            </Suspense>
             <Grid gutter="lg">
               <Grid.Col span={{ base: 12, md: 6 }}>
-                <WealthStackChart timeline={timeline} />
+                <Suspense fallback={<ChartFallback label="Wealth Stack" />}>
+                  <WealthStackChart timeline={timeline} />
+                </Suspense>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6 }}>
-                <UnrecoverableCostChart timeline={timeline} />
+                <Suspense
+                  fallback={<ChartFallback label="Unrecoverable Cost" />}
+                >
+                  <UnrecoverableCostChart timeline={timeline} />
+                </Suspense>
               </Grid.Col>
             </Grid>
           </Stack>

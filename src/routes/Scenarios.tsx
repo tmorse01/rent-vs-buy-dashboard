@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -261,6 +261,7 @@ function loadScenarios(): SavedScenario[] {
 export function Scenarios() {
   const navigate = useNavigate();
   const { setInputs } = useScenario();
+  const [, startTransition] = useTransition();
   const [scenarios, setScenarios] = useState<SavedScenario[]>(loadScenarios);
 
   const fetchScenarios = () => {
@@ -271,13 +272,15 @@ export function Scenarios() {
     e.preventDefault();
     const inputs = loadScenario(name);
     if (inputs) {
-      setInputs(inputs);
-      notifications.show({
-        title: "Scenario loaded",
-        message: `Scenario "${name}" has been loaded successfully.`,
-        color: "blue",
+      startTransition(() => {
+        setInputs(inputs);
+        notifications.show({
+          title: "Scenario loaded",
+          message: `Scenario "${name}" has been loaded successfully.`,
+          color: "blue",
+        });
+        navigate("/");
       });
-      navigate("/");
     } else {
       notifications.show({
         title: "Error",
