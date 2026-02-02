@@ -26,7 +26,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
   const metricPillStyle = {
     color: theme.colors.dark[9],
     background: theme.white,
-    padding: "4px 10px",
+    padding: "6px 10px",
     borderRadius: "999px",
     display: "inline-flex",
     alignItems: "center",
@@ -34,17 +34,9 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
   } as const;
   const negativeMetricPillStyle = {
     ...metricPillStyle,
-    color: negativeAccent,
+    color: theme.white,
+    background: negativeAccent,
     boxShadow: shadows.pillNegative,
-  } as const;
-  const negativeLabelStyle = {
-    color: negativeAccent,
-    background: theme.white,
-    padding: "3px 8px",
-    borderRadius: "999px",
-    display: "inline-flex",
-    alignItems: "center",
-    boxShadow: shadows.pill,
   } as const;
 
   const getDeltaIcon = (value: number) => {
@@ -205,18 +197,12 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               </Title>
               {getDeltaIcon(netWorthDelta)}
             </Group>
-            <Text
-              size="xs"
-              fw={500}
-              c={netWorthDelta < 0 ? undefined : "dimmed"}
-            >
-              {netWorthDelta > 0 ? (
-                "Owner advantage"
-              ) : netWorthDelta < 0 ? (
-                <span style={negativeLabelStyle}>Renter advantage</span>
-              ) : (
-                "Even"
-              )}
+            <Text size="xs" fw={500} c="dimmed">
+              {netWorthDelta > 0
+                ? "Owner advantage"
+                : netWorthDelta < 0
+                  ? "Renter advantage"
+                  : "Even"}
             </Text>
             <Stack
               gap="xs"
@@ -298,16 +284,10 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 </span>
               )}
             </Title>
-            <Text
-              size="xs"
-              fw={500}
-              c={unrecoverableDifference > 0 ? undefined : "dimmed"}
-            >
-              {unrecoverableDifference > 0 ? (
-                <span style={negativeLabelStyle}>Owner pays more</span>
-              ) : (
-                "Renter pays more"
-              )}
+            <Text size="xs" fw={500} c="dimmed">
+              {unrecoverableDifference > 0
+                ? "Owner pays more"
+                : "Renter pays more"}
             </Text>
             <Stack
               gap="xs"
@@ -378,9 +358,11 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                   Cash Flow
                 </Text>
                 <Title order={3} fw={700} style={{ lineHeight: 1.1 }}>
-                  {metrics.cashLossBreakEvenYear
-                    ? `${metrics.cashLossBreakEvenYear} years`
-                    : "N/A"}
+                  <span style={metricPillStyle}>
+                    {metrics.cashLossBreakEvenYear
+                      ? `${metrics.cashLossBreakEvenYear} years`
+                      : "N/A"}
+                  </span>
                 </Title>
                 <Text size="xs" c="dimmed" mt={2}>
                   {metrics.cashLossBreakEvenYear
@@ -393,9 +375,11 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                   Net Worth
                 </Text>
                 <Title order={3} fw={700} style={{ lineHeight: 1.1 }}>
-                  {metrics.netWorthBreakEvenYear
-                    ? `${metrics.netWorthBreakEvenYear} years`
-                    : "N/A"}
+                  <span style={metricPillStyle}>
+                    {metrics.netWorthBreakEvenYear
+                      ? `${metrics.netWorthBreakEvenYear} years`
+                      : "N/A"}
+                  </span>
                 </Title>
                 <Text size="xs" c="dimmed" mt={2}>
                   {metrics.netWorthBreakEvenYear
