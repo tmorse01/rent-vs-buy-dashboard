@@ -37,6 +37,11 @@ const UnrecoverableCostChart = lazy(() =>
     default: module.UnrecoverableCostChart,
   })),
 );
+const AmortizationRentBreakdown = lazy(() =>
+  import("../features/charts/AmortizationRentBreakdown").then((module) => ({
+    default: module.AmortizationRentBreakdown,
+  })),
+);
 
 function ChartFallback({ label }: { label: string }) {
   return (
@@ -120,6 +125,20 @@ export function Home() {
               </Grid.Col>
             </Grid>
           </Stack>
+        </Box>
+
+        <Divider />
+
+        {/* Amortization: principal vs interest vs rent */}
+        <Box>
+          <Title order={2} mb="lg" fw={600}>
+            Amortization breakdown
+          </Title>
+          <Suspense
+            fallback={<ChartFallback label="Amortization breakdown" />}
+          >
+            <AmortizationRentBreakdown timeline={timeline} />
+          </Suspense>
         </Box>
 
         <Divider />
