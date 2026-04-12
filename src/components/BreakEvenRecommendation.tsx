@@ -113,6 +113,16 @@ export function BreakEvenRecommendation({
               {netWorthDelta >= 0 ? "owner" : "renter"} ahead)
             </List.Item>
           </List>
+          <Text size="sm" c="dimmed" mt="xs" style={{ lineHeight: 1.55 }}>
+            Cash-flow break-even is the first year where average monthly owner
+            unrecoverable costs (interest, taxes, insurance, maintenance, and
+            PMI when applicable—not principal) are no longer above average
+            monthly rent for that year. Early years are often tilted toward
+            renting on cash loss because interest is front-loaded; as the
+            amortization schedule shifts toward principal and rent grows, the
+            monthly comparison can flip—which is why the timing is a specific
+            year rather than immediate.
+          </Text>
         </Stack>
 
         <Stack gap="xs">

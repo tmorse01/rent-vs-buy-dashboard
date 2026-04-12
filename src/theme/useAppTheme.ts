@@ -17,11 +17,23 @@ export function useAppTheme() {
   } as const;
 
   const shadows = {
-    pill: `0 6px 16px ${rgba(theme.black, 0.18)}`,
-    pillNegative: `inset 0 0 0 1px ${rgba(theme.colors.red[6], 0.25)}, 0 6px 16px ${rgba(
-      theme.black,
-      0.18,
-    )}`,
+    pillPositive: [
+      `inset 0 1px 0 ${rgba(theme.white, 0.14)}`,
+      `0 1px 2px ${rgba(theme.black, 0.45)}`,
+      `0 6px 16px ${rgba(theme.black, 0.35)}`,
+    ].join(", "),
+    pill: [
+      `inset 0 1px 0 ${rgba(theme.white, 0.92)}`,
+      `0 1px 2px ${rgba(theme.black, 0.04)}`,
+      `0 4px 12px ${rgba(theme.black, 0.1)}`,
+      `0 10px 28px ${rgba(theme.black, 0.08)}`,
+    ].join(", "),
+    pillNegative: [
+      `inset 0 1px 0 ${rgba(theme.white, 0.22)}`,
+      `inset 0 0 0 1px ${rgba(theme.colors.red[9], 0.45)}`,
+      `0 2px 6px ${rgba(theme.colors.red[9], 0.22)}`,
+      `0 10px 24px ${rgba(theme.black, 0.14)}`,
+    ].join(", "),
     textShadow: `0 1px 2px ${rgba(theme.black, 0.35)}`,
   } as const;
 

@@ -14,6 +14,11 @@ const Scenarios = lazy(() =>
     default: module.Scenarios,
   })),
 );
+const ScenarioCompare = lazy(() =>
+  import("./routes/ScenarioCompare").then((module) => ({
+    default: module.ScenarioCompare,
+  })),
+);
 const Docs = lazy(() =>
   import("./routes/Docs").then((module) => ({ default: module.Docs })),
 );
@@ -41,6 +46,10 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/scenarios" element={<Scenarios />} />
+              <Route
+                path="/scenarios/compare"
+                element={<ScenarioCompare />}
+              />
               <Route path="/docs/:page" element={<Docs />} />
               <Route
                 path="/docs"

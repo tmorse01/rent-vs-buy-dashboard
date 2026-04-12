@@ -1,4 +1,15 @@
-import { Grid, Text, Title, Group, Stack, Tooltip } from "@mantine/core";
+import {
+  Grid,
+  Text,
+  Title,
+  Group,
+  Stack,
+  Tooltip,
+  Collapse,
+  UnstyledButton,
+  Anchor,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import {
   TrendingUp,
   TrendingDown,
@@ -6,38 +17,84 @@ import {
   CurrencyDollar,
   AlertTriangle,
   InfoCircle,
+  ChevronDown,
+  ChevronUp,
 } from "tabler-icons-react";
 import type {
   Metrics,
   TimelinePoint,
+  ScenarioInputs,
 } from "../features/scenario/ScenarioInputs";
 import { useAppTheme } from "../theme/useAppTheme";
 import { formatCurrency } from "../utils/formatting";
 import { ColorAccentCard } from "./ColorAccentCard";
+import { InsightPill } from "./InsightPill";
+import {
+  DASHBOARD_SECTION_IDS,
+  scrollToDashboardSection,
+} from "../constants/dashboardSections";
 
 interface KeyInsightsProps {
   metrics: Metrics;
   timeline: TimelinePoint[];
+  inputs: ScenarioInputs;
 }
 
-export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
-  const { theme, gradients, palette, shadows, borders } = useAppTheme();
-  const { negativeAccent } = palette;
-  const metricPillStyle = {
-    color: theme.colors.dark[9],
-    background: theme.white,
-    padding: "6px 10px",
-    borderRadius: "999px",
-    display: "inline-flex",
-    alignItems: "center",
-    boxShadow: shadows.pill,
-  } as const;
-  const negativeMetricPillStyle = {
-    ...metricPillStyle,
+function scenarioLeaderWhy(
+  leader: "Buy" | "Rent" | "Tie",
+  inputs: ScenarioInputs,
+): { summary: string; primary: string; secondary: string | null } {
+  if (leader === "Tie") {
+    return {
+      summary: "Essentially tied at the horizon.",
+      primary:
+        "Ending net worth is essentially tied—small changes in appreciation, rent growth, or returns could swing it.",
+      secondary: null,
+    };
+  }
+
+  if (leader === "Buy") {
+    const appreciation = inputs.annualAppreciationRate;
+    const returns = inputs.annualReturnRate;
+    const secondary =
+      appreciation >= returns
+        ? `${appreciation}% home appreciation vs. ${returns}% portfolio return: leverage on the full home plus paydown can beat compounded rent savings.`
+        : `${returns}% portfolio return vs. ${appreciation}% appreciation, yet paydown and equity still put owning ahead here.`;
+    return {
+      summary: "Home equity is ahead of the invested portfolio.",
+      primary:
+        "Buy wins on total net worth: home equity (appreciation + mortgage paydown) is beating the invested portfolio from the same down payment and monthly savings gap.",
+      secondary,
+    };
+  }
+
+  const appreciation = inputs.annualAppreciationRate;
+  const returns = inputs.annualReturnRate;
+  const secondary =
+    returns >= appreciation
+      ? `${returns}% portfolio return vs. ${appreciation}% appreciation: compounded savings are winning the race.`
+      : `${appreciation}% appreciation, but ownership costs and the savings math still leave renting ahead at this horizon.`;
+  return {
+    summary: "Invested savings are ahead of home equity.",
+    primary:
+      "Rent wins on total net worth: invested rent savings are compounding faster than sell-today home equity from appreciation and paydown.",
+    secondary,
+  };
+}
+
+export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
+  const { theme, gradients, borders } = useAppTheme();
+  const [leaderDetailsOpen, { toggle: toggleLeaderDetails }] =
+    useDisclosure(false);
+
+  const cardJumpLinkStyle = {
+    alignSelf: "flex-start" as const,
+    opacity: 0.92,
+    textUnderlineOffset: 3,
     color: theme.white,
-    background: negativeAccent,
-    boxShadow: shadows.pillNegative,
-  } as const;
+    fontWeight: 600,
+    fontSize: theme.fontSizes.xs,
+  };
 
   const getDeltaIcon = (value: number) => {
     if (value > 0) return <TrendingUp size={20} color={theme.white} />;
@@ -56,6 +113,7 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
   const unrecoverableDifference = unrecoverableOwner - unrecoverableRenter;
   const scenarioLeader =
     netWorthDelta > 0 ? "Buy" : netWorthDelta < 0 ? "Rent" : "Tie";
+  const leaderWhy = scenarioLeaderWhy(scenarioLeader, inputs);
 
   return (
     <Grid gutter="md">
@@ -77,12 +135,12 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 label={
                   <Stack gap={4} style={{ maxWidth: 300 }}>
                     <Text size="xs">
-                      The leading scenario is based on total net worth at the
-                      end of the analysis horizon.
+                      Leader follows whoever has higher total net worth at the
+                      end of the horizon (same rule as Net Worth Comparison).
                     </Text>
                     <Text size="xs" mt={4} style={{ opacity: 0.9 }}>
-                      A positive net worth delta favors buying, while a negative
-                      delta favors renting.
+                      This card is the why; Net Worth Comparison shows the
+                      dollar gap and balances.
                     </Text>
                   </Stack>
                 }
@@ -95,8 +153,14 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 />
               </Tooltip>
             </Group>
-            <Title order={2} fw={700} style={{ lineHeight: 1.1 }}>
-              <span style={metricPillStyle}>{scenarioLeader}</span>
+            <Title
+              order={2}
+              fw={700}
+              style={{ lineHeight: 1.1, fontSize: "inherit", margin: 0 }}
+            >
+              <InsightPill variant="positive" size="leader">
+                {scenarioLeader}
+              </InsightPill>
             </Title>
             <Text size="xs" fw={500} c="dimmed">
               Horizon: {horizonYears} years
@@ -109,31 +173,59 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 paddingTop: "12px",
               }}
             >
-              <Group justify="space-between" gap="xs">
-                <Text size="xs" c="dimmed">
-                  Net worth gap
-                </Text>
-                <Text size="xs" fw={600}>
-                  {formatCurrency(Math.abs(netWorthDelta))}
-                </Text>
-              </Group>
-              <Group justify="space-between" gap="xs">
-                <Text size="xs" c="dimmed">
-                  Owner
-                </Text>
-                <Text size="xs" fw={600}>
-                  {formatCurrency(ownerNetWorth)}
-                </Text>
-              </Group>
-              <Group justify="space-between" gap="xs">
-                <Text size="xs" c="dimmed">
-                  Renter
-                </Text>
-                <Text size="xs" fw={600}>
-                  {formatCurrency(renterNetWorth)}
-                </Text>
-              </Group>
+              <Text size="sm" fw={500} style={{ lineHeight: 1.45 }}>
+                {leaderWhy.summary}
+              </Text>
+              <UnstyledButton
+                type="button"
+                onClick={toggleLeaderDetails}
+                aria-expanded={leaderDetailsOpen}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  alignSelf: "flex-start",
+                  padding: 0,
+                  color: "rgba(255, 255, 255, 0.92)",
+                  fontSize: theme.fontSizes.xs,
+                  fontWeight: 600,
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                }}
+              >
+                {leaderDetailsOpen ? (
+                  <ChevronUp size={14} aria-hidden />
+                ) : (
+                  <ChevronDown size={14} aria-hidden />
+                )}
+                {leaderDetailsOpen ? "Hide detail" : "Why it leads"}
+              </UnstyledButton>
+              <Collapse in={leaderDetailsOpen}>
+                <Stack gap="sm" pt={4}>
+                  <Text size="sm" fw={500} style={{ lineHeight: 1.5 }}>
+                    {leaderWhy.primary}
+                  </Text>
+                  {leaderWhy.secondary ? (
+                    <Text size="xs" c="dimmed" style={{ lineHeight: 1.45 }}>
+                      {leaderWhy.secondary}
+                    </Text>
+                  ) : null}
+                </Stack>
+              </Collapse>
             </Stack>
+            <Anchor
+              href={`#${DASHBOARD_SECTION_IDS.netWorthComparison}`}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToDashboardSection(
+                  DASHBOARD_SECTION_IDS.netWorthComparison,
+                );
+              }}
+              underline="always"
+              style={cardJumpLinkStyle}
+            >
+              View net worth comparison chart
+            </Anchor>
           </Stack>
         </ColorAccentCard>
       </Grid.Col>
@@ -182,18 +274,17 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 style={{
                   lineHeight: 1.1,
                   flex: 1,
+                  minWidth: 0,
                   color: theme.white,
+                  fontSize: "inherit",
+                  margin: 0,
                 }}
               >
-                {netWorthDelta < 0 ? (
-                  <span style={negativeMetricPillStyle}>
-                    {formatCurrency(netWorthDelta)}
-                  </span>
-                ) : (
-                  <span style={metricPillStyle}>
-                    {formatCurrency(netWorthDelta)}
-                  </span>
-                )}
+                <InsightPill
+                  variant={netWorthDelta < 0 ? "negative" : "positive"}
+                >
+                  {formatCurrency(netWorthDelta)}
+                </InsightPill>
               </Title>
               {getDeltaIcon(netWorthDelta)}
             </Group>
@@ -229,6 +320,19 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 </Text>
               </Group>
             </Stack>
+            <Anchor
+              href={`#${DASHBOARD_SECTION_IDS.netWorthComparison}`}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToDashboardSection(
+                  DASHBOARD_SECTION_IDS.netWorthComparison,
+                );
+              }}
+              underline="always"
+              style={cardJumpLinkStyle}
+            >
+              View stacked net worth breakdown
+            </Anchor>
           </Stack>
         </ColorAccentCard>
       </Grid.Col>
@@ -272,17 +376,15 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
               style={{
                 lineHeight: 1.1,
                 color: theme.white,
+                fontSize: "inherit",
+                margin: 0,
               }}
             >
-              {unrecoverableDifference > 0 ? (
-                <span style={negativeMetricPillStyle}>
-                  {formatCurrency(Math.abs(unrecoverableDifference))}
-                </span>
-              ) : (
-                <span style={metricPillStyle}>
-                  {formatCurrency(Math.abs(unrecoverableDifference))}
-                </span>
-              )}
+              <InsightPill
+                variant={unrecoverableDifference > 0 ? "negative" : "positive"}
+              >
+                {formatCurrency(Math.abs(unrecoverableDifference))}
+              </InsightPill>
             </Title>
             <Text size="xs" fw={500} c="dimmed">
               {unrecoverableDifference > 0
@@ -314,6 +416,19 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 </Text>
               </Group>
             </Stack>
+            <Anchor
+              href={`#${DASHBOARD_SECTION_IDS.unrecoverableCosts}`}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToDashboardSection(
+                  DASHBOARD_SECTION_IDS.unrecoverableCosts,
+                );
+              }}
+              underline="always"
+              style={cardJumpLinkStyle}
+            >
+              View unrecoverable cost chart
+            </Anchor>
           </Stack>
         </ColorAccentCard>
       </Grid.Col>
@@ -357,12 +472,16 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 <Text size="xs" c="dimmed" fw={500} mb={4}>
                   Cash Flow
                 </Text>
-                <Title order={3} fw={700} style={{ lineHeight: 1.1 }}>
-                  <span style={metricPillStyle}>
+                <Title
+                  order={3}
+                  fw={700}
+                  style={{ lineHeight: 1.1, fontSize: "inherit", margin: 0 }}
+                >
+                  <InsightPill variant="positive" size="compact">
                     {metrics.cashLossBreakEvenYear
                       ? `${metrics.cashLossBreakEvenYear} years`
                       : "N/A"}
-                  </span>
+                  </InsightPill>
                 </Title>
                 <Text size="xs" c="dimmed" mt={2}>
                   {metrics.cashLossBreakEvenYear
@@ -374,12 +493,16 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 <Text size="xs" c="dimmed" fw={500} mb={4}>
                   Net Worth
                 </Text>
-                <Title order={3} fw={700} style={{ lineHeight: 1.1 }}>
-                  <span style={metricPillStyle}>
+                <Title
+                  order={3}
+                  fw={700}
+                  style={{ lineHeight: 1.1, fontSize: "inherit", margin: 0 }}
+                >
+                  <InsightPill variant="positive" size="compact">
                     {metrics.netWorthBreakEvenYear
                       ? `${metrics.netWorthBreakEvenYear} years`
                       : "N/A"}
-                  </span>
+                  </InsightPill>
                 </Title>
                 <Text size="xs" c="dimmed" mt={2}>
                   {metrics.netWorthBreakEvenYear
@@ -393,6 +516,19 @@ export function KeyInsights({ metrics, timeline }: KeyInsightsProps) {
                 )}
               </div>
             </Stack>
+            <Anchor
+              href={`#${DASHBOARD_SECTION_IDS.breakEven}`}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToDashboardSection(DASHBOARD_SECTION_IDS.breakEven);
+              }}
+              underline="always"
+              style={cardJumpLinkStyle}
+            >
+              {metrics.cashLossBreakEvenYear
+                ? `Why year ${metrics.cashLossBreakEvenYear}? See break-even analysis`
+                : "See break-even & recommendation"}
+            </Anchor>
           </Stack>
         </ColorAccentCard>
       </Grid.Col>

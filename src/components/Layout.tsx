@@ -35,7 +35,8 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const NAVBAR_WIDTH = 360;
+const SCENARIO_NAVBAR_WIDTH = 360;
+const DOCS_NAVBAR_WIDTH = 260;
 const HEADER_HEIGHT = 56;
 
 export function Layout({ children }: LayoutProps) {
@@ -54,8 +55,9 @@ export function Layout({ children }: LayoutProps) {
   });
   const isDashboard = location.pathname === "/";
   const isDocs = location.pathname.startsWith("/docs");
-  const showNavbar = isDashboard || isDocs;
-  const navbarWidth = isDocs ? 260 : NAVBAR_WIDTH;
+  const showNavbar =
+    isDocs || (isDashboard && !isMobile);
+  const navbarWidth = isDocs ? DOCS_NAVBAR_WIDTH : SCENARIO_NAVBAR_WIDTH;
 
   return (
     <AppShell
@@ -153,19 +155,30 @@ export function Layout({ children }: LayoutProps) {
           }}
         >
           <AppShell.Section grow component={ScrollArea}>
-            {isDashboard && (
+            {isDashboard && !isMobile && (
               <Stack gap="md" p="lg">
-                <Group justify="space-between" align="center" wrap="nowrap">
-                  <Title order={3} fw={600}>
-                    Scenario Inputs
-                  </Title>
-                  <Tooltip label="Open or save scenario" withArrow>
+                <Group justify="space-between" align="flex-start" wrap="nowrap">
+                  <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+                    <Title order={3} fw={600}>
+                      Scenario inputs
+                    </Title>
+                    <Text size="xs" c="dimmed" lh={1.35}>
+                      Use the Scenario menu below to switch saved setups; the
+                      folder icon saves a new snapshot or overwrites a name.
+                    </Text>
+                  </Stack>
+                  <Tooltip
+                    label="Saved scenarios — add new ones or switch between them"
+                    withArrow
+                    multiline
+                    w={260}
+                  >
                     <ActionIcon
                       variant="subtle"
                       color="gray"
                       size="md"
                       onClick={openScenarioModal}
-                      aria-label="Open or save scenario"
+                      aria-label="Saved scenarios: save or load multiple versions"
                     >
                       <Folder size={18} />
                     </ActionIcon>
@@ -220,11 +233,7 @@ export function Layout({ children }: LayoutProps) {
             size="lg"
             radius="xl"
             variant="filled"
-            aria-label={
-              isDocs
-                ? "Toggle documentation navigation"
-                : "Toggle scenario inputs"
-            }
+            aria-label="Toggle documentation navigation"
             style={{
               position: "fixed",
               bottom: 24,
@@ -262,8 +271,10 @@ export function Layout({ children }: LayoutProps) {
                 <Text fw={600}>New here? Start with the basics.</Text>
                 <Text c="dimmed" size="sm">
                   This app compares renting vs. buying using cash-loss
-                  (unrecoverable costs) and net worth. Set your scenario in the
-                  dashboard sidebar, then review the key insights and charts.
+                  (unrecoverable costs) and net worth. On a wide screen, adjust
+                  inputs in the left sidebar; on mobile, expand Scenario inputs
+                  at the top. Use the folder icon to save named setups, then
+                  review the key insights and charts.
                 </Text>
               </Stack>
               <ActionIcon

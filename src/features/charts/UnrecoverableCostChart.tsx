@@ -1,4 +1,4 @@
-import { LineChart } from "@mantine/charts";
+import { BarChart } from "@mantine/charts";
 import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 
@@ -45,7 +45,7 @@ export function UnrecoverableCostChart({
           </Text>
         </Box>
         <Box style={{ width: "100%", height: 400 }}>
-          <LineChart
+          <BarChart
             w="100%"
             h={400}
             data={yearlyData}
@@ -62,10 +62,8 @@ export function UnrecoverableCostChart({
                 label: "Renter Monthly Costs",
               },
             ]}
-            curveType="linear"
             withLegend
             withTooltip
-            withDots
             withXAxis
             withYAxis
             yAxisProps={{

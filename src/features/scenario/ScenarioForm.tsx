@@ -1,4 +1,4 @@
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "@mantine/form";
 import {
   NumberInput,
@@ -14,7 +14,10 @@ import {
   Text,
   Modal,
   Accordion,
+  Badge,
+  Anchor,
 } from "@mantine/core";
+import { Link, useLocation } from "react-router-dom";
 import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { InfoCircle } from "tabler-icons-react";
@@ -39,8 +42,15 @@ export function ScenarioForm({
   isScenarioModalOpen,
   onScenarioModalClose,
 }: ScenarioFormProps) {
+  const location = useLocation();
   const { inputs: contextInputs, setInputs: setContextInputs } = useScenario();
-  const [scenarioName, setScenarioName] = useState("");
+  const [saveAsName, setSaveAsName] = useState("");
+  const [selectedSavedScenario, setSelectedSavedScenario] = useState<
+    string | null
+  >(null);
+  const [inputsSnapshot, setInputsSnapshot] = useState<ScenarioInputs | null>(
+    null,
+  );
   const [, startTransition] = useTransition();
   const [savedScenarios, setSavedScenarios] = useState<string[]>(() =>
     listScenarios(),
@@ -111,22 +121,53 @@ export function ScenarioForm({
     });
   }, [debouncedInputs, onInputsChange, setContextInputs]);
 
+  useEffect(() => {
+    if (isScenarioModalOpen) {
+      setSavedScenarios(listScenarios());
+      setSaveAsName(selectedSavedScenario ?? "");
+    }
+  }, [isScenarioModalOpen, selectedSavedScenario]);
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setSavedScenarios(listScenarios());
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (
+      selectedSavedScenario &&
+      !savedScenarios.includes(selectedSavedScenario)
+    ) {
+      setSelectedSavedScenario(null);
+      setInputsSnapshot(null);
+    }
+  }, [savedScenarios, selectedSavedScenario]);
+
+  const isDirty = useMemo(() => {
+    if (!inputsSnapshot) return false;
+    return JSON.stringify(form.values) !== JSON.stringify(inputsSnapshot);
+  }, [form.values, inputsSnapshot]);
+
   const handleSave = () => {
-    if (!scenarioName.trim()) {
+    const name = saveAsName.trim();
+    if (!name) {
       notifications.show({
-        title: "Name required",
-        message: "Please enter a scenario name before saving.",
+        title: "Name your scenario",
+        message:
+          "Enter a name so this snapshot can be saved alongside your other scenarios.",
         color: "orange",
       });
       return;
     }
-    saveScenario(scenarioName, form.values);
-    // Update saved scenarios list after save
+    saveScenario(name, form.values);
     const updated = listScenarios();
     setSavedScenarios(updated);
+    setSelectedSavedScenario(name);
+    setInputsSnapshot(form.values);
     notifications.show({
       title: "Scenario saved",
-      message: `Scenario "${scenarioName}" has been saved successfully.`,
+      message: `"${name}" is in your list. You can save more with different names or open it anytime.`,
       color: "green",
     });
   };
@@ -138,7 +179,9 @@ export function ScenarioForm({
       startTransition(() => {
         setContextInputs(inputs);
       });
-      setScenarioName(name);
+      setSelectedSavedScenario(name);
+      setInputsSnapshot(inputs);
+      setSaveAsName(name);
       notifications.show({
         title: "Scenario loaded",
         message: `Scenario "${name}" has been loaded successfully.`,
@@ -153,35 +196,103 @@ export function ScenarioForm({
     }
   };
 
+  const handleSidebarScenarioChange = (value: string | null) => {
+    if (value === null) {
+      setSelectedSavedScenario(null);
+      setInputsSnapshot(null);
+      return;
+    }
+    handleLoad(value);
+  };
+
   return (
     <Stack gap="md" style={{ width: "100%" }}>
       <Modal
         opened={isScenarioModalOpen}
         onClose={onScenarioModalClose}
-        title="Scenarios"
+        title={
+          <Group justify="space-between" gap="md" wrap="nowrap" pr="md">
+            <Text fw={600}>Saved scenarios</Text>
+            {savedScenarios.length > 0 && (
+              <Badge variant="light" color="gray" size="sm">
+                {savedScenarios.length} saved
+              </Badge>
+            )}
+          </Group>
+        }
         centered
       >
-        <Stack gap="sm">
-          <Group>
-            <TextInput
-              placeholder="Scenario name"
-              value={scenarioName}
-              onChange={(e) => setScenarioName(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <Button onClick={handleSave} variant="light">
-              Save
-            </Button>
-          </Group>
-          {savedScenarios.length > 0 && (
-            <Select
-              placeholder="Load scenario"
-              data={savedScenarios}
-              onChange={(value) => value && handleLoad(value)}
-            />
+        <Stack gap="md">
+          <Text size="sm" c="dimmed">
+            Build several what-ifs: each name stores a full copy of your inputs
+            (home price, rent, horizon, and the rest). Switch between them here,
+            or review and delete them on the Scenarios page.
+          </Text>
+
+          <Stack gap="xs">
+            <Text size="sm" fw={600}>
+              Add another scenario
+            </Text>
+            <Group align="flex-end" wrap="nowrap" gap="sm">
+              <TextInput
+                label="Scenario name"
+                description="Use a new name for a new comparison. Reusing a name replaces that snapshot."
+                placeholder="e.g. Base case, High rent, 15-year horizon"
+                value={saveAsName}
+                onChange={(e) => setSaveAsName(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <Button onClick={handleSave}>Save scenario</Button>
+            </Group>
+          </Stack>
+
+          <Text size="sm" c="dimmed">
+            To open a saved scenario, use the <strong>Scenario</strong> dropdown
+            above the form fields.
+          </Text>
+
+          {savedScenarios.length === 0 && (
+            <Text size="sm" c="dimmed">
+              You have no saved scenarios yet. Name the setup above, click Save
+              scenario, then repeat with different assumptions to grow your list.
+            </Text>
           )}
+
+          <Anchor component={Link} to="/scenarios" size="sm" onClick={onScenarioModalClose}>
+            View all scenarios, compare, and delete →
+          </Anchor>
         </Stack>
       </Modal>
+
+      <Select
+        label="Scenario"
+        description={
+          savedScenarios.length === 0
+            ? "Save your first scenario with the folder icon, then pick it here to switch between setups."
+            : isDirty
+              ? "You changed inputs — open the folder and Save scenario to update the stored copy."
+              : selectedSavedScenario
+                ? `Loaded “${selectedSavedScenario}”. Choose another to switch.`
+                : "Choose a saved snapshot, or edit numbers below and save a new one."
+        }
+        placeholder={
+          savedScenarios.length === 0
+            ? "No saved scenarios yet"
+            : "Select a saved scenario…"
+        }
+        data={savedScenarios}
+        value={
+          selectedSavedScenario &&
+          savedScenarios.includes(selectedSavedScenario)
+            ? selectedSavedScenario
+            : null
+        }
+        onChange={handleSidebarScenarioChange}
+        searchable
+        clearable
+        disabled={savedScenarios.length === 0}
+        comboboxProps={{ withinPortal: true, zIndex: 400 }}
+      />
 
       <Divider label="General Filters" labelPosition="left" />
 

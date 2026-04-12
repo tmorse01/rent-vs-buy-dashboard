@@ -8,6 +8,7 @@ import {
   Stack,
   Group,
   ActionIcon,
+  Button,
   Grid,
   Divider,
   Box,
@@ -305,13 +306,33 @@ export function Scenarios() {
   return (
     <Container size="xl" py="lg">
       <Stack gap="lg">
-        <Title order={1}>Saved Scenarios</Title>
+               <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
+          <Stack gap="xs" maw={640}>
+            <Title order={1}>Your scenarios</Title>
+            <Text c="dimmed" size="sm">
+              Each entry is a full snapshot of your dashboard inputs. Save several
+              from the dashboard Scenario inputs (left sidebar on desktop,
+              expandable block at the top on mobile; folder icon) to compare
+              different what-ifs, then open one on the dashboard or remove it here.
+            </Text>
+          </Stack>
+          <Button
+            component={Link}
+            to="/scenarios/compare"
+            variant="light"
+            size="sm"
+          >
+            Compare table
+          </Button>
+        </Group>
 
         {scenarios.length === 0 ? (
           <Paper p="xl" withBorder radius="md">
             <Text c="dimmed" ta="center">
-              No saved scenarios yet. Create and save scenarios from the
-              scenario inputs sidebar to see them here.
+              No saved scenarios yet. On the dashboard, open Scenario inputs
+              (sidebar on desktop, top of the page on mobile), use the folder
+              icon, name your first setup, and click Save scenario. Repeat with new
+              names to build a list you can switch between.
             </Text>
           </Paper>
         ) : (

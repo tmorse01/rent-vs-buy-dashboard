@@ -1,6 +1,11 @@
 import { Button, Group, ActionIcon, rgba } from "@mantine/core";
 import { useLocation, Link } from "react-router-dom";
-import { Home, AdjustmentsHorizontal, InfoCircle } from "tabler-icons-react";
+import {
+  Home,
+  AdjustmentsHorizontal,
+  InfoCircle,
+  Table,
+} from "tabler-icons-react";
 import { useAppTheme } from "../theme/useAppTheme";
 
 export function Navigation() {
@@ -10,6 +15,12 @@ export function Navigation() {
   const navItems = [
     { to: "/", label: "Dashboard", icon: Home },
     { to: "/scenarios", label: "Scenarios", icon: AdjustmentsHorizontal },
+    {
+      to: "/scenarios/compare",
+      label: "Compare",
+      icon: Table,
+      match: (pathname: string) => pathname === "/scenarios/compare",
+    },
     {
       to: "/docs/overview",
       label: "Documentation",

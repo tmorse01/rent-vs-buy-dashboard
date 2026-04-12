@@ -1,6 +1,7 @@
 import { AreaChart } from "@mantine/charts";
-import { Paper, Title, Stack, Box, Text, Group, Badge } from "@mantine/core";
+import { Paper, Title, Stack, Box, Text, Group } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
+import { InsightPill } from "../../components/InsightPill";
 import { formatCurrency, formatCurrencyTooltip } from "../../utils/formatting";
 
 interface NetWorthChartProps {
@@ -15,7 +16,6 @@ export function NetWorthChart({ timeline }: NetWorthChartProps) {
   const netWorthDelta = ownerNetWorth - renterNetWorth;
   const scenarioLeader =
     netWorthDelta > 0 ? "Buy" : netWorthDelta < 0 ? "Rent" : "Tie";
-
   // Convert to yearly data for readability
   const yearlyData = [];
   const maxYear = Math.ceil(timeline.length / 12);
@@ -40,17 +40,9 @@ export function NetWorthChart({ timeline }: NetWorthChartProps) {
             <Title order={4} fw={600}>
               Net Worth Over Time
             </Title>
-            <Badge
-              color={
-                scenarioLeader === "Buy"
-                  ? "blue"
-                  : scenarioLeader === "Rent"
-                    ? "cyan"
-                    : "gray"
-              }
-            >
-              Leader: {scenarioLeader}
-            </Badge>
+            <InsightPill variant="positive" size="leader">
+              Leader · {scenarioLeader}
+            </InsightPill>
           </Group>
           <Text size="sm" c="dimmed">
             Final ({horizonYears}y) net worth delta:{" "}
