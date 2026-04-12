@@ -412,7 +412,7 @@ export function ScenarioCompare() {
             <Text c="dimmed" ta="center">
               No saved scenarios yet. Save one from the dashboard (Scenario
               inputs in the sidebar on desktop, or the expandable section at the
-              top on mobile — then the folder icon), then return here.{" "}
+              top on mobile — then the save icon), then return here.{" "}
               <Anchor component={Link} to="/scenarios">
                 Go to scenarios
               </Anchor>

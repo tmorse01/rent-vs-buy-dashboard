@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useLocalStorage, useMediaQuery } from "@mantine/hooks";
 import {
-  Folder,
+  DeviceFloppy,
   HomeStats,
   Settings,
   UserCircle,
@@ -164,7 +164,7 @@ export function Layout({ children }: LayoutProps) {
                     </Title>
                     <Text size="xs" c="dimmed" lh={1.35}>
                       Use the Scenario menu below to switch saved setups; the
-                      folder icon saves a new snapshot or overwrites a name.
+                      save icon opens the dialog to add a snapshot or overwrite a name.
                     </Text>
                   </Stack>
                   <Tooltip
@@ -180,7 +180,7 @@ export function Layout({ children }: LayoutProps) {
                       onClick={openScenarioModal}
                       aria-label="Saved scenarios: save or load multiple versions"
                     >
-                      <Folder size={18} />
+                      <DeviceFloppy size={18} />
                     </ActionIcon>
                   </Tooltip>
                 </Group>
@@ -273,7 +273,7 @@ export function Layout({ children }: LayoutProps) {
                   This app compares renting vs. buying using cash-loss
                   (unrecoverable costs) and net worth. On a wide screen, adjust
                   inputs in the left sidebar; on mobile, expand Scenario inputs
-                  at the top. Use the folder icon to save named setups, then
+                  at the top. Use the save icon to open saved scenarios, then
                   review the key insights and charts.
                 </Text>
               </Stack>

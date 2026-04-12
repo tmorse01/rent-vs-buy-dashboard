@@ -268,9 +268,9 @@ export function ScenarioForm({
         label="Scenario"
         description={
           savedScenarios.length === 0
-            ? "Save your first scenario with the folder icon, then pick it here to switch between setups."
+            ? "Save your first scenario with the save icon, then pick it here to switch between setups."
             : isDirty
-              ? "You changed inputs — open the folder and Save scenario to update the stored copy."
+              ? "You changed inputs — open saved scenarios (save icon) and Save scenario to update the stored copy."
               : selectedSavedScenario
                 ? `Loaded “${selectedSavedScenario}”. Choose another to switch.`
                 : "Choose a saved snapshot, or edit numbers below and save a new one."

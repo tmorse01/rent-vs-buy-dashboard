@@ -16,7 +16,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { ChevronDown, ChevronUp, Folder } from "tabler-icons-react";
+import { ChevronDown, ChevronUp, DeviceFloppy } from "tabler-icons-react";
 import { KeyInsights } from "../components/KeyInsights";
 import { MetricsDisplay } from "../components/MetricsDisplay";
 import { ExportMenu } from "../components/ExportMenu";
@@ -153,7 +153,7 @@ export function Home() {
                     }}
                     aria-label="Saved scenarios: save or load multiple versions"
                   >
-                    <Folder size={18} />
+                    <DeviceFloppy size={18} />
                   </ActionIcon>
                 </Tooltip>
               </Group>

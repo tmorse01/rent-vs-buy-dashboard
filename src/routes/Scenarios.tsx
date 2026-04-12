@@ -312,7 +312,7 @@ export function Scenarios() {
             <Text c="dimmed" size="sm">
               Each entry is a full snapshot of your dashboard inputs. Save several
               from the dashboard Scenario inputs (left sidebar on desktop,
-              expandable block at the top on mobile; folder icon) to compare
+              expandable block at the top on mobile; save icon) to compare
               different what-ifs, then open one on the dashboard or remove it here.
             </Text>
           </Stack>
@@ -330,7 +330,7 @@ export function Scenarios() {
           <Paper p="xl" withBorder radius="md">
             <Text c="dimmed" ta="center">
               No saved scenarios yet. On the dashboard, open Scenario inputs
-              (sidebar on desktop, top of the page on mobile), use the folder
+              (sidebar on desktop, top of the page on mobile), use the save
               icon, name your first setup, and click Save scenario. Repeat with new
               names to build a list you can switch between.
             </Text>
