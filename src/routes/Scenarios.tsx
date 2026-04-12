@@ -1,5 +1,6 @@
 import { useState, useTransition } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { SAVED_SCENARIO_QUERY_KEY } from "../utils/shareScenario";
 import {
   Container,
   Title,
@@ -76,7 +77,7 @@ function ScenarioCard({ scenario, onLoad, onDelete }: ScenarioCardProps) {
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ flex: 1 }}>
             <Link
-              to="/"
+              to={`/?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(scenario.name)}`}
               onClick={(e) => onLoad(e, scenario.name)}
               style={{
                 textDecoration: "none",
@@ -280,7 +281,7 @@ export function Scenarios() {
           message: `Scenario "${name}" has been loaded successfully.`,
           color: "blue",
         });
-        navigate("/");
+        navigate(`/?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(name)}`);
       });
     } else {
       notifications.show({

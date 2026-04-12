@@ -17,13 +17,17 @@ import {
   Badge,
   Anchor,
 } from "@mantine/core";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { InfoCircle } from "tabler-icons-react";
 import type { ScenarioInputs } from "./ScenarioInputs";
 import { saveScenario, loadScenario, listScenarios } from "./scenarioStorage";
 import { useScenario } from "../../context/ScenarioContext";
+import {
+  getScenarioFromUrl,
+  SAVED_SCENARIO_QUERY_KEY,
+} from "../../utils/shareScenario";
 
 interface ScenarioFormProps {
   onInputsChange: (inputs: ScenarioInputs) => void;
@@ -43,6 +47,7 @@ export function ScenarioForm({
   onScenarioModalClose,
 }: ScenarioFormProps) {
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { inputs: contextInputs, setInputs: setContextInputs } = useScenario();
   const [saveAsName, setSaveAsName] = useState("");
   const [selectedSavedScenario, setSelectedSavedScenario] = useState<
@@ -114,6 +119,85 @@ export function ScenarioForm({
 
   const [debouncedInputs] = useDebouncedValue(form.values, 500);
 
+  const savedParam = searchParams.get(SAVED_SCENARIO_QUERY_KEY);
+
+  const syncSavedNameToUrl = (name: string | null) => {
+    if (location.pathname !== "/") return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("scenario");
+        if (name) {
+          next.set(SAVED_SCENARIO_QUERY_KEY, name);
+        } else {
+          next.delete(SAVED_SCENARIO_QUERY_KEY);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+
+    const hasEncodedShare = getScenarioFromUrl() !== null;
+    if (hasEncodedShare) {
+      if (savedParam) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete(SAVED_SCENARIO_QUERY_KEY);
+            return next;
+          },
+          { replace: true },
+        );
+      }
+      return;
+    }
+
+    if (!savedParam) return;
+
+    if (!savedScenarios.includes(savedParam)) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete(SAVED_SCENARIO_QUERY_KEY);
+          return next;
+        },
+        { replace: true },
+      );
+      return;
+    }
+
+    const loaded = loadScenario(savedParam);
+    if (!loaded) return;
+
+    if (
+      selectedSavedScenario === savedParam &&
+      inputsSnapshot &&
+      JSON.stringify(inputsSnapshot) === JSON.stringify(loaded)
+    ) {
+      return;
+    }
+
+    form.setValues(loaded);
+    startTransition(() => {
+      setContextInputs(loaded);
+    });
+    setSelectedSavedScenario(savedParam);
+    setInputsSnapshot(loaded);
+    setSaveAsName(savedParam);
+  }, [
+    location.pathname,
+    savedParam,
+    savedScenarios,
+    selectedSavedScenario,
+    inputsSnapshot,
+    setSearchParams,
+    setContextInputs,
+  ]);
+
   useEffect(() => {
     startTransition(() => {
       setContextInputs(debouncedInputs);
@@ -149,6 +233,20 @@ export function ScenarioForm({
     return JSON.stringify(form.values) !== JSON.stringify(inputsSnapshot);
   }, [form.values, inputsSnapshot]);
 
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    if (!isDirty) return;
+    if (!savedParam) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(SAVED_SCENARIO_QUERY_KEY);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [isDirty, location.pathname, savedParam, setSearchParams]);
+
   const handleSave = () => {
     const name = saveAsName.trim();
     if (!name) {
@@ -165,6 +263,7 @@ export function ScenarioForm({
     setSavedScenarios(updated);
     setSelectedSavedScenario(name);
     setInputsSnapshot(form.values);
+    syncSavedNameToUrl(name);
     notifications.show({
       title: "Scenario saved",
       message: `"${name}" is in your list. You can save more with different names or open it anytime.`,
@@ -182,6 +281,7 @@ export function ScenarioForm({
       setSelectedSavedScenario(name);
       setInputsSnapshot(inputs);
       setSaveAsName(name);
+      syncSavedNameToUrl(name);
       notifications.show({
         title: "Scenario loaded",
         message: `Scenario "${name}" has been loaded successfully.`,
@@ -200,6 +300,7 @@ export function ScenarioForm({
     if (value === null) {
       setSelectedSavedScenario(null);
       setInputsSnapshot(null);
+      syncSavedNameToUrl(null);
       return;
     }
     handleLoad(value);

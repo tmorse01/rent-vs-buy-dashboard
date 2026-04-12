@@ -1,5 +1,8 @@
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
 
+/** Query key for the dashboard saved-scenario name (localStorage snapshot). */
+export const SAVED_SCENARIO_QUERY_KEY = "saved";
+
 /**
  * Encode scenario inputs into a URL-safe string
  */
