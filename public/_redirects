@@ -1,0 +1,2 @@
+# Single-page app: all routes serve index.html so React Router can handle them
+/*    /index.html   200
