@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
+import { DEFAULT_SCENARIO_INPUTS } from "../features/scenario/scenarioDefaults";
 import { getScenarioFromUrl } from "../utils/shareScenario";
 
 interface ScenarioContextType {
@@ -12,26 +13,6 @@ const ScenarioContext = createContext<ScenarioContextType | undefined>(
   undefined
 );
 
-const defaultInputs: ScenarioInputs = {
-  homePrice: 500000,
-  downPaymentPercent: 20,
-  interestRate: 6.5,
-  loanTermYears: 30,
-  propertyTaxRate: 1.2,
-  insuranceMonthly: 150,
-  maintenanceRate: 1,
-  sellingCostRate: 8,
-  closingCostRate: 3,
-  currentRent: 2500,
-  rentGrowthRate: 3,
-  annualReturnRate: 6,
-  annualAppreciationRate: 3,
-  horizonYears: 15,
-  pmiEnabled: true,
-  pmiRate: 0.5,
-  extraPrincipalPayment: 0,
-};
-
 export function ScenarioProvider({ children }: { children: ReactNode }) {
   // Check for scenario in URL on mount
   const [inputs, setInputs] = useState<ScenarioInputs>(() => {
@@ -39,7 +20,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
     if (urlScenario) {
       return urlScenario;
     }
-    return defaultInputs;
+    return DEFAULT_SCENARIO_INPUTS;
   });
 
   // Update inputs when URL changes (e.g., user navigates with back/forward)

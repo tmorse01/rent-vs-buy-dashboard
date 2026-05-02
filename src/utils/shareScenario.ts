@@ -1,4 +1,5 @@
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
+import { mergeScenarioInputs } from "../features/scenario/scenarioDefaults";
 
 /** Query key for the dashboard saved-scenario name (localStorage snapshot). */
 export const SAVED_SCENARIO_QUERY_KEY = "saved";
@@ -24,7 +25,7 @@ export function decodeScenario(encoded: string): ScenarioInputs | null {
       base64 += "=";
     }
     const json = atob(base64);
-    return JSON.parse(json) as ScenarioInputs;
+    return mergeScenarioInputs(JSON.parse(json) as Partial<ScenarioInputs>);
   } catch (error) {
     console.error("Error decoding scenario:", error);
     return null;

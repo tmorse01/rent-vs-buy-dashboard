@@ -1,6 +1,7 @@
 import { Badge, Group, List, Paper, Stack, Text, Title } from "@mantine/core";
 import type {
   Metrics,
+  ScenarioInputs,
   TimelinePoint,
 } from "../features/scenario/ScenarioInputs";
 import { formatCurrency } from "../utils/formatting";
@@ -8,11 +9,13 @@ import { formatCurrency } from "../utils/formatting";
 interface BreakEvenRecommendationProps {
   metrics: Metrics;
   timeline: TimelinePoint[];
+  inputs: ScenarioInputs;
 }
 
 export function BreakEvenRecommendation({
   metrics,
   timeline,
+  inputs,
 }: BreakEvenRecommendationProps) {
   const lastPoint = timeline[timeline.length - 1];
   const horizonYears = lastPoint?.year ?? 0;
@@ -122,6 +125,9 @@ export function BreakEvenRecommendation({
             amortization schedule shifts toward principal and rent grows, the
             monthly comparison can flip—which is why the timing is a specific
             year rather than immediate.
+            {inputs.mortgageInterestTaxDeductionEnabled
+              ? " When enabled, owner costs subtract the portion of mortgage interest you can effectively recoup by writing it off (deducting it) against taxable income, estimated at your combined marginal rate—if you qualify and itemize."
+              : null}
           </Text>
         </Stack>
 

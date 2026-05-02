@@ -21,6 +21,7 @@ import { KeyInsights } from "../components/KeyInsights";
 import { MetricsDisplay } from "../components/MetricsDisplay";
 import { ExportMenu } from "../components/ExportMenu";
 import { BreakEvenRecommendation } from "../components/BreakEvenRecommendation";
+import { MonthlyPaymentBreakdown } from "../components/MonthlyPaymentBreakdown";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
 import { useScenario } from "../context/ScenarioContext";
@@ -199,6 +200,12 @@ export function Home() {
             Analysis Charts
           </Title>
           <Stack gap="xl">
+            <MonthlyPaymentBreakdown
+              snapshotPoint={
+                timeline.length > 0 ? (timeline[0] ?? null) : null
+              }
+              inputs={deferredInputs}
+            />
             <Suspense
               fallback={<ChartFallback label="Net worth & unrecoverable breakdown" />}
             >
@@ -229,7 +236,12 @@ export function Home() {
                     id={DASHBOARD_SECTION_IDS.unrecoverableCosts}
                     style={sectionAnchorStyle}
                   >
-                    <UnrecoverableCostChart timeline={timeline} />
+                    <UnrecoverableCostChart
+                      timeline={timeline}
+                      mortgageInterestTaxDeductionEnabled={
+                        deferredInputs.mortgageInterestTaxDeductionEnabled
+                      }
+                    />
                   </Box>
                 </Suspense>
               </Grid.Col>
@@ -258,7 +270,11 @@ export function Home() {
           <Title order={2} mb="lg" fw={600}>
             Detailed Metrics
           </Title>
-          <MetricsDisplay metrics={metrics} timeline={timeline} />
+          <MetricsDisplay
+            metrics={metrics}
+            timeline={timeline}
+            inputs={deferredInputs}
+          />
         </Box>
 
         <Divider />
@@ -271,7 +287,11 @@ export function Home() {
           <Title order={2} mb="lg" fw={600}>
             Break-even & Recommendation
           </Title>
-          <BreakEvenRecommendation metrics={metrics} timeline={timeline} />
+          <BreakEvenRecommendation
+            metrics={metrics}
+            timeline={timeline}
+            inputs={deferredInputs}
+          />
         </Box>
       </Stack>
     </Container>

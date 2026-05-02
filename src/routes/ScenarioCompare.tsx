@@ -25,6 +25,7 @@ import type {
   ScenarioInputs,
   TimelinePoint,
 } from "../features/scenario/ScenarioInputs";
+import { mergeScenarioInputs } from "../features/scenario/scenarioDefaults";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
 import { formatCurrency, formatPercent } from "../utils/formatting";
@@ -163,6 +164,18 @@ function buildRowGroups(): GroupDef[] {
         {
           label: "Closing cost rate",
           value: (c) => formatPercent(c.inputs.closingCostRate, 1),
+        },
+        {
+          label: "Mortgage interest tax benefit (modeled)",
+          value: (c) =>
+            c.inputs.mortgageInterestTaxDeductionEnabled ? "Yes" : "No",
+        },
+        {
+          label: "Combined marginal rate (interest)",
+          value: (c) =>
+            c.inputs.mortgageInterestTaxDeductionEnabled
+              ? formatPercent(c.inputs.marginalTaxRate, 2)
+              : NA,
         },
       ],
     },
@@ -329,6 +342,13 @@ function buildRowGroups(): GroupDef[] {
             c.last ? formatCurrency(c.last.rentMonthly) : NA,
         },
         {
+          label: "Mortgage interest tax benefit (final month)",
+          value: (c) =>
+            c.last
+              ? formatCurrency(c.last.mortgageInterestTaxBenefitMonthly)
+              : NA,
+        },
+        {
           label: "Owner unrecoverable (final month)",
           value: (c) =>
             c.last
@@ -374,7 +394,7 @@ export function ScenarioCompare() {
   const columns = useMemo(() => {
     const saved = loadSavedScenariosSorted();
     return saved.map((s) => {
-      const inputs = s.inputs;
+      const inputs = mergeScenarioInputs(s.inputs);
       const timeline = buildTimeline(inputs);
       const metrics = computeMetrics(timeline, inputs);
       const last = timeline.length > 0 ? timeline[timeline.length - 1]! : null;

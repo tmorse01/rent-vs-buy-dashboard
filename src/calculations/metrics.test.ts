@@ -25,6 +25,8 @@ describe("Metrics Calculations", () => {
     pmiEnabled: false,
     pmiRate: 0.5,
     extraPrincipalPayment: 0,
+    mortgageInterestTaxDeductionEnabled: false,
+    marginalTaxRate: 24,
   });
 
   describe("Net Worth Break-Even", () => {
@@ -220,6 +222,29 @@ describe("Metrics Calculations", () => {
       if (metrics.cashLossBreakEvenYear) {
         expect(metrics.cashLossBreakEvenYear).toBeGreaterThan(0);
         expect(metrics.cashLossBreakEvenYear).toBeLessThanOrEqual(15);
+      }
+    });
+
+    it("mortgage interest tax benefit shifts cash-loss break-even earlier or unchanged", () => {
+      const base = createBaseInputs();
+      const without = computeMetrics(buildTimeline(base), base);
+      const withDeduction = {
+        ...base,
+        mortgageInterestTaxDeductionEnabled: true,
+        marginalTaxRate: 35,
+      };
+      const withMetrics = computeMetrics(
+        buildTimeline(withDeduction),
+        withDeduction,
+      );
+
+      if (
+        without.cashLossBreakEvenYear != null &&
+        withMetrics.cashLossBreakEvenYear != null
+      ) {
+        expect(withMetrics.cashLossBreakEvenYear).toBeLessThanOrEqual(
+          without.cashLossBreakEvenYear,
+        );
       }
     });
   });

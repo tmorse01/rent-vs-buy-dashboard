@@ -16,6 +16,7 @@ import {
   Accordion,
   Badge,
   Anchor,
+  Box,
 } from "@mantine/core";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -35,9 +36,42 @@ interface ScenarioFormProps {
   onScenarioModalClose: () => void;
 }
 
-const InfoTooltip = ({ label }: { label: string }) => (
-  <Tooltip label={label} withArrow>
-    <InfoCircle size={16} style={{ cursor: "help" }} />
+const MORTGAGE_INTEREST_TAX_HELP =
+  "If you itemize, you can deduct qualifying mortgage interest from taxable income—that effectively recoups part of your interest via a lower tax bill. This option approximates that savings as interest × your combined marginal rate. It does not model standard deduction vs itemizing, deductible loan limits, or SALT caps.";
+
+const inputHelpIconStyle = {
+  cursor: "help" as const,
+  color: "var(--mantine-color-dimmed)",
+};
+
+type InfoTooltipProps = {
+  label: string;
+  multiline?: boolean;
+  maw?: number | string;
+  /** When set, the icon is focusable for keyboard / screen readers. */
+  ariaLabel?: string;
+};
+
+const InfoTooltip = ({
+  label,
+  multiline,
+  maw,
+  ariaLabel,
+}: InfoTooltipProps) => (
+  <Tooltip label={label} withArrow multiline={!!multiline} maw={maw}>
+    <Box
+      component="span"
+      style={{
+        ...inputHelpIconStyle,
+        display: "inline-flex",
+        alignItems: "center",
+        lineHeight: 1,
+      }}
+      tabIndex={ariaLabel ? 0 : undefined}
+      aria-label={ariaLabel}
+    >
+      <InfoCircle size={16} aria-hidden />
+    </Box>
   </Tooltip>
 );
 
@@ -114,6 +148,10 @@ export function ScenarioForm({
         value >= 0 && value <= 2 ? null : "PMI rate must be between 0% and 2%",
       extraPrincipalPayment: (value) =>
         value >= 0 ? null : "Extra principal payment must be >= 0",
+      marginalTaxRate: (value) =>
+        value >= 0 && value <= 50
+          ? null
+          : "Marginal tax rate must be between 0% and 50%",
     },
   });
 
@@ -499,6 +537,37 @@ export function ScenarioForm({
           form.setFieldValue("loanTermYears", parseInt(value || "30"))
         }
         rightSection={<InfoTooltip label="Mortgage loan term in years" />}
+      />
+
+      <Switch
+        label={
+          <Group gap={6} align="center" wrap="nowrap">
+            <span>Model mortgage interest tax benefit</span>
+            <InfoTooltip
+              label={MORTGAGE_INTEREST_TAX_HELP}
+              multiline
+              maw={360}
+              ariaLabel="How mortgage interest tax benefit is modeled"
+            />
+          </Group>
+        }
+        {...form.getInputProps("mortgageInterestTaxDeductionEnabled", {
+          type: "checkbox",
+        })}
+      />
+
+      <NumberInput
+        label="Combined marginal tax rate"
+        suffix="%"
+        min={0}
+        max={50}
+        step={0.5}
+        decimalScale={2}
+        disabled={!form.values.mortgageInterestTaxDeductionEnabled}
+        {...form.getInputProps("marginalTaxRate")}
+        rightSection={
+          <InfoTooltip label="Roughly federal plus state marginal tax on income. Applied to deductible mortgage interest (the write-off) when the toggle is on." />
+        }
       />
 
       <Accordion variant="separated">

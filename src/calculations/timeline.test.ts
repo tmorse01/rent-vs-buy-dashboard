@@ -21,6 +21,8 @@ describe("Timeline Calculations", () => {
     pmiEnabled: false,
     pmiRate: 0.5,
     extraPrincipalPayment: 0,
+    mortgageInterestTaxDeductionEnabled: false,
+    marginalTaxRate: 24,
   });
 
   it("generates correct timeline length", () => {
@@ -118,12 +120,14 @@ describe("Timeline Calculations", () => {
         point.propertyTax +
         point.insurance +
         point.maintenance +
-        point.pmi;
+        point.pmi -
+        point.mortgageInterestTaxBenefitMonthly;
 
       expect(point.ownerUnrecoverableMonthly).toBeCloseTo(
         expectedUnrecoverable,
         2
       );
+      expect(point.mortgageInterestTaxBenefitMonthly).toBe(0);
 
       // Verify principal is NOT included - unrecoverable should be less than mortgage payment
       // (mortgage payment = interest + principal, but unrecoverable = interest + other costs)
@@ -186,5 +190,48 @@ describe("Timeline Calculations", () => {
       expect(year5Month.propertyTax).toBeGreaterThan(firstMonth.propertyTax);
       expect(year5Month.maintenance).toBeGreaterThan(firstMonth.maintenance);
     }
+  });
+
+  it("applies mortgage interest tax benefit when enabled", () => {
+    const inputs = createBaseInputs();
+    inputs.mortgageInterestTaxDeductionEnabled = true;
+    inputs.marginalTaxRate = 25;
+
+    const timeline = buildTimeline(inputs);
+    const point = timeline[0]!;
+
+    const expectedBenefit = point.mortgageInterest * 0.25;
+    expect(point.mortgageInterestTaxBenefitMonthly).toBeCloseTo(
+      expectedBenefit,
+      4,
+    );
+    expect(point.ownerUnrecoverableMonthly).toBeCloseTo(
+      point.mortgageInterest +
+        point.propertyTax +
+        point.insurance +
+        point.maintenance +
+        point.pmi -
+        expectedBenefit,
+      2,
+    );
+  });
+
+  it("lowers renter monthly contribution vs same scenario with deduction off", () => {
+    const base = createBaseInputs();
+
+    const offTimeline = buildTimeline(base);
+    const onInputs = {
+      ...base,
+      mortgageInterestTaxDeductionEnabled: true,
+      marginalTaxRate: 30,
+    };
+    const onTimeline = buildTimeline(onInputs);
+
+    expect(onTimeline[0]!.renterMonthlyContribution).toBeLessThan(
+      offTimeline[0]!.renterMonthlyContribution,
+    );
+    expect(onTimeline[0]!.ownerUnrecoverableMonthly).toBeLessThan(
+      offTimeline[0]!.ownerUnrecoverableMonthly,
+    );
   });
 });

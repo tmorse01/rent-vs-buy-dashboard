@@ -1,4 +1,5 @@
 import type { ScenarioInputs } from './ScenarioInputs';
+import { mergeScenarioInputs } from './scenarioDefaults';
 
 const STORAGE_KEY_PREFIX = 'rent-vs-buy-scenario-';
 const SCENARIO_LIST_KEY = 'rent-vs-buy-scenario-list';
@@ -43,7 +44,7 @@ export function loadScenario(name: string): ScenarioInputs | null {
   
   try {
     const scenario: SavedScenario = JSON.parse(data);
-    return scenario.inputs;
+    return mergeScenarioInputs(scenario.inputs);
   } catch (error) {
     console.error('Error loading scenario:', error);
     return null;

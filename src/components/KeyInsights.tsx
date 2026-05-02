@@ -305,7 +305,7 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
             >
               <Group justify="space-between" gap="xs">
                 <Text size="xs" c="dimmed">
-                  Owner NW
+                  Owner
                 </Text>
                 <Text size="xs" fw={600}>
                   {formatCurrency(ownerNetWorth)}
@@ -313,7 +313,7 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
               </Group>
               <Group justify="space-between" gap="xs">
                 <Text size="xs" c="dimmed">
-                  Renter NW
+                  Renter
                 </Text>
                 <Text size="xs" fw={600}>
                   {formatCurrency(renterNetWorth)}
@@ -358,6 +358,9 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
                       Unrecoverable costs include interest, taxes, insurance,
                       maintenance, and rent. Lower totals indicate the cheaper
                       cash-loss path over the full horizon.
+                      {inputs.mortgageInterestTaxDeductionEnabled
+                        ? " When the interest write-off is modeled, deductible interest lowers the owner’s counted cost by the estimated tax savings."
+                        : ""}
                     </Text>
                   </Stack>
                 }

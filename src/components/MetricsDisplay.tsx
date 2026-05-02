@@ -1,6 +1,10 @@
 import { Grid, Tabs, Title, Stack, Box } from '@mantine/core';
 import { MetricCard } from './MetricCard';
-import type { Metrics, TimelinePoint } from '../features/scenario/ScenarioInputs';
+import type {
+  Metrics,
+  ScenarioInputs,
+  TimelinePoint,
+} from "../features/scenario/ScenarioInputs";
 import { 
   Calendar, 
   CurrencyDollar, 
@@ -11,9 +15,17 @@ import {
 interface MetricsDisplayProps {
   metrics: Metrics;
   timeline: TimelinePoint[];
+  inputs: ScenarioInputs;
 }
 
-export function MetricsDisplay({ metrics, timeline }: MetricsDisplayProps) {
+export function MetricsDisplay({
+  metrics,
+  timeline,
+  inputs,
+}: MetricsDisplayProps) {
+  const ownerAfterTaxInterestNote = inputs.mortgageInterestTaxDeductionEnabled
+    ? " Owner unrecoverable totals treat part of mortgage interest as recouped through taxes: modeled as the write-off (deductible interest × combined marginal rate)."
+    : "";
   // Generate sparkline data for net worth delta over time (yearly)
   const netWorthDeltaData: number[] = [];
   for (let year = 1; year <= Math.ceil(timeline.length / 12); year++) {
@@ -65,7 +77,7 @@ export function MetricsDisplay({ metrics, timeline }: MetricsDisplayProps) {
               value={metrics.cashLossBreakEvenYear ? `${metrics.cashLossBreakEvenYear} years` : null}
               description="Year when avg owner unrecoverable ≤ avg rent"
               icon={<Calendar size={20} />}
-              tooltip="The year when the owner's average monthly unrecoverable costs become less than or equal to the renter's average monthly rent. This is when owning becomes cheaper on a monthly cash-flow basis."
+              tooltip={`The year when the owner's average monthly unrecoverable costs become less than or equal to the renter's average monthly rent. This is when owning becomes cheaper on a monthly cash-flow basis.${ownerAfterTaxInterestNote}`}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
@@ -132,7 +144,7 @@ export function MetricsDisplay({ metrics, timeline }: MetricsDisplayProps) {
                   value={metrics.totalUnrecoverableOwner5}
                   description="Cumulative owner unrecoverable costs"
                   icon={<Receipt size={20} />}
-                  tooltip="Total unrecoverable costs for the owner over 5 years. This includes interest, property taxes, insurance, maintenance, PMI, and closing costs. These are costs that don't build equity."
+                  tooltip={`Total unrecoverable costs for the owner over 5 years. This includes interest, property taxes, insurance, maintenance, PMI, and closing costs. These are costs that don't build equity.${ownerAfterTaxInterestNote}`}
                   sparklineData={ownerUnrecoverableData}
                   sparklineColor="blue"
                 />
@@ -159,7 +171,7 @@ export function MetricsDisplay({ metrics, timeline }: MetricsDisplayProps) {
                   value={metrics.totalUnrecoverableOwner10}
                   description="Cumulative owner unrecoverable costs"
                   icon={<Receipt size={20} />}
-                  tooltip="Total unrecoverable costs for the owner over 10 years. As time passes, principal payments reduce the mortgage balance, but unrecoverable costs continue."
+                  tooltip={`Total unrecoverable costs for the owner over 10 years. As time passes, principal payments reduce the mortgage balance, but unrecoverable costs continue.${ownerAfterTaxInterestNote}`}
                   sparklineData={ownerUnrecoverableData}
                   sparklineColor="blue"
                 />
@@ -186,7 +198,7 @@ export function MetricsDisplay({ metrics, timeline }: MetricsDisplayProps) {
                   value={metrics.totalUnrecoverableOwner15}
                   description="Cumulative owner unrecoverable costs"
                   icon={<Receipt size={20} />}
-                  tooltip="Total unrecoverable costs for the owner over 15 years. By this point, significant principal has been paid down, reducing interest costs."
+                  tooltip={`Total unrecoverable costs for the owner over 15 years. By this point, significant principal has been paid down, reducing interest costs.${ownerAfterTaxInterestNote}`}
                   sparklineData={ownerUnrecoverableData}
                   sparklineColor="blue"
                 />

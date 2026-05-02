@@ -98,7 +98,11 @@ export function NetWorthStackComparison({
                         That's with:
                       </Text>
                       <Text size="sm">• Conservative appreciation assumptions</Text>
-                      <Text size="sm">• No tax benefits included</Text>
+                      <Text size="sm">
+                        {inputs.mortgageInterestTaxDeductionEnabled
+                          ? "• Mortgage-interest tax write-off is modeled elsewhere (monthly snapshot, unrecoverable); not duplicated in these net-worth stack figures"
+                          : "• No tax benefits included"}
+                      </Text>
                       <Text size="sm">• No refinance scenarios</Text>
                       <Text size="sm">• Modest market returns on investments</Text>
                     </Stack>

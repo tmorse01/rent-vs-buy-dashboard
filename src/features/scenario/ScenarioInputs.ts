@@ -31,6 +31,11 @@ export interface ScenarioInputs {
 
   // Extra principal payments
   extraPrincipalPayment: number; // Monthly extra principal payment amount
+
+  /** If true, reduce owner economic cost using marginalTaxRate × mortgage interest. */
+  mortgageInterestTaxDeductionEnabled: boolean;
+  /** Combined marginal rate (percent) applied to deductible interest when enabled. */
+  marginalTaxRate: number;
 }
 
 export interface TimelinePoint {
@@ -47,7 +52,9 @@ export interface TimelinePoint {
   mortgagePayment: number;
   mortgagePrincipal: number;
   mortgageBalance: number;
-  
+  /** Monthly tax savings from mortgage interest deduction (0 if disabled or no loan). */
+  mortgageInterestTaxBenefitMonthly: number;
+
   // Rent
   rentMonthly: number;
   

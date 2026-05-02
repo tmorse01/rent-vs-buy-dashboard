@@ -4,6 +4,18 @@ import { getRentAtMonth } from './rent';
 import { calculateHomeValue } from './homeValue';
 import { calculateOwnerNetWorth } from './netWorth';
 
+/** Tax savings when itemizing deductible mortgage interest at the combined marginal rate. */
+export function monthlyMortgageInterestTaxBenefit(
+  inputs: ScenarioInputs,
+  mortgageInterest: number,
+): number {
+  if (!inputs.mortgageInterestTaxDeductionEnabled || mortgageInterest <= 0) {
+    return 0;
+  }
+  const rate = Math.min(50, Math.max(0, inputs.marginalTaxRate)) / 100;
+  return mortgageInterest * rate;
+}
+
 /**
  * Build complete timeline with all monthly data points
  */
@@ -56,9 +68,19 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       const insurance = inputs.insuranceMonthly;
       const pmi = 0; // No PMI if loan is paid off
       
-      const ownerUnrecoverableMonthly =
-        mortgageInterest + propertyTax + insurance + maintenance + pmi;
-      
+      const mortgageInterestTaxBenefitMonthly =
+        monthlyMortgageInterestTaxBenefit(inputs, mortgageInterest);
+
+      const ownerUnrecoverableMonthly = Math.max(
+        0,
+        mortgageInterest +
+          propertyTax +
+          insurance +
+          maintenance +
+          pmi -
+          mortgageInterestTaxBenefitMonthly,
+      );
+
       ownerTotalUnrecoverable += ownerUnrecoverableMonthly;
       ownerTotalPrincipalPaid += mortgagePrincipal;
       
@@ -73,7 +95,10 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       
       // Renter investment contribution
       const ownerTotalOutflow = mortgagePayment + propertyTax + insurance + maintenance + pmi;
-      const renterMonthlyContribution = Math.max(0, ownerTotalOutflow - rentMonthly);
+      const renterMonthlyContribution = Math.max(
+        0,
+        ownerTotalOutflow - mortgageInterestTaxBenefitMonthly - rentMonthly,
+      );
       
       // Update renter investment balance with monthly compounding
       const monthlyReturnRate = Math.pow(1 + inputs.annualReturnRate / 100, 1 / 12) - 1;
@@ -100,6 +125,7 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
         mortgagePayment,
         mortgagePrincipal,
         mortgageBalance,
+        mortgageInterestTaxBenefitMonthly,
         rentMonthly,
         homeValue,
         ownerNetWorth,
@@ -161,10 +187,20 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
         pmi = (loanPrincipal * (inputs.pmiRate / 100)) / 12;
       }
     }
-    
-    const ownerUnrecoverableMonthly =
-      mortgageInterest + propertyTax + insurance + maintenance + pmi;
-    
+
+    const mortgageInterestTaxBenefitMonthly =
+      monthlyMortgageInterestTaxBenefit(inputs, mortgageInterest);
+
+    const ownerUnrecoverableMonthly = Math.max(
+      0,
+      mortgageInterest +
+        propertyTax +
+        insurance +
+        maintenance +
+        pmi -
+        mortgageInterestTaxBenefitMonthly,
+    );
+
     ownerTotalUnrecoverable += ownerUnrecoverableMonthly;
     ownerTotalPrincipalPaid += mortgagePrincipal;
     
@@ -178,9 +214,12 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
     renterTotalUnrecoverable += rentMonthly;
     
     // Renter investment contribution
-    // Monthly contribution = max(0, ownerTotalOutflow - rent)
+    // Monthly contribution = max(0, ownerTotalOutflow - tax benefit equivalent - rent)
     const ownerTotalOutflow = mortgagePayment + propertyTax + insurance + maintenance + pmi;
-    const renterMonthlyContribution = Math.max(0, ownerTotalOutflow - rentMonthly);
+    const renterMonthlyContribution = Math.max(
+      0,
+      ownerTotalOutflow - mortgageInterestTaxBenefitMonthly - rentMonthly,
+    );
     
     // Update renter investment balance with monthly compounding
     const monthlyReturnRate = Math.pow(1 + inputs.annualReturnRate / 100, 1 / 12) - 1;
@@ -207,6 +246,7 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       mortgagePayment,
       mortgagePrincipal,
       mortgageBalance,
+      mortgageInterestTaxBenefitMonthly,
       rentMonthly,
       homeValue,
       ownerNetWorth,

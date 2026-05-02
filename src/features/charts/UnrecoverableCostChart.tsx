@@ -4,10 +4,12 @@ import type { TimelinePoint } from "../scenario/ScenarioInputs";
 
 interface UnrecoverableCostChartProps {
   timeline: TimelinePoint[];
+  mortgageInterestTaxDeductionEnabled?: boolean;
 }
 
 export function UnrecoverableCostChart({
   timeline,
+  mortgageInterestTaxDeductionEnabled = false,
 }: UnrecoverableCostChartProps) {
   // Calculate average monthly unrecoverable cost per year
   const yearlyData = [];
@@ -41,7 +43,10 @@ export function UnrecoverableCostChart({
           </Title>
           <Text size="sm" c="dimmed" style={{ wordBreak: "break-word" }}>
             Compare owner's monthly unrecoverable costs vs renter's monthly rent
-            over time
+            over time.
+            {mortgageInterestTaxDeductionEnabled
+              ? " Owner totals reflect interest you may recoup via the mortgage-interest deduction (write-off) on taxes, modeled as after-tax interest."
+              : ""}
           </Text>
         </Box>
         <Box style={{ width: "100%", height: 400 }}>
