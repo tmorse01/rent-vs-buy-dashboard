@@ -54,13 +54,24 @@ export function MonthlyPaymentBreakdown({
     p.mortgageInterest > 0 && interestTaxSavingsFromModel > 0
       ? (interestTaxSavingsFromModel / p.mortgageInterest) * 100
       : 0;
-  const ownerEconomicMonthly = Math.max(0, ownerCashMonthly - taxBenefit);
+  /** After modeled tax write-off + excluding principal (equity)—matches timeline unrecoverable. */
+  const ownerComparableMonthly = Math.max(0, p.ownerUnrecoverableMonthly);
   const renterMonthly = p.rentMonthly;
 
   const cashDifference = ownerCashMonthly - renterMonthly;
-  const economicDifference = ownerEconomicMonthly - renterMonthly;
+  /** Rent vs homeowner’s portion that truly doesn’t build equity—matches modeled unrecoverable costs. */
+  const comparableDifference = ownerComparableMonthly - renterMonthly;
 
-  const chartMax = Math.max(ownerCashMonthly, renterMonthly, 1);
+  const showComparableBreakdown =
+    taxBenefit > 0 ||
+    (p.mortgagePrincipal > 0 && Number.isFinite(p.mortgagePrincipal));
+
+  const chartMax = Math.max(
+    ownerCashMonthly,
+    renterMonthly,
+    showComparableBreakdown ? ownerComparableMonthly : 0,
+    1,
+  );
 
   const whoPaysMoreCash = cashDifference >= 0 ? "owner" : "renter";
 
@@ -181,28 +192,60 @@ export function MonthlyPaymentBreakdown({
                 value={ownerCashMonthly}
                 strong
               />
-              {inputs.mortgageInterestTaxDeductionEnabled && taxBenefit > 0 ? (
+              {showComparableBreakdown ? (
                 <>
+                  {inputs.mortgageInterestTaxDeductionEnabled && taxBenefit > 0 ? (
+                    <>
+                      <GroupRow
+                        label="− Estimated tax savings (interest write-off)"
+                        value={taxBenefit}
+                        valueColor="var(--mantine-color-green-7)"
+                        prefix="−"
+                      />
+                      <Text size="xs" c="dimmed" mt={-4}>
+                        Same monthly savings figure as under principal / interest,
+                        subtracted here from total owner cash outflow.
+                      </Text>
+                    </>
+                  ) : inputs.mortgageInterestTaxDeductionEnabled &&
+                    p.mortgageInterest > 0 ? (
+                    <Text size="xs" c="dimmed">
+                      No modeled interest write-off savings this month (e.g.,
+                      marginal rate 0%).
+                    </Text>
+                  ) : null}
+
+                  {(p.mortgagePrincipal ?? 0) > 0 ? (
+                    <>
+                      <GroupRow
+                        label="− Principal (builds equity; not counted as lost)"
+                        value={p.mortgagePrincipal}
+                        valueColor={COLORS.owner.primary}
+                        prefix="−"
+                      />
+                      <Text size="xs" c="dimmed" mt={-4}>
+                        This stays in home equity—you’re not forfeiting it the
+                        way you do with rent or interest on a loan.
+                      </Text>
+                    </>
+                  ) : null}
+
                   <GroupRow
-                    label="− Estimated tax savings (interest write-off)"
-                    value={taxBenefit}
-                    valueColor="var(--mantine-color-green-7)"
-                    prefix="−"
-                  />
-                  <Text size="xs" c="dimmed" mt={-4}>
-                    Same monthly savings figure as under principal / interest,
-                    subtracted here from total owner cash outflow.
-                  </Text>
-                  <GroupRow
-                    label="Economic cost after write-off (modeled)"
-                    value={ownerEconomicMonthly}
+                    label="Comparable unrecoverable this month"
+                    value={ownerComparableMonthly}
                     strong
                   />
+                  <Text size="xs" c="dimmed" mt={-4}>
+                    Models write-off savings (when on) and treats principal paid
+                    as equity, not a loss. Matches unrecoverable costs elsewhere in
+                    the dashboard.
+                  </Text>
                 </>
-              ) : inputs.mortgageInterestTaxDeductionEnabled ? (
+              ) : inputs.mortgageInterestTaxDeductionEnabled &&
+                p.mortgageInterest <= 0 ? (
                 <Text size="xs" c="dimmed">
-                  Turn on taxable interest or increase loan phase: no modeled
-                  tax benefit this month (e.g., loan paid off).
+                  No deductible interest modeled this month (e.g., loan paid off).
+                  Compare total cash vs rent above.
                 </Text>
               ) : null}
             </Stack>
@@ -237,10 +280,10 @@ export function MonthlyPaymentBreakdown({
               max={chartMax}
               color={COLORS.owner.primary}
             />
-            {inputs.mortgageInterestTaxDeductionEnabled && taxBenefit > 0 ? (
+            {showComparableBreakdown ? (
               <ComparisonBar
-                label="Owner — after interest write-off (modeled)"
-                amount={ownerEconomicMonthly}
+                label="Owner — unrecoverable (write-off modeled, excludes principal)"
+                amount={ownerComparableMonthly}
                 max={chartMax}
                 color="var(--mantine-color-green-7)"
               />
@@ -259,14 +302,14 @@ export function MonthlyPaymentBreakdown({
               ? `You pay ${formatCurrency(cashDifference)} more per month to own vs rent before tax.`
               : `Rent is ${formatCurrency(-cashDifference)} higher than owner cash outflow this month.`}
           </Text>
-          {inputs.mortgageInterestTaxDeductionEnabled && taxBenefit > 0 ? (
+          {showComparableBreakdown ? (
             <Text size="sm">
               <Text span fw={600}>
-                After modeled interest write-off:
+                Comparable to rent (unrecoverable cash only):
               </Text>{" "}
-              {economicDifference >= 0
-                ? `Owning still costs ${formatCurrency(economicDifference)} more per month than rent.`
-                : `Rent is ${formatCurrency(-economicDifference)} more than owner economic cost.`}
+              {comparableDifference >= 0
+                ? `Owning’s “lost” slice is ${formatCurrency(comparableDifference)} more per month than rent (principal excluded—it builds equity${inputs.mortgageInterestTaxDeductionEnabled ? "; write-off modeled when applicable" : ""}).`
+                : `Rent exceeds that owner burden by ${formatCurrency(-comparableDifference)} per month.`}
             </Text>
           ) : null}
         </Stack>
