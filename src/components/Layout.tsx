@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   AppShell,
   Title,
@@ -14,7 +14,9 @@ import {
   Text,
   Button,
   NavLink,
+  Checkbox,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { useDisclosure, useLocalStorage, useMediaQuery } from "@mantine/hooks";
 import {
   DeviceFloppy,
@@ -23,27 +25,59 @@ import {
   UserCircle,
   LayoutSidebar,
   X,
+  Trash,
+  Edit,
 } from "tabler-icons-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ScenarioForm } from "../features/scenario/ScenarioForm";
 import { Navigation } from "./Navigation";
 import { useScenario } from "../context/ScenarioContext";
 import { COLORS, SOLID_COLORS } from "../theme/colors";
 import { DOC_PAGES } from "../data/docsPages";
+import {
+  getScenarioMetadata,
+  listScenarios,
+  deleteScenario,
+  type SavedScenario,
+} from "../features/scenario/scenarioStorage";
+import {
+  COMPARED_SCENARIOS_QUERY_KEY,
+  SAVED_SCENARIO_QUERY_KEY,
+} from "../utils/shareScenario";
+import { formatCurrency } from "../utils/formatting";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const SCENARIO_NAVBAR_WIDTH = 360;
-const DOCS_NAVBAR_WIDTH = 260;
 const HEADER_HEIGHT = 56;
+
+function formatSavedDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function loadSavedScenariosSorted(): SavedScenario[] {
+  return listScenarios()
+    .map((name) => getScenarioMetadata(name))
+    .filter((scenario): scenario is SavedScenario => scenario !== null)
+    .sort(
+      (a, b) =>
+        new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime(),
+    );
+}
 
 export function Layout({ children }: LayoutProps) {
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setInputs } = useScenario();
+  const [, setScenarioListVersion] = useState(0);
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [
     isScenarioModalOpen,
@@ -55,9 +89,63 @@ export function Layout({ children }: LayoutProps) {
   });
   const isDashboard = location.pathname === "/";
   const isDocs = location.pathname.startsWith("/docs");
-  const showNavbar =
-    isDocs || (isDashboard && !isMobile);
-  const navbarWidth = isDocs ? DOCS_NAVBAR_WIDTH : SCENARIO_NAVBAR_WIDTH;
+  const isScenarioPage = location.pathname.startsWith("/scenarios");
+  const showNavbar = !isMobile || isDocs;
+  const savedScenarios = isScenarioPage ? loadSavedScenariosSorted() : [];
+  const allSavedScenarioNames = savedScenarios.map((scenario) => scenario.name);
+  const comparedScenarioParams = searchParams
+    .getAll(COMPARED_SCENARIOS_QUERY_KEY)
+    .filter(Boolean);
+  const hasExplicitComparisonSelection = searchParams.has(
+    COMPARED_SCENARIOS_QUERY_KEY,
+  );
+  const selectedComparisonNames = hasExplicitComparisonSelection
+    ? comparedScenarioParams
+    : allSavedScenarioNames;
+
+  const updateComparisonSelection = (nextNames: string[]) => {
+    const params = new URLSearchParams(location.search);
+    params.delete(COMPARED_SCENARIOS_QUERY_KEY);
+    if (nextNames.length === 0) {
+      params.append(COMPARED_SCENARIOS_QUERY_KEY, "");
+    } else {
+      nextNames.forEach((name) =>
+        params.append(COMPARED_SCENARIOS_QUERY_KEY, name),
+      );
+    }
+    navigate(
+      {
+        pathname: "/scenarios",
+        search: params.toString() ? `?${params.toString()}` : "",
+      },
+      { replace: true },
+    );
+  };
+
+  const toggleScenarioComparison = (name: string, checked: boolean) => {
+    const currentNames = hasExplicitComparisonSelection
+      ? comparedScenarioParams
+      : allSavedScenarioNames;
+    const nextNames = checked
+      ? Array.from(new Set([...currentNames, name]))
+      : currentNames.filter((currentName) => currentName !== name);
+
+    updateComparisonSelection(nextNames);
+  };
+
+  const handleDeleteSavedScenario = (name: string) => {
+    deleteScenario(name);
+    setScenarioListVersion((version) => version + 1);
+    notifications.show({
+      title: "Scenario deleted",
+      message: `Scenario "${name}" has been deleted.`,
+      color: "green",
+    });
+
+    updateComparisonSelection(
+      selectedComparisonNames.filter((currentName) => currentName !== name),
+    );
+  };
 
   return (
     <AppShell
@@ -65,7 +153,7 @@ export function Layout({ children }: LayoutProps) {
       navbar={
         showNavbar
           ? {
-              width: navbarWidth,
+              width: SCENARIO_NAVBAR_WIDTH,
               breakpoint: "md",
               collapsed: { mobile: !mobileOpened, desktop: false },
             }
@@ -152,6 +240,8 @@ export function Layout({ children }: LayoutProps) {
             borderRight: `1px solid ${theme.colors.gray[2]}`,
             top: `${HEADER_HEIGHT}px`,
             height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+            transition:
+              "width 180ms cubic-bezier(0.22, 1, 0.36, 1), transform 180ms cubic-bezier(0.22, 1, 0.36, 1)",
           }}
         >
           <AppShell.Section grow component={ScrollArea}>
@@ -214,6 +304,117 @@ export function Layout({ children }: LayoutProps) {
                 </Stack>
               </Stack>
             )}
+            {isScenarioPage && !isMobile && (
+              <Stack gap="md" p="lg">
+                <Title order={3} fw={600}>
+                  Saved scenarios
+                </Title>
+                {savedScenarios.length > 0 ? (
+                  <Stack gap="xs">
+                    {savedScenarios.map((scenario) => (
+                      <Paper
+                        key={scenario.name}
+                        withBorder
+                        radius="sm"
+                        p="xs"
+                        style={{ backgroundColor: theme.white }}
+                      >
+                        <Stack gap={6}>
+                          <Checkbox
+                            checked={selectedComparisonNames.includes(
+                              scenario.name,
+                            )}
+                            onChange={(event) =>
+                              toggleScenarioComparison(
+                                scenario.name,
+                                event.currentTarget.checked,
+                              )
+                            }
+                            label={
+                              <Stack gap={2}>
+                                <Text size="sm" fw={600} lineClamp={1}>
+                                  {scenario.name}
+                                </Text>
+                                <Text size="xs" c="dimmed" lineClamp={1}>
+                                  {formatCurrency(scenario.inputs.homePrice)}{" "}
+                                  home | {formatSavedDate(scenario.savedAt)}
+                                </Text>
+                              </Stack>
+                            }
+                            styles={{
+                              label: {
+                                width: "100%",
+                              },
+                              body: {
+                                alignItems: "flex-start",
+                              },
+                            }}
+                          />
+                          <Group justify="flex-end" gap={4}>
+                            <Tooltip label="Edit on dashboard" withArrow>
+                              <ActionIcon
+                                component={Link}
+                                to={`/?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(scenario.name)}`}
+                                variant="subtle"
+                                color="blue"
+                                size="sm"
+                                aria-label={`Edit ${scenario.name}`}
+                              >
+                                <Edit size={15} />
+                              </ActionIcon>
+                            </Tooltip>
+                            <Tooltip label="Delete scenario" withArrow>
+                              <ActionIcon
+                                variant="subtle"
+                                color="red"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteSavedScenario(scenario.name)
+                                }
+                                aria-label={`Delete ${scenario.name}`}
+                              >
+                                <Trash size={15} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        </Stack>
+                      </Paper>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Text size="sm" c="dimmed" lh={1.4}>
+                    Saved setups will appear here after you save them from the
+                    dashboard scenario inputs.
+                  </Text>
+                )}
+                <Button component={Link} to="/" variant="light" size="xs">
+                  Edit current inputs
+                </Button>
+              </Stack>
+            )}
+            {!isDashboard && !isDocs && !isScenarioPage && !isMobile && (
+              <Stack gap="md" p="lg">
+                <Title order={3} fw={600}>
+                  Workspace
+                </Title>
+                <Stack gap="xs">
+                  {[
+                    { to: "/", label: "Dashboard" },
+                    { to: "/scenarios", label: "Scenarios" },
+                    { to: "/docs/overview", label: "Documentation" },
+                  ].map((item) => (
+                    <NavLink
+                      key={item.to}
+                      label={item.label}
+                      component={Link}
+                      to={item.to}
+                      variant="light"
+                      color="gray"
+                    />
+                  ))}
+                </Stack>
+              </Stack>
+            )}
           </AppShell.Section>
         </AppShell.Navbar>
       )}
@@ -224,6 +425,8 @@ export function Layout({ children }: LayoutProps) {
           background: theme.colors.gray[0],
           paddingTop: `${HEADER_HEIGHT}px`,
           height: "100vh",
+          transition:
+            "padding-left 180ms cubic-bezier(0.22, 1, 0.36, 1), padding-inline-start 180ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         {showNavbar && (

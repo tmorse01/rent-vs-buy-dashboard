@@ -4,7 +4,6 @@ import {
   Home,
   AdjustmentsHorizontal,
   InfoCircle,
-  Table,
 } from "tabler-icons-react";
 import { useAppTheme } from "../theme/useAppTheme";
 
@@ -14,12 +13,11 @@ export function Navigation() {
 
   const navItems = [
     { to: "/", label: "Dashboard", icon: Home },
-    { to: "/scenarios", label: "Scenarios", icon: AdjustmentsHorizontal },
     {
-      to: "/scenarios/compare",
-      label: "Compare",
-      icon: Table,
-      match: (pathname: string) => pathname === "/scenarios/compare",
+      to: "/scenarios",
+      label: "Scenarios",
+      icon: AdjustmentsHorizontal,
+      match: (pathname: string) => pathname.startsWith("/scenarios"),
     },
     {
       to: "/docs/overview",

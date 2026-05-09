@@ -2,7 +2,7 @@ import { Container, Title, Text, Paper, Stack, List } from "@mantine/core";
 
 export function About() {
   return (
-    <Container size="xl" py="lg">
+    <Container size="xl" style={{ maxWidth: "100%" }} py="lg">
       <Stack gap="lg">
         <Title order={1}>About This Calculator</Title>
 

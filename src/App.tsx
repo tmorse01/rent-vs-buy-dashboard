@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Center, Loader, MantineProvider, Stack, Text } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "./theme/theme";
@@ -10,11 +10,6 @@ const Home = lazy(() =>
   import("./routes/Home").then((module) => ({ default: module.Home })),
 );
 const Scenarios = lazy(() =>
-  import("./routes/Scenarios").then((module) => ({
-    default: module.Scenarios,
-  })),
-);
-const ScenarioCompare = lazy(() =>
   import("./routes/ScenarioCompare").then((module) => ({
     default: module.ScenarioCompare,
   })),
@@ -37,29 +32,33 @@ function RouteFallback() {
 }
 
 function App() {
+  const location = useLocation();
+
   return (
     <MantineProvider theme={theme}>
       <Notifications position="top-center" />
       <ScenarioProvider>
         <Layout>
           <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/scenarios" element={<Scenarios />} />
-              <Route
-                path="/scenarios/compare"
-                element={<ScenarioCompare />}
-              />
-              <Route path="/docs/:page" element={<Docs />} />
-              <Route
-                path="/docs"
-                element={<Navigate to="/docs/overview" replace />}
-              />
-              <Route
-                path="/about"
-                element={<Navigate to="/docs/overview" replace />}
-              />
-            </Routes>
+            <div className="route-transition" key={location.pathname}>
+              <Routes location={location}>
+                <Route path="/" element={<Home />} />
+                <Route path="/scenarios" element={<Scenarios />} />
+                <Route
+                  path="/scenarios/compare"
+                  element={<Navigate to="/scenarios" replace />}
+                />
+                <Route path="/docs/:page" element={<Docs />} />
+                <Route
+                  path="/docs"
+                  element={<Navigate to="/docs/overview" replace />}
+                />
+                <Route
+                  path="/about"
+                  element={<Navigate to="/docs/overview" replace />}
+                />
+              </Routes>
+            </div>
           </Suspense>
         </Layout>
       </ScenarioProvider>

@@ -305,9 +305,9 @@ export function Scenarios() {
   };
 
   return (
-    <Container size="xl" py="lg">
+    <Container size="xl" style={{ maxWidth: "100%" }} py="lg">
       <Stack gap="lg">
-               <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
+        <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
           <Stack gap="xs" maw={640}>
             <Title order={1}>Your scenarios</Title>
             <Text c="dimmed" size="sm">

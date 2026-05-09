@@ -20,7 +20,7 @@ export function Docs() {
     page == null ? DOC_PAGES[0] : DOC_PAGES.find((doc) => doc.slug === page);
 
   return (
-    <Container size="xl" py="lg">
+    <Container size="xl" style={{ maxWidth: "100%" }} py="lg">
       <Stack gap="lg">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Stack gap={4}>

@@ -4,7 +4,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -12,7 +12,6 @@ import {
   Stack,
   Table,
   Paper,
-  Anchor,
   Box,
 } from "@mantine/core";
 import {
@@ -29,6 +28,7 @@ import { mergeScenarioInputs } from "../features/scenario/scenarioDefaults";
 import { buildTimeline } from "../calculations/timeline";
 import { computeMetrics } from "../calculations/metrics";
 import { formatCurrency, formatPercent } from "../utils/formatting";
+import { COMPARED_SCENARIOS_QUERY_KEY } from "../utils/shareScenario";
 
 function formatSavedDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -391,52 +391,75 @@ const stickyHeaderCell: CSSProperties = {
 };
 
 export function ScenarioCompare() {
-  const columns = useMemo(() => {
+  const [searchParams] = useSearchParams();
+  const comparisonSearch = searchParams.toString();
+  const selectedScenarioNames = useMemo(
+    () =>
+      new URLSearchParams(comparisonSearch)
+        .getAll(COMPARED_SCENARIOS_QUERY_KEY)
+        .filter(Boolean),
+    [comparisonSearch],
+  );
+  const hasExplicitComparisonSelection = searchParams.has(
+    COMPARED_SCENARIOS_QUERY_KEY,
+  );
+
+  const { columns, savedScenarioCount } = useMemo(() => {
     const saved = loadSavedScenariosSorted();
-    return saved.map((s) => {
-      const inputs = mergeScenarioInputs(s.inputs);
-      const timeline = buildTimeline(inputs);
-      const metrics = computeMetrics(timeline, inputs);
-      const last = timeline.length > 0 ? timeline[timeline.length - 1]! : null;
-      return {
-        saved: s,
-        inputs,
-        timeline,
-        metrics,
-        last,
-      } satisfies ComputedScenario;
-    });
-  }, []);
+    const selectedSaved = hasExplicitComparisonSelection
+      ? saved.filter((s) => selectedScenarioNames.includes(s.name))
+      : saved;
+
+    return {
+      savedScenarioCount: saved.length,
+      columns: selectedSaved.map((s) => {
+        const inputs = mergeScenarioInputs(s.inputs);
+        const timeline = buildTimeline(inputs);
+        const metrics = computeMetrics(timeline, inputs);
+        const last =
+          timeline.length > 0 ? timeline[timeline.length - 1]! : null;
+        return {
+          saved: s,
+          inputs,
+          timeline,
+          metrics,
+          last,
+        } satisfies ComputedScenario;
+      }),
+    };
+  }, [
+    hasExplicitComparisonSelection,
+    selectedScenarioNames,
+  ]);
 
   const minWidth = 260 + columns.length * 140;
 
   return (
-    <Container size="xl" py="lg">
+    <Container size="xl" style={{ maxWidth: "100%" }} py="lg">
       <Stack gap="lg">
         <Stack gap="xs">
           <GroupTop>
-            <Title order={1}>Compare scenarios</Title>
-            <Anchor component={Link} to="/scenarios" size="sm">
-              Back to scenario list
-            </Anchor>
+            <Title order={1}>Scenarios</Title>
           </GroupTop>
           <Text c="dimmed" size="sm" maw={720}>
-            Each column is a saved scenario. Rows group inputs and outcomes from
-            the same calculations as the dashboard. Milestone rows show N/A when
-            the analysis horizon is shorter than that year.
+            Saved scenarios are listed in the sidebar. This table compares
+            their inputs and outcomes using the same calculations as the
+            dashboard.
           </Text>
         </Stack>
 
-        {columns.length === 0 ? (
+        {savedScenarioCount === 0 ? (
           <Paper p="xl" withBorder radius="md">
             <Text c="dimmed" ta="center">
               No saved scenarios yet. Save one from the dashboard (Scenario
               inputs in the sidebar on desktop, or the expandable section at the
-              top on mobile — then the save icon), then return here.{" "}
-              <Anchor component={Link} to="/scenarios">
-                Go to scenarios
-              </Anchor>
-              .
+              top on mobile, then the save icon), then return here.
+            </Text>
+          </Paper>
+        ) : columns.length === 0 ? (
+          <Paper p="xl" withBorder radius="md">
+            <Text c="dimmed" ta="center">
+              Select at least one saved scenario in the sidebar to compare.
             </Text>
           </Paper>
         ) : (

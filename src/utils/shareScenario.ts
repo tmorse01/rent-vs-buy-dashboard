@@ -3,6 +3,7 @@ import { mergeScenarioInputs } from "../features/scenario/scenarioDefaults";
 
 /** Query key for the dashboard saved-scenario name (localStorage snapshot). */
 export const SAVED_SCENARIO_QUERY_KEY = "saved";
+export const COMPARED_SCENARIOS_QUERY_KEY = "compare";
 
 /**
  * Encode scenario inputs into a URL-safe string

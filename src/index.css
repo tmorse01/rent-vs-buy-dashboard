@@ -35,6 +35,23 @@ body {
   min-height: 100vh;
 }
 
+.route-transition {
+  width: 100%;
+  min-height: 100%;
+  animation: route-enter 120ms ease-out;
+  will-change: opacity;
+}
+
+@keyframes route-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* Typography */
 code {
   font-family: "Fira Code", "Consolas", "Monaco", "Courier New", monospace;
@@ -77,5 +94,16 @@ ol {
   * {
     box-shadow: none !important;
     text-shadow: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .route-transition {
+    animation: none;
+    will-change: auto;
   }
 }
