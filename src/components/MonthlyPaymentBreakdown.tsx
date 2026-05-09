@@ -83,11 +83,7 @@ export function MonthlyPaymentBreakdown({
             Monthly payment snapshot
           </Title>
           <Text size="sm" c="dimmed">
-            Side-by-side cash flow for month {p.month} (year {p.year}) of your
-            horizon. Mortgage includes principal plus interest.
-            {inputs.mortgageInterestTaxDeductionEnabled
-              ? " Mortgage interest you can deduct from taxable income (the write-off) effectively returns part of that interest through lower taxes—we approximate it as interest × your combined marginal rate (itemizing assumed)."
-              : null}
+            Side-by-side cash flow for month {p.month} (year {p.year}).
           </Text>
         </Box>
 
@@ -103,82 +99,41 @@ export function MonthlyPaymentBreakdown({
                   Principal {formatCurrency(p.mortgagePrincipal)} · Interest{" "}
                   {formatCurrency(p.mortgageInterest)}
                 </Text>
-                {p.mortgageInterest <= 0 ? (
-                  <Text size="xs" c="dimmed">
-                    No interest portion this month, so nothing is modeled as
-                    deductible mortgage interest.
-                  </Text>
-                ) : inputs.mortgageInterestTaxDeductionEnabled ? (
-                  <>
-                    <Text size="xs" c="dimmed" style={{ lineHeight: 1.5 }}>
-                      You can effectively recoup part of the{" "}
-                      <Text span fw={600}>
-                        {formatCurrency(p.mortgageInterest)} interest
-                      </Text>{" "}
-                      by{" "}
-                      <Text span fw={600}>
-                        reducing taxable income
-                      </Text>{" "}
-                      when you itemize and deduct qualifying mortgage
-                      interest—your combined marginal rate is how much tax that
-                      reduction avoids on each dollar of interest (modeled below).
-                    </Text>
-                    <Paper
-                      p="sm"
-                      radius="sm"
-                      withBorder
-                      style={{
-                        borderColor: "var(--mantine-color-gray-4)",
-                        background: "var(--mantine-color-gray-0)",
-                      }}
-                    >
-                      <Stack gap={6}>
-                        <Text size="xs" fw={600}>
-                          Estimated tax savings this month (crunched)
+                {p.mortgageInterest <= 0 ? null : inputs.mortgageInterestTaxDeductionEnabled ? (
+                  <Paper
+                    p="sm"
+                    radius="sm"
+                    withBorder
+                    mt={4}
+                    style={{
+                      borderColor: "var(--mantine-color-gray-4)",
+                      background: "var(--mantine-color-gray-0)",
+                    }}
+                  >
+                    <Stack gap={6}>
+                      <Text size="xs" fw={600}>
+                        Estimated tax savings
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Deducting interest reduces your taxable income.
+                      </Text>
+                      <Text size="xs" c="dimmed" ff="monospace">
+                        {formatCurrency(p.mortgageInterest)} (interest) ×{" "}
+                        {formatPercent(effectiveMarginalRate, 2)} (marginal) ≈{" "}
+                        <Text
+                          span
+                          fw={600}
+                          ff="monospace"
+                          c="var(--mantine-color-green-7)"
+                        >
+                          {formatCurrency(interestTaxSavingsFromModel)}
                         </Text>
-                        <Text size="xs" c="dimmed" ff="monospace">
-                          {formatCurrency(p.mortgageInterest)} ×{" "}
-                          {formatPercent(effectiveMarginalRate, 2)}
-                          marginal ≈{" "}
-                          <Text
-                            span
-                            fw={600}
-                            ff="monospace"
-                            c="var(--mantine-color-green-7)"
-                          >
-                            {formatCurrency(interestTaxSavingsFromModel)}
-                          </Text>
-                        </Text>
-                        {inputs.marginalTaxRate !== effectiveMarginalRate ? (
-                          <Text size="xs" c="dimmed">
-                            Uses a capped marginal rate of 0%–50% for this estimate.
-                          </Text>
-                        ) : null}
-                        <Text size="xs" c="dimmed">
-                          That is roughly{" "}
-                          <Text span fw={600}>
-                            {formatPercent(pctOfInterestRecoupedViaTax, 1)}
-                          </Text>{" "}
-                          of this month&apos;s interest returned through lower
-                          taxes (itemizing assumed). Net interest economic cost
-                          after this modeled recoup:{" "}
-                          <Text span fw={600}>
-                            {formatCurrency(netInterestAfterRecoup)}
-                          </Text>
-                          .
-                        </Text>
-                      </Stack>
-                    </Paper>
-                  </>
+                      </Text>
+                    </Stack>
+                  </Paper>
                 ) : (
                   <Text size="xs" c="dimmed" style={{ lineHeight: 1.5 }}>
-                    Turn on{" "}
-                    <Text span fw={600}>
-                      Model mortgage interest tax benefit
-                    </Text>{" "}
-                    in scenario inputs to crunch how much of this{" "}
-                    {formatCurrency(p.mortgageInterest)} interest you might recoup
-                    by lowering taxable income at your marginal rate.
+                    Enable <Text span fw={600}>Model mortgage interest tax benefit</Text> in scenario inputs to estimate tax savings.
                   </Text>
                 )}
               </Stack>
@@ -195,50 +150,35 @@ export function MonthlyPaymentBreakdown({
               {showComparableBreakdown ? (
                 <>
                   {inputs.mortgageInterestTaxDeductionEnabled && taxBenefit > 0 ? (
-                    <>
-                      <GroupRow
-                        label="− Estimated tax savings (interest write-off)"
-                        value={taxBenefit}
-                        valueColor="var(--mantine-color-green-7)"
-                        prefix="−"
-                      />
-                      <Text size="xs" c="dimmed" mt={-4}>
-                        Same monthly savings figure as under principal / interest,
-                        subtracted here from total owner cash outflow.
-                      </Text>
-                    </>
-                  ) : inputs.mortgageInterestTaxDeductionEnabled &&
-                    p.mortgageInterest > 0 ? (
-                    <Text size="xs" c="dimmed">
-                      No modeled interest write-off savings this month (e.g.,
-                      marginal rate 0%).
-                    </Text>
+                    <GroupRow
+                      label="− Estimated tax savings (interest write-off)"
+                      value={taxBenefit}
+                      valueColor="var(--mantine-color-green-7)"
+                      prefix="−"
+                    />
                   ) : null}
 
                   {(p.mortgagePrincipal ?? 0) > 0 ? (
                     <>
                       <GroupRow
-                        label="− Principal (builds equity; not counted as lost)"
+                        label="− Principal (builds equity)"
                         value={p.mortgagePrincipal}
                         valueColor={COLORS.owner.primary}
                         prefix="−"
                       />
                       <Text size="xs" c="dimmed" mt={-4}>
-                        This stays in home equity—you’re not forfeiting it the
-                        way you do with rent or interest on a loan.
+                        Unlike rent or interest, principal payments build home equity.
                       </Text>
                     </>
                   ) : null}
 
                   <GroupRow
-                    label="Comparable unrecoverable this month"
+                    label="Comparable unrecoverable costs"
                     value={ownerComparableMonthly}
                     strong
                   />
                   <Text size="xs" c="dimmed" mt={-4}>
-                    Models write-off savings (when on) and treats principal paid
-                    as equity, not a loss. Matches unrecoverable costs elsewhere in
-                    the dashboard.
+                    The true "lost" cost of owning (cash outflow minus equity built and tax savings). Directly comparable to rent.
                   </Text>
                 </>
               ) : inputs.mortgageInterestTaxDeductionEnabled &&
@@ -282,7 +222,7 @@ export function MonthlyPaymentBreakdown({
             />
             {showComparableBreakdown ? (
               <ComparisonBar
-                label="Owner — unrecoverable (write-off modeled, excludes principal)"
+                label="Owner — unrecoverable costs"
                 amount={ownerComparableMonthly}
                 max={chartMax}
                 color="var(--mantine-color-green-7)"
@@ -299,17 +239,17 @@ export function MonthlyPaymentBreakdown({
               Cash difference:
             </Text>{" "}
             {whoPaysMoreCash === "owner"
-              ? `You pay ${formatCurrency(cashDifference)} more per month to own vs rent before tax.`
-              : `Rent is ${formatCurrency(-cashDifference)} higher than owner cash outflow this month.`}
+              ? `Owning requires ${formatCurrency(cashDifference)} more out-of-pocket this month.`
+              : `Renting requires ${formatCurrency(-cashDifference)} more out-of-pocket this month.`}
           </Text>
           {showComparableBreakdown ? (
             <Text size="sm">
               <Text span fw={600}>
-                Comparable to rent (unrecoverable cash only):
+                Unrecoverable cost difference:
               </Text>{" "}
               {comparableDifference >= 0
-                ? `Owning’s “lost” slice is ${formatCurrency(comparableDifference)} more per month than rent (principal excluded—it builds equity${inputs.mortgageInterestTaxDeductionEnabled ? "; write-off modeled when applicable" : ""}).`
-                : `Rent exceeds that owner burden by ${formatCurrency(-comparableDifference)} per month.`}
+                ? `Owning "loses" ${formatCurrency(comparableDifference)} more this month than renting.`
+                : `Renting "loses" ${formatCurrency(-comparableDifference)} more this month than owning.`}
             </Text>
           ) : null}
         </Stack>
