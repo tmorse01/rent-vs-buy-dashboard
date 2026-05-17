@@ -135,13 +135,32 @@ export function NetWorthStackComparison({
                 <Table.Tbody>
                   <Table.Tr>
                     <Table.Td>
-                      <Text fw={500}>Down payment equity</Text>
+                      <Group gap={6} wrap="nowrap">
+                        <Text fw={500}>Upfront capital</Text>
+                        <Tooltip
+                          withArrow
+                          label={
+                            <Text size="sm">
+                              Same dollar amount as the buyer&apos;s down payment:
+                              locked in home equity when buying, invested on day
+                              one when renting (see calculations timeline).
+                            </Text>
+                          }
+                        >
+                          <Box style={{ display: "flex", alignItems: "center" }}>
+                            <InfoCircle
+                              size={14}
+                              style={{ cursor: "help", opacity: 0.6 }}
+                            />
+                          </Box>
+                        </Tooltip>
+                      </Group>
                     </Table.Td>
                     <Table.Td style={{ textAlign: "right" }}>
                       <Text fw={600}>{formatCurrency(downPaymentAmount)}</Text>
                     </Table.Td>
                     <Table.Td style={{ textAlign: "right" }}>
-                      <Text c="dimmed">—</Text>
+                      <Text fw={600}>{formatCurrency(downPaymentAmount)}</Text>
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
