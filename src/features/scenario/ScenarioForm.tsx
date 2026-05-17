@@ -234,7 +234,7 @@ export function ScenarioForm({
   const lastSyncedSavedParamRef = useRef<string | null>(null);
 
   const syncSavedNameToUrl = (name: string | null) => {
-    if (location.pathname !== "/") return;
+    if (location.pathname !== "/dashboard") return;
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
@@ -251,7 +251,7 @@ export function ScenarioForm({
   };
 
   useEffect(() => {
-    if (location.pathname !== "/") return;
+    if (location.pathname !== "/dashboard") return;
 
     const hasEncodedShare = getScenarioFromUrl() !== null;
     if (hasEncodedShare) {
@@ -311,7 +311,7 @@ export function ScenarioForm({
   ]);
 
   useEffect(() => {
-    if (location.pathname !== "/") return;
+    if (location.pathname !== "/dashboard") return;
     if (savedParam) return;
     if (getScenarioFromUrl() !== null) return;
 
@@ -351,7 +351,7 @@ export function ScenarioForm({
   }, [isScenarioModalOpen, selectedSavedScenario]);
 
   useEffect(() => {
-    if (location.pathname === "/") {
+    if (location.pathname === "/dashboard") {
       setSavedScenarios(listScenarios());
     }
   }, [location.pathname]);
@@ -373,7 +373,7 @@ export function ScenarioForm({
   }, [form.values, inputsSnapshot]);
 
   useEffect(() => {
-    if (location.pathname !== "/") return;
+    if (location.pathname !== "/dashboard") return;
     if (!isDirty) return;
     if (!savedParam) return;
     setSearchParams(

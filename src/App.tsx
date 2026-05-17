@@ -6,6 +6,12 @@ import { theme } from "./theme/theme";
 import { ScenarioProvider } from "./context/ScenarioContext";
 import { Layout } from "./components/Layout";
 
+const Landing = lazy(() =>
+  import("./routes/Landing").then((module) => ({
+    default: module.Landing,
+  })),
+);
+
 const Home = lazy(() =>
   import("./routes/Home").then((module) => ({ default: module.Home })),
 );
@@ -42,7 +48,8 @@ function App() {
           <Suspense fallback={<RouteFallback />}>
             <div className="route-transition" key={location.pathname}>
               <Routes location={location}>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Landing />} />
+                <Route path="/dashboard" element={<Home />} />
                 <Route path="/scenarios" element={<Scenarios />} />
                 <Route
                   path="/scenarios/compare"

@@ -15,6 +15,8 @@ import {
   Button,
   NavLink,
   Checkbox,
+  UnstyledButton,
+  Box,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure, useLocalStorage, useMediaQuery } from "@mantine/hooks";
@@ -87,7 +89,7 @@ export function Layout({ children }: LayoutProps) {
     key: "rvb_onboarding_dismissed",
     defaultValue: false,
   });
-  const isDashboard = location.pathname === "/";
+  const isDashboard = location.pathname === "/dashboard";
   const isDocs = location.pathname.startsWith("/docs");
   const isScenarioPage = location.pathname.startsWith("/scenarios");
   const showNavbar = !isMobile || isDocs;
@@ -173,18 +175,40 @@ export function Layout({ children }: LayoutProps) {
       >
         <Group h="100%" justify="space-between" wrap="nowrap" gap="xs">
           <Group gap="xs" wrap="nowrap">
-            <ActionIcon
-              size="lg"
-              radius="xl"
-              variant="filled"
-              aria-label="Rent vs Buy"
+            <UnstyledButton
+              component={Link}
+              to="/"
+              aria-label="HomeEdge home"
               style={{
-                backgroundColor: COLORS.brand.primary,
-                color: theme.white,
+                borderRadius: theme.radius.xl,
               }}
             >
-              <HomeStats size={20} />
-            </ActionIcon>
+              <Group gap="xs" wrap="nowrap">
+                <Box
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: theme.radius.xl,
+                    backgroundColor: COLORS.brand.primary,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: theme.white,
+                  }}
+                >
+                  <HomeStats size={20} />
+                </Box>
+                <Text
+                  fw={700}
+                  size="lg"
+                  c={COLORS.neutral.textPrimary}
+                  visibleFrom="sm"
+                  style={{ letterSpacing: "-0.02em" }}
+                >
+                  HomeEdge
+                </Text>
+              </Group>
+            </UnstyledButton>
           </Group>
           <Group
             gap="xs"
@@ -354,7 +378,7 @@ export function Layout({ children }: LayoutProps) {
                             <Tooltip label="Edit on dashboard" withArrow>
                               <ActionIcon
                                 component={Link}
-                                to={`/?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(scenario.name)}`}
+                                to={`/dashboard?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(scenario.name)}`}
                                 variant="subtle"
                                 color="blue"
                                 size="sm"
@@ -387,7 +411,7 @@ export function Layout({ children }: LayoutProps) {
                     dashboard scenario inputs.
                   </Text>
                 )}
-                <Button component={Link} to="/" variant="light" size="xs">
+                <Button component={Link} to="/dashboard" variant="light" size="xs">
                   Edit current inputs
                 </Button>
               </Stack>
@@ -399,7 +423,8 @@ export function Layout({ children }: LayoutProps) {
                 </Title>
                 <Stack gap="xs">
                   {[
-                    { to: "/", label: "Dashboard" },
+                    { to: "/", label: "Home" },
+                    { to: "/dashboard", label: "Dashboard" },
                     { to: "/scenarios", label: "Scenarios" },
                     { to: "/docs/overview", label: "Documentation" },
                   ].map((item) => (

@@ -4,6 +4,7 @@ import {
   Home,
   AdjustmentsHorizontal,
   InfoCircle,
+  HomeStats,
 } from "tabler-icons-react";
 import { useAppTheme } from "../theme/useAppTheme";
 
@@ -12,7 +13,8 @@ export function Navigation() {
   const { theme } = useAppTheme();
 
   const navItems = [
-    { to: "/", label: "Dashboard", icon: Home },
+    { to: "/", label: "Home", icon: Home },
+    { to: "/dashboard", label: "Dashboard", icon: HomeStats },
     {
       to: "/scenarios",
       label: "Scenarios",

@@ -1,5 +1,5 @@
 import {
-  Grid,
+  Box,
   Text,
   Title,
   Group,
@@ -33,6 +33,16 @@ import {
   DASHBOARD_SECTION_IDS,
   scrollToDashboardSection,
 } from "../constants/dashboardSections";
+
+/** Minimum width per KPI card before wrapping to the next row */
+const KPI_CARD_MIN_WIDTH_PX = 260;
+
+const kpiCardSlotStyle = {
+  flex: `1 1 ${KPI_CARD_MIN_WIDTH_PX}px`,
+  minWidth: KPI_CARD_MIN_WIDTH_PX,
+  maxWidth: "100%",
+  display: "flex",
+} as const;
 
 interface KeyInsightsProps {
   metrics: Metrics;
@@ -116,16 +126,23 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
   const leaderWhy = scenarioLeaderWhy(scenarioLeader, inputs);
 
   return (
-    <Grid gutter="md">
-      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+    <Box
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "stretch",
+        gap: "var(--mantine-spacing-md)",
+      }}
+    >
+      <Box style={kpiCardSlotStyle}>
         <ColorAccentCard
           p="lg"
           radius="md"
           backgroundGradient={gradients.owner}
         >
           <Stack gap="md">
-            <Group gap="xs" wrap="nowrap" justify="space-between">
-              <Group gap="xs" wrap="nowrap">
+            <Group gap="xs" wrap="wrap" justify="space-between" align="flex-start">
+              <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
                 <TrendingUp size={18} />
                 <Text size="lg" fw={700}>
                   Scenario Leader
@@ -228,17 +245,17 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
             </Anchor>
           </Stack>
         </ColorAccentCard>
-      </Grid.Col>
+      </Box>
 
-      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+      <Box style={kpiCardSlotStyle}>
         <ColorAccentCard
           p="lg"
           radius="md"
           backgroundGradient={gradients.purple}
         >
           <Stack gap="md">
-            <Group gap="xs" wrap="nowrap" justify="space-between">
-              <Group gap="xs" wrap="nowrap">
+            <Group gap="xs" wrap="wrap" justify="space-between" align="flex-start">
+              <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
                 <CurrencyDollar size={18} />
                 <Text size="lg" fw={700}>
                   Net Worth Comparison
@@ -335,17 +352,17 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
             </Anchor>
           </Stack>
         </ColorAccentCard>
-      </Grid.Col>
+      </Box>
 
-      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+      <Box style={kpiCardSlotStyle}>
         <ColorAccentCard
           p="lg"
           radius="md"
           backgroundGradient={gradients.warning}
         >
           <Stack gap="md">
-            <Group gap="xs" wrap="nowrap" justify="space-between">
-              <Group gap="xs" wrap="nowrap">
+            <Group gap="xs" wrap="wrap" justify="space-between" align="flex-start">
+              <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
                 <AlertTriangle size={18} />
                 <Text size="lg" fw={700}>
                   Unrecoverable Costs
@@ -440,13 +457,13 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
             </Anchor>
           </Stack>
         </ColorAccentCard>
-      </Grid.Col>
+      </Box>
 
-      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+      <Box style={kpiCardSlotStyle}>
         <ColorAccentCard p="lg" radius="md" backgroundGradient={gradients.teal}>
           <Stack gap="md">
-            <Group gap="xs" wrap="nowrap" justify="space-between">
-              <Group gap="xs" wrap="nowrap">
+            <Group gap="xs" wrap="wrap" justify="space-between" align="flex-start">
+              <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
                 <Calendar size={18} />
                 <Text size="lg" fw={700}>
                   Break-Even Point
@@ -540,7 +557,7 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
             </Anchor>
           </Stack>
         </ColorAccentCard>
-      </Grid.Col>
-    </Grid>
+      </Box>
+    </Box>
   );
 }

@@ -77,7 +77,7 @@ function ScenarioCard({ scenario, onLoad, onDelete }: ScenarioCardProps) {
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ flex: 1 }}>
             <Link
-              to={`/?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(scenario.name)}`}
+              to={`/dashboard?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(scenario.name)}`}
               onClick={(e) => onLoad(e, scenario.name)}
               style={{
                 textDecoration: "none",
@@ -281,7 +281,7 @@ export function Scenarios() {
           message: `Scenario "${name}" has been loaded successfully.`,
           color: "blue",
         });
-        navigate(`/?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(name)}`);
+        navigate(`/dashboard?${SAVED_SCENARIO_QUERY_KEY}=${encodeURIComponent(name)}`);
       });
     } else {
       notifications.show({
