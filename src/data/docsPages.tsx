@@ -1,4 +1,5 @@
-import { Stack, Text, List, Blockquote } from "@mantine/core";
+import { Stack, Text, List, Blockquote, Anchor } from "@mantine/core";
+import { Link } from "react-router-dom";
 
 export const DOC_PAGES = [
   {
@@ -75,8 +76,9 @@ export const DOC_PAGES = [
             unless you set lower real growth rates.
           </List.Item>
           <List.Item>
-            <strong>Taxes:</strong> not modeled in detail; treat outputs as
-            directional, not advice.
+            <strong>Taxes:</strong> simplified optional modeling for deductible
+            mortgage interest and residential rental depreciation—not a substitute
+            for tax advice or a full Schedule&nbsp;E.
           </List.Item>
         </List>
         <Text>
@@ -121,6 +123,14 @@ export const DOC_PAGES = [
             <strong>Investing:</strong> return rate and “invest the difference”
             rule for monthly surplus.
           </List.Item>
+          <List.Item>
+            <strong>House hack:</strong> optional gross rental income offsets and
+            a simplified depreciation tax shield (
+            <Anchor component={Link} to="/docs/house-hack">
+              Documentation → House hack
+            </Anchor>
+            ).
+          </List.Item>
         </List>
       </Stack>
     ),
@@ -162,6 +172,46 @@ export const DOC_PAGES = [
           Example: on a $500k home, a $3,000 payment might be $1,800 interest
           and $1,200 principal. The $1,800 is cash‑loss; the $1,200 builds
           equity.
+        </Text>
+      </Stack>
+    ),
+  },
+  {
+    slug: "house-hack",
+    title: "House hack (optional)",
+    summary:
+      "Rent part of your home, offset owning costs, and understand the depreciation shorthand—without mistaking modeled tax savings for a full Schedule E simulation.",
+    content: (
+      <Stack gap="sm">
+        <Text>
+          Enabling House hack feeds <strong>gross</strong> tenant rent straight
+          into the cash-loss math plus an optional depreciation tax shield. Vacancy,
+          repairs, management fees, HOA splits, capex reserves, financing points,
+          and real-world depreciation conventions are deliberately omitted—the goal
+          is a directional knob, not a landlord P&amp;L.
+        </Text>
+        <Text>
+          Income follows the same <strong>annual step</strong> pattern as tenant
+          rent inputs: rent is flat within each calendar year, then bumps once when
+          a new year starts.
+        </Text>
+        <Text fw={600}>Square footage sanity check</Text>
+        <Text>
+          1,300 rented sq ft ÷ 3,000 total ≈ <strong>43.3%</strong> of interior
+          area—not ~30%. A ~30% share would imply ≈900 ÷ 3,000. Also remember the
+          model separates <strong>land</strong> (not depreciated) via the land %
+          slider before applying the rented fraction to depreciable{" "}
+          <strong>building</strong> basis.
+        </Text>
+        <Text fw={600}>Depreciation disclaimer</Text>
+        <Text>
+          The tool approximates depreciation as rental building allocation ÷ 27.5
+          years, then treats the deduction&apos;s valuation like other toggles{" "}
+          (deduction × marginal rate ÷ month). Actual returns involve mid-month
+          rules, allocations, passive activity limits, capital accounts, basis
+          changes, and <strong>recapture</strong> when you exit—none of which are
+          net-worth-layered yet. Discuss strategy with a tax pro before banking on
+          the cash-flow wedge.
         </Text>
       </Stack>
     ),

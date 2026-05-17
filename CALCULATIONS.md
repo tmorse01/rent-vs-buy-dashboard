@@ -11,6 +11,7 @@ This document explains how all major metrics are calculated in the Rent vs. Buy 
 5. [Mortgage Calculations](#mortgage-calculations)
 6. [Investment Returns](#investment-returns)
 7. [Rent Growth](#rent-growth)
+8. [House Hack (Optional)](#house-hack-optional)
 
 ---
 
@@ -20,13 +21,31 @@ Unrecoverable costs are expenses that don't build equity or wealth—money spent
 
 ### Owner Unrecoverable Costs
 
-For homeowners, unrecoverable costs are calculated monthly as:
+For homeowners, the **base** recurring costs match interest plus ownership carrying costs:
 
 ```
-ownerUnrecoverableMonthly = mortgageInterest + propertyTax + insurance + maintenance + PMI
+baseMonthly = mortgageInterest + propertyTax + insurance + maintenance + PMI
 ```
 
-Where:
+Then optional modeled items reduce counted **cash-loss burden** before clamping:
+
+```
+ownerUnrecoverableMonthly = max(
+  0,
+  baseMonthly
+    − mortgageInterestTaxBenefitMonthly
+    − houseHackRentalIncomeMonthly
+    − rentalDepreciationTaxBenefitMonthly
+)
+```
+
+**Optional modeled adjustments** (all zero when the corresponding toggle is off):
+
+- **`mortgageInterestTaxBenefitMonthly`**: If enabled, roughly `mortgageInterest × (marginalTaxRate ÷ 100)`. Does **not** model itemizing vs. standard deduction, loan limits, or SALT caps.
+- **`houseHackRentalIncomeMonthly`**: Gross rent collected from modeled rental square footage; grows once per **year**, same pacing as tenant rent inputs.
+- **`rentalDepreciationTaxBenefitMonthly`**: Rough cash-flow-valued shield from allocating part of purchase **building** basis to depreciation over **27.5 years**. See [House Hack](#house-hack-optional).
+
+Where the recurring **ownership** pieces are:
 
 - **Mortgage Interest**: The interest portion of the monthly mortgage payment (from amortization schedule)
 - **Property Tax**: `(homeValue * propertyTaxRate) / 12`
@@ -98,7 +117,7 @@ renterNetWorth = renterInvestmentBalance
 
 The investment balance grows through:
 1. Initial deposit (down payment amount)
-2. Monthly contributions (difference between owner's total outflow and rent)
+2. Monthly contributions (difference between owner's net outflow—with optional tax offsets and modeled rental income deductions—and comparable rent elsewhere)
 3. Investment returns with monthly compounding
 
 ### Net Worth Delta
@@ -260,14 +279,18 @@ initialInvestment = homePrice × (downPaymentPercent / 100)
 
 ### Monthly Contribution
 
-Each month, the renter invests the difference between what the owner pays and what they pay in rent:
+Each month, the renter invests the modeled surplus versus paying rent elsewhere:
 
 ```
-ownerTotalOutflow = mortgagePayment + propertyTax + insurance + maintenance + PMI
-renterMonthlyContribution = max(0, ownerTotalOutflow - rentMonthly)
+ownerTotalOutflow = mortgagePayment + propertyTax + insurance + maintenance + PMI − houseHackRentalIncomeMonthly
+renterMonthlyContribution = max(
+  0,
+  ownerTotalOutflow
+    − mortgageInterestTaxBenefitMonthly
+    − rentalDepreciationTaxBenefitMonthly
+    − rentMonthly
+)
 ```
-
-If rent is higher than the owner's total outflow, no contribution is made (the renter is already paying more).
 
 ### Investment Balance with Monthly Compounding
 
@@ -338,6 +361,44 @@ rentMonthly = initialRent × (1 + rentGrowthRate)^year
 
 ---
 
+## House Hack (Optional)
+
+House hacking treats part of your home like **gross rental income** (no vacancy or expense deductions) plus an optional **tax-shield approximation** from residential rental depreciation. This section is informational only—not tax advice.
+
+### Rental income offset
+
+Same annual step pacing as tenant rent (`getRentAtMonth`):
+
+```
+year = floor((month − 1) / 12)
+houseHackRentalIncomeMonthly = houseHackMonthlyRent × (1 + houseHackRentGrowthAnnual)^(year)
+```
+(when House hack modeling is disabled, this term is treated as zero).
+
+### Correcting a common misconception (square footage)
+
+If **rented square footage ÷ total square footage = 1300 ÷ 3000**, that allocation is approximately **43.3%**, not ~30%. (To get roughly 30% of square footage under this model you would need about **900 ÷ 3000**.)
+
+Moreover, depreciation is **not** “your annual write-off equals that percentage × full home purchase price.” Only the **building** portion of basis is depreciable in real life (**land isn’t**). The calculator uses **`landValuePercentOfPurchase`** to carve land from purchase price:
+
+```
+buildingBasisApprox = homePrice × (1 − landValuePercent / 100)
+rentalAllocatedBuildingBasis = buildingBasisApprox × (rentalSquareFootage / totalSquareFootage)
+annualDepreciationDeduction ≈ rentalAllocatedBuildingBasis / 27.5
+```
+
+Residential rental MACRS convention is summarized as straight-line **27.5 years** (real returns use mid-quarter/mid-month details this tool skips).
+
+Monthly **cash-flow-valued** tax modeling (matching the mortgage-interest toggle style):
+
+```
+rentalDepreciationTaxBenefitMonthly = (annualDepreciationDeduction × marginalTaxRate / 100) / 12
+```
+
+The depreciation **basis stays fixed at purchase allocation** throughout the horizon; it does **not** re-scale with appreciating `homeValue`. **Depreciation recapture**, passive activity limits, allocations between personal vs. rental use, and allocations from appraisal are **not modeled**.
+
+---
+
 ## Implementation Notes
 
 ### Monthly vs. Annual Compounding
@@ -353,8 +414,9 @@ All calculations are performed month-by-month to build a complete timeline:
 1. For each month (1 to `horizonYears × 12`):
    - Calculate home value (with appreciation)
    - Calculate mortgage balance and payments (from amortization schedule)
-   - Calculate owner unrecoverable costs
-   - Calculate rent (with annual growth)
+   - Calculate optional house hack rent income and depreciation tax shield
+   - Calculate owner unrecoverable costs (including optional tax / rent offsets)
+   - Calculate tenant rent (`currentRent`) (with annual growth)
    - Calculate renter investment balance (with monthly compounding)
    - Calculate net worth for both scenarios
    - Accumulate totals
@@ -378,7 +440,7 @@ All calculations are performed month-by-month to build a complete timeline:
 ## Assumptions and Limitations
 
 1. **Constant growth rates**: Assumes consistent appreciation, rent growth, and investment returns
-2. **No tax benefits**: Does not account for mortgage interest deductions or capital gains
+2. **Simplified taxes** (when enabled): Optional mortgage-interest and rental-depreciation shields use `annual_amount × marginal rate` styling; standard deduction vs. itemizing, SALT caps, qualified business income, depreciation recapture, capital gains holding periods, passive activity losses, IRS allocation rules between personal and rental use, and depreciation conventions beyond straight-line `/ 27.5` are **not** modeled—treat outputs as directional, not tax advice
 3. **No refinancing**: Assumes original mortgage terms throughout
 4. **Perfect investment**: Assumes renter invests all savings consistently
 5. **Selling costs**: Uses fixed percentage (typically 6-8%)

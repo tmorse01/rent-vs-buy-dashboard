@@ -3,6 +3,20 @@ import { mergeScenarioInputs } from './scenarioDefaults';
 
 const STORAGE_KEY_PREFIX = 'rent-vs-buy-scenario-';
 const SCENARIO_LIST_KEY = 'rent-vs-buy-scenario-list';
+const ACTIVE_SAVED_SCENARIO_KEY = 'rent-vs-buy-active-saved-scenario';
+
+/** Last scenario chosen in the dashboard Scenario dropdown (survives tab navigation). */
+export function getActiveSavedScenarioName(): string | null {
+  return localStorage.getItem(ACTIVE_SAVED_SCENARIO_KEY);
+}
+
+export function setActiveSavedScenarioName(name: string | null): void {
+  if (name) {
+    localStorage.setItem(ACTIVE_SAVED_SCENARIO_KEY, name);
+  } else {
+    localStorage.removeItem(ACTIVE_SAVED_SCENARIO_KEY);
+  }
+}
 
 export interface SavedScenario {
   name: string;
@@ -74,7 +88,11 @@ export function listScenarios(): string[] {
 export function deleteScenario(name: string): void {
   const key = `${STORAGE_KEY_PREFIX}${name}`;
   localStorage.removeItem(key);
-  
+
+  if (getActiveSavedScenarioName() === name) {
+    setActiveSavedScenarioName(null);
+  }
+
   // Update scenario list
   const list = listScenarios().filter((n) => n !== name);
   localStorage.setItem(SCENARIO_LIST_KEY, JSON.stringify(list));

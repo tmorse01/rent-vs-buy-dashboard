@@ -128,6 +128,9 @@ export function BreakEvenRecommendation({
             {inputs.mortgageInterestTaxDeductionEnabled
               ? " When enabled, owner costs subtract the portion of mortgage interest you can effectively recoup by writing it off (deducting it) against taxable income, estimated at your combined marginal rate—if you qualify and itemize."
               : null}
+            {inputs.houseHackEnabled
+              ? " With house hacking enabled, modeled gross rental income and (optionally) a simplified depreciation tax shield also reduce counted owner burdens; this is still an apples‑to‑apples shorthand vs. renting elsewhere—not a landlord P&L."
+              : null}
           </Text>
         </Stack>
 

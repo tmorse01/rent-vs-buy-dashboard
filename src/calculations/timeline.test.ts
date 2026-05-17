@@ -1,29 +1,33 @@
 import { describe, it, expect } from "vitest";
 import { buildTimeline } from "./timeline";
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
+import { mergeScenarioInputs } from "../features/scenario/scenarioDefaults";
 
 describe("Timeline Calculations", () => {
-  const createBaseInputs = (): ScenarioInputs => ({
-    homePrice: 500000,
-    downPaymentPercent: 20,
-    interestRate: 6,
-    loanTermYears: 30,
-    propertyTaxRate: 1.2,
-    insuranceMonthly: 150,
-    maintenanceRate: 1,
-    sellingCostRate: 8,
-    closingCostRate: 3,
-    currentRent: 2000,
-    rentGrowthRate: 3,
-    annualReturnRate: 6,
-    annualAppreciationRate: 3,
-    horizonYears: 15,
-    pmiEnabled: false,
-    pmiRate: 0.5,
-    extraPrincipalPayment: 0,
-    mortgageInterestTaxDeductionEnabled: false,
-    marginalTaxRate: 24,
-  });
+  const createBaseInputs = (): ScenarioInputs =>
+    mergeScenarioInputs({
+      homePrice: 500000,
+      downPaymentPercent: 20,
+      interestRate: 6,
+      loanTermYears: 30,
+      propertyTaxRate: 1.2,
+      insuranceMonthly: 150,
+      maintenanceRate: 1,
+      sellingCostRate: 8,
+      closingCostRate: 3,
+      currentRent: 2000,
+      rentGrowthRate: 3,
+      annualReturnRate: 6,
+      annualAppreciationRate: 3,
+      horizonYears: 15,
+      pmiEnabled: false,
+      pmiRate: 0.5,
+      extraPrincipalPayment: 0,
+      mortgageInterestTaxDeductionEnabled: false,
+      marginalTaxRate: 24,
+      houseHackEnabled: false,
+      rentalDepreciationTaxBenefitEnabled: false,
+    });
 
   it("generates correct timeline length", () => {
     const inputs = createBaseInputs();
@@ -121,13 +125,17 @@ describe("Timeline Calculations", () => {
         point.insurance +
         point.maintenance +
         point.pmi -
-        point.mortgageInterestTaxBenefitMonthly;
+        point.mortgageInterestTaxBenefitMonthly -
+        point.houseHackRentalIncomeMonthly -
+        point.rentalDepreciationTaxBenefitMonthly;
 
       expect(point.ownerUnrecoverableMonthly).toBeCloseTo(
         expectedUnrecoverable,
         2
       );
       expect(point.mortgageInterestTaxBenefitMonthly).toBe(0);
+      expect(point.houseHackRentalIncomeMonthly).toBe(0);
+      expect(point.rentalDepreciationTaxBenefitMonthly).toBe(0);
 
       // Verify principal is NOT included - unrecoverable should be less than mortgage payment
       // (mortgage payment = interest + principal, but unrecoverable = interest + other costs)
@@ -220,11 +228,11 @@ describe("Timeline Calculations", () => {
     const base = createBaseInputs();
 
     const offTimeline = buildTimeline(base);
-    const onInputs = {
+    const onInputs = mergeScenarioInputs({
       ...base,
       mortgageInterestTaxDeductionEnabled: true,
       marginalTaxRate: 30,
-    };
+    });
     const onTimeline = buildTimeline(onInputs);
 
     expect(onTimeline[0]!.renterMonthlyContribution).toBeLessThan(
@@ -232,6 +240,61 @@ describe("Timeline Calculations", () => {
     );
     expect(onTimeline[0]!.ownerUnrecoverableMonthly).toBeLessThan(
       offTimeline[0]!.ownerUnrecoverableMonthly,
+    );
+  });
+
+  it("house hack rental income lowers owner unrecoverable and raises renter contribution", () => {
+    const plain = createBaseInputs();
+    const hack = mergeScenarioInputs({
+      ...createBaseInputs(),
+      houseHackEnabled: true,
+      houseHackMonthlyRent: 900,
+      houseHackRentGrowthAnnualPercent: 0,
+      mortgageInterestTaxDeductionEnabled: false,
+      rentalDepreciationTaxBenefitEnabled: false,
+    });
+    const t0 = buildTimeline(plain)[0]!;
+    const h0 = buildTimeline(hack)[0]!;
+    expect(h0.houseHackRentalIncomeMonthly).toBe(900);
+    expect(h0.ownerUnrecoverableMonthly).toBeLessThan(t0.ownerUnrecoverableMonthly);
+    expect(h0.renterMonthlyContribution).toBeLessThan(
+      t0.renterMonthlyContribution,
+    );
+  });
+
+  it("annual step grows house hack rent like tenant rent pacing", () => {
+    const hack = mergeScenarioInputs({
+      ...createBaseInputs(),
+      houseHackEnabled: true,
+      houseHackMonthlyRent: 1000,
+      houseHackRentGrowthAnnualPercent: 12,
+      rentalDepreciationTaxBenefitEnabled: false,
+    });
+    const t = buildTimeline(hack);
+    expect(t[11]!.houseHackRentalIncomeMonthly).toBeCloseTo(1000);
+    expect(t[12]!.houseHackRentalIncomeMonthly).toBeCloseTo(1120);
+  });
+
+  it("rental depreciation tax benefit scales with square footage fraction and land carve-out", () => {
+    const inputs = mergeScenarioInputs({
+      ...createBaseInputs(),
+      houseHackEnabled: true,
+      mortgageInterestTaxDeductionEnabled: false,
+      marginalTaxRate: 25,
+      rentalSquareFootage: 1300,
+      totalSquareFootage: 3000,
+      landValuePercentOfPurchase: 20,
+      houseHackMonthlyRent: 0,
+      rentalDepreciationTaxBenefitEnabled: true,
+    });
+    /// Building basis 400k × (1300/3000) ÷ 27.5 × 25% annual → ÷12 monthly
+    const depreciableBuilding = 400_000 * (1300 / 3000);
+    const annualDed = depreciableBuilding / 27.5;
+    const expectedMonthlyBenefit = (annualDed * 0.25) / 12;
+    const timeline = buildTimeline(inputs);
+    expect(timeline[0]!.rentalDepreciationTaxBenefitMonthly).toBeCloseTo(
+      expectedMonthlyBenefit,
+      8,
     );
   });
 });

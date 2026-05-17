@@ -4,6 +4,9 @@ import { getRentAtMonth } from './rent';
 import { calculateHomeValue } from './homeValue';
 import { calculateOwnerNetWorth } from './netWorth';
 
+/** MACRS/GDS-style residential rental period used for a straight-line depreciation approximation. */
+export const RESIDENTIAL_RENTAL_MACRS_YEARS = 27.5;
+
 /** Tax savings when itemizing deductible mortgage interest at the combined marginal rate. */
 export function monthlyMortgageInterestTaxBenefit(
   inputs: ScenarioInputs,
@@ -14,6 +17,50 @@ export function monthlyMortgageInterestTaxBenefit(
   }
   const rate = Math.min(50, Math.max(0, inputs.marginalTaxRate)) / 100;
   return mortgageInterest * rate;
+}
+
+/**
+ * Monthly cash-flow value of modeled rental depreciation: annual deduction /
+ * RESIDENTIAL_RENTAL_MACRS_YEARS × marginal rate ÷ 12. Uses purchase-price
+ * building allocation (excluding land); does not vary with appreciation.
+ */
+export function monthlyRentalDepreciationTaxBenefit(
+  inputs: ScenarioInputs,
+): number {
+  if (
+    !inputs.houseHackEnabled ||
+    !inputs.rentalDepreciationTaxBenefitEnabled
+  ) {
+    return 0;
+  }
+  const rsf = inputs.rentalSquareFootage;
+  const tsf = inputs.totalSquareFootage;
+  if (!(rsf > 0 && tsf > 0 && rsf <= tsf)) {
+    return 0;
+  }
+  const landPct = Math.min(
+    50,
+    Math.max(0, inputs.landValuePercentOfPurchase),
+  );
+  const depreciableBuilding = inputs.homePrice * (1 - landPct / 100);
+  const annualDepreciationDeduction =
+    (depreciableBuilding * (rsf / tsf)) / RESIDENTIAL_RENTAL_MACRS_YEARS;
+  const rate = Math.min(50, Math.max(0, inputs.marginalTaxRate)) / 100;
+  return (annualDepreciationDeduction * rate) / 12;
+}
+
+export function houseHackRentalIncomeAtMonth(
+  inputs: ScenarioInputs,
+  month: number,
+): number {
+  if (!inputs.houseHackEnabled) {
+    return 0;
+  }
+  return getRentAtMonth(
+    inputs.houseHackMonthlyRent,
+    inputs.houseHackRentGrowthAnnualPercent / 100,
+    month,
+  );
 }
 
 /**
@@ -68,6 +115,11 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       const insurance = inputs.insuranceMonthly;
       const pmi = 0; // No PMI if loan is paid off
       
+      const houseHackRentalIncomeMonthly =
+        houseHackRentalIncomeAtMonth(inputs, month);
+      const rentalDepreciationTaxBenefitMonthly =
+        monthlyRentalDepreciationTaxBenefit(inputs);
+
       const mortgageInterestTaxBenefitMonthly =
         monthlyMortgageInterestTaxBenefit(inputs, mortgageInterest);
 
@@ -78,7 +130,9 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
           insurance +
           maintenance +
           pmi -
-          mortgageInterestTaxBenefitMonthly,
+          mortgageInterestTaxBenefitMonthly -
+          houseHackRentalIncomeMonthly -
+          rentalDepreciationTaxBenefitMonthly,
       );
 
       ownerTotalUnrecoverable += ownerUnrecoverableMonthly;
@@ -94,10 +148,19 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       renterTotalUnrecoverable += rentMonthly;
       
       // Renter investment contribution
-      const ownerTotalOutflow = mortgagePayment + propertyTax + insurance + maintenance + pmi;
+      const ownerTotalOutflow =
+        mortgagePayment +
+        propertyTax +
+        insurance +
+        maintenance +
+        pmi -
+        houseHackRentalIncomeMonthly;
       const renterMonthlyContribution = Math.max(
         0,
-        ownerTotalOutflow - mortgageInterestTaxBenefitMonthly - rentMonthly,
+        ownerTotalOutflow -
+          mortgageInterestTaxBenefitMonthly -
+          rentalDepreciationTaxBenefitMonthly -
+          rentMonthly,
       );
       
       // Update renter investment balance with monthly compounding
@@ -126,6 +189,8 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
         mortgagePrincipal,
         mortgageBalance,
         mortgageInterestTaxBenefitMonthly,
+        houseHackRentalIncomeMonthly,
+        rentalDepreciationTaxBenefitMonthly,
         rentMonthly,
         homeValue,
         ownerNetWorth,
@@ -191,6 +256,11 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
     const mortgageInterestTaxBenefitMonthly =
       monthlyMortgageInterestTaxBenefit(inputs, mortgageInterest);
 
+    const houseHackRentalIncomeMonthly =
+      houseHackRentalIncomeAtMonth(inputs, month);
+    const rentalDepreciationTaxBenefitMonthly =
+      monthlyRentalDepreciationTaxBenefit(inputs);
+
     const ownerUnrecoverableMonthly = Math.max(
       0,
       mortgageInterest +
@@ -198,7 +268,9 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
         insurance +
         maintenance +
         pmi -
-        mortgageInterestTaxBenefitMonthly,
+        mortgageInterestTaxBenefitMonthly -
+        houseHackRentalIncomeMonthly -
+        rentalDepreciationTaxBenefitMonthly,
     );
 
     ownerTotalUnrecoverable += ownerUnrecoverableMonthly;
@@ -215,10 +287,19 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
     
     // Renter investment contribution
     // Monthly contribution = max(0, ownerTotalOutflow - tax benefit equivalent - rent)
-    const ownerTotalOutflow = mortgagePayment + propertyTax + insurance + maintenance + pmi;
+    const ownerTotalOutflow =
+      mortgagePayment +
+      propertyTax +
+      insurance +
+      maintenance +
+      pmi -
+      houseHackRentalIncomeMonthly;
     const renterMonthlyContribution = Math.max(
       0,
-      ownerTotalOutflow - mortgageInterestTaxBenefitMonthly - rentMonthly,
+      ownerTotalOutflow -
+        mortgageInterestTaxBenefitMonthly -
+        rentalDepreciationTaxBenefitMonthly -
+        rentMonthly,
     );
     
     // Update renter investment balance with monthly compounding
@@ -247,6 +328,8 @@ export function buildTimeline(inputs: ScenarioInputs): TimelinePoint[] {
       mortgagePrincipal,
       mortgageBalance,
       mortgageInterestTaxBenefitMonthly,
+      houseHackRentalIncomeMonthly,
+      rentalDepreciationTaxBenefitMonthly,
       rentMonthly,
       homeValue,
       ownerNetWorth,

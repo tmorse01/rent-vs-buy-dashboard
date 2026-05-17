@@ -2,32 +2,36 @@ import { describe, it, expect } from "vitest";
 import { computeMetrics } from "./metrics";
 import { buildTimeline } from "./timeline";
 import type { ScenarioInputs } from "../features/scenario/ScenarioInputs";
+import { mergeScenarioInputs } from "../features/scenario/scenarioDefaults";
 
 describe("Metrics Calculations", () => {
-  const createBaseInputs = (): ScenarioInputs => ({
-    homePrice: 500000,
-    downPaymentPercent: 20,
-    interestRate: 6,
-    loanTermYears: 30,
-    propertyTaxRate: 1.2,
-    insuranceMonthly: 150,
-    maintenanceRate: 1,
-    sellingCostRate: 8,
-    closingCostRate: 3,
-    // Rent should be closer to owner's total monthly cost to make comparison fair
-    // Owner's monthly payment ~$2,400 + taxes/insurance/maintenance ~$600 = ~$3,000
-    // So rent should be similar or slightly less
-    currentRent: 2800, // Higher rent makes buying more attractive
-    rentGrowthRate: 3,
-    annualReturnRate: 6,
-    annualAppreciationRate: 3,
-    horizonYears: 15,
-    pmiEnabled: false,
-    pmiRate: 0.5,
-    extraPrincipalPayment: 0,
-    mortgageInterestTaxDeductionEnabled: false,
-    marginalTaxRate: 24,
-  });
+  const createBaseInputs = (): ScenarioInputs =>
+    mergeScenarioInputs({
+      homePrice: 500000,
+      downPaymentPercent: 20,
+      interestRate: 6,
+      loanTermYears: 30,
+      propertyTaxRate: 1.2,
+      insuranceMonthly: 150,
+      maintenanceRate: 1,
+      sellingCostRate: 8,
+      closingCostRate: 3,
+      // Rent should be closer to owner's total monthly cost to make comparison fair
+      // Owner's monthly payment ~$2,400 + taxes/insurance/maintenance ~$600 = ~$3,000
+      // So rent should be similar or slightly less
+      currentRent: 2800, // Higher rent makes buying more attractive
+      rentGrowthRate: 3,
+      annualReturnRate: 6,
+      annualAppreciationRate: 3,
+      horizonYears: 15,
+      pmiEnabled: false,
+      pmiRate: 0.5,
+      extraPrincipalPayment: 0,
+      mortgageInterestTaxDeductionEnabled: false,
+      marginalTaxRate: 24,
+      houseHackEnabled: false,
+      rentalDepreciationTaxBenefitEnabled: false,
+    });
 
   describe("Net Worth Break-Even", () => {
     it("finds break-even when owner starts ahead", () => {

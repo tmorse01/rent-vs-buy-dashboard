@@ -5,7 +5,10 @@ import type {
 } from "../features/scenario/ScenarioInputs";
 import { formatCurrency, formatPercent } from "../utils/formatting";
 import { COLORS } from "../theme/colors";
-import { monthlyMortgageInterestTaxBenefit } from "../calculations/timeline";
+import {
+  monthlyMortgageInterestTaxBenefit,
+  RESIDENTIAL_RENTAL_MACRS_YEARS,
+} from "../calculations/timeline";
 
 function clampPct(x: number): string {
   return `${Math.min(100, Math.max(0, x))}%`;
@@ -37,23 +40,20 @@ export function MonthlyPaymentBreakdown({
     p.propertyTax +
     p.insurance +
     p.maintenance +
-    p.pmi;
+    p.pmi -
+    p.houseHackRentalIncomeMonthly;
 
   const taxBenefit = p.mortgageInterestTaxBenefitMonthly;
-  const effectiveMarginalRate = Math.min(50, Math.max(0, inputs.marginalTaxRate));
+  const depreciationTaxBenefit = p.rentalDepreciationTaxBenefitMonthly;
+  const effectiveMarginalRate = Math.min(
+    50,
+    Math.max(0, inputs.marginalTaxRate),
+  );
 
   const interestTaxSavingsFromModel = monthlyMortgageInterestTaxBenefit(
     inputs,
     p.mortgageInterest,
   );
-  const netInterestAfterRecoup =
-    inputs.mortgageInterestTaxDeductionEnabled && p.mortgageInterest > 0
-      ? Math.max(0, p.mortgageInterest - interestTaxSavingsFromModel)
-      : p.mortgageInterest;
-  const pctOfInterestRecoupedViaTax =
-    p.mortgageInterest > 0 && interestTaxSavingsFromModel > 0
-      ? (interestTaxSavingsFromModel / p.mortgageInterest) * 100
-      : 0;
   /** After modeled tax write-off + excluding principal (equity)—matches timeline unrecoverable. */
   const ownerComparableMonthly = Math.max(0, p.ownerUnrecoverableMonthly);
   const renterMonthly = p.rentMonthly;
@@ -64,16 +64,40 @@ export function MonthlyPaymentBreakdown({
 
   const showComparableBreakdown =
     taxBenefit > 0 ||
-    (p.mortgagePrincipal > 0 && Number.isFinite(p.mortgagePrincipal));
+    depreciationTaxBenefit > 0 ||
+    (inputs.houseHackEnabled && p.houseHackRentalIncomeMonthly > 0) ||
+    ((p.mortgagePrincipal ?? 0) > 0 && Number.isFinite(p.mortgagePrincipal));
+
+  const depreciationDeductionAnnual =
+    inputs.houseHackEnabled &&
+    inputs.rentalDepreciationTaxBenefitEnabled &&
+    inputs.totalSquareFootage > 0 &&
+    inputs.rentalSquareFootage > 0 &&
+    inputs.rentalSquareFootage <= inputs.totalSquareFootage
+      ? (() => {
+          const landPct = Math.min(
+            50,
+            Math.max(0, inputs.landValuePercentOfPurchase),
+          );
+          const depreciableBuilding = inputs.homePrice * (1 - landPct / 100);
+          return (
+            (depreciableBuilding *
+              (inputs.rentalSquareFootage / inputs.totalSquareFootage)) /
+            RESIDENTIAL_RENTAL_MACRS_YEARS
+          );
+        })()
+      : 0;
 
   const chartMax = Math.max(
     ownerCashMonthly,
     renterMonthly,
     showComparableBreakdown ? ownerComparableMonthly : 0,
+    inputs.houseHackEnabled ? p.houseHackRentalIncomeMonthly : 0,
     1,
   );
 
-  const whoPaysMoreCash = cashDifference >= 0 ? "owner" : "renter";
+  const whoPaysMoreCash =
+    ownerCashMonthly - renterMonthly >= 0 ? "owner" : "renter";
 
   return (
     <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
@@ -141,9 +165,55 @@ export function MonthlyPaymentBreakdown({
               <GroupRow label="Insurance" value={p.insurance} />
               <GroupRow label="Maintenance" value={p.maintenance} />
               {p.pmi > 0 ? <GroupRow label="PMI" value={p.pmi} /> : null}
+              {inputs.houseHackEnabled && p.houseHackRentalIncomeMonthly > 0 ? (
+                <GroupRow
+                  label="+ Gross rental income (offsets cash)"
+                  value={p.houseHackRentalIncomeMonthly}
+                  valueColor="var(--mantine-color-green-8)"
+                  prefix="+"
+                />
+              ) : null}
+              {inputs.houseHackEnabled &&
+              inputs.rentalDepreciationTaxBenefitEnabled &&
+              depreciationTaxBenefit > 0 ? (
+                <Paper
+                  p="sm"
+                  radius="sm"
+                  withBorder
+                  style={{
+                    borderColor: "var(--mantine-color-gray-4)",
+                    background: "var(--mantine-color-gray-0)",
+                  }}
+                >
+                  <Stack gap={6}>
+                    <Text size="xs" fw={600}>
+                      Estimated depreciation tax savings
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Rough annual rental-use depreciation deduction (building
+                      only, incl. sq-ft allocation) divided by{" "}
+                      {RESIDENTIAL_RENTAL_MACRS_YEARS} yrs, × marginal rate /
+                      month.
+                    </Text>
+                    <Text size="xs" c="dimmed" ff="monospace">
+                      ≈ {formatCurrency(depreciationDeductionAnnual)}/yr
+                      deduction →{" "}
+                      <Text
+                        span
+                        fw={600}
+                        ff="monospace"
+                        c="var(--mantine-color-green-7)"
+                      >
+                        {formatCurrency(depreciationTaxBenefit)}/mo
+                      </Text>{" "}
+                      modeled tax shield
+                    </Text>
+                  </Stack>
+                </Paper>
+              ) : null}
               <Divider my="xs" />
               <GroupRow
-                label="Total cash outflow"
+                label="Total cash outflow (net)"
                 value={ownerCashMonthly}
                 strong
               />
@@ -153,6 +223,16 @@ export function MonthlyPaymentBreakdown({
                     <GroupRow
                       label="− Estimated tax savings (interest write-off)"
                       value={taxBenefit}
+                      valueColor="var(--mantine-color-green-7)"
+                      prefix="−"
+                    />
+                  ) : null}
+
+                  {inputs.rentalDepreciationTaxBenefitEnabled &&
+                  depreciationTaxBenefit > 0 ? (
+                    <GroupRow
+                      label="− Estimated tax savings (rental depreciation)"
+                      value={depreciationTaxBenefit}
                       valueColor="var(--mantine-color-green-7)"
                       prefix="−"
                     />
@@ -178,7 +258,9 @@ export function MonthlyPaymentBreakdown({
                     strong
                   />
                   <Text size="xs" c="dimmed" mt={-4}>
-                    The true "lost" cost of owning (cash outflow minus equity built and tax savings). Directly comparable to rent.
+                    The true "lost" cost of owning—after equity, modeled interest
+                    write-offs, gross rental offsets, and rental depreciation
+                    tax shield. Comparable to tenant rent here.
                   </Text>
                 </>
               ) : inputs.mortgageInterestTaxDeductionEnabled &&
@@ -269,12 +351,14 @@ function GroupRow({
   value: number;
   strong?: boolean;
   valueColor?: string;
-  prefix?: string;
+  prefix?: "−" | "+";
 }) {
   const display =
     prefix === "−"
       ? `−${formatCurrency(value)}`
-      : formatCurrency(value);
+      : prefix === "+"
+        ? `+${formatCurrency(value)}`
+        : formatCurrency(value);
   return (
     <Box
       style={{

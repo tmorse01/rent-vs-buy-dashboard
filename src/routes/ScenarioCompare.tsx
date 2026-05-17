@@ -180,6 +180,71 @@ function buildRowGroups(): GroupDef[] {
       ],
     },
     {
+      title: "House hack",
+      rows: [
+        {
+          label: "House hack modeled",
+          value: (c) => (c.inputs.houseHackEnabled ? "Yes" : "No"),
+        },
+        {
+          label: "Gross rental income (start / mo)",
+          value: (c) =>
+            c.inputs.houseHackEnabled
+              ? formatCurrency(c.inputs.houseHackMonthlyRent)
+              : NA,
+        },
+        {
+          label: "Rental income growth (annual)",
+          value: (c) =>
+            c.inputs.houseHackEnabled
+              ? formatPercent(c.inputs.houseHackRentGrowthAnnualPercent, 2)
+              : NA,
+        },
+        {
+          label: "Depreciation tax savings modeled",
+          value: (c) =>
+            c.inputs.rentalDepreciationTaxBenefitEnabled ? "Yes" : "No",
+        },
+        {
+          label: "Rented / total sq ft",
+          value: (c) =>
+            c.inputs.rentalDepreciationTaxBenefitEnabled
+              ? `${c.inputs.rentalSquareFootage} / ${c.inputs.totalSquareFootage}`
+              : NA,
+        },
+        {
+          label: "Land % of purchase (non‑depreciable)",
+          value: (c) =>
+            c.inputs.rentalDepreciationTaxBenefitEnabled
+              ? formatPercent(c.inputs.landValuePercentOfPurchase, 2)
+              : NA,
+        },
+        {
+          label: "Marginal rate (tax modeling)",
+          value: (c) =>
+            c.inputs.mortgageInterestTaxDeductionEnabled ||
+            (c.inputs.houseHackEnabled &&
+              c.inputs.rentalDepreciationTaxBenefitEnabled)
+              ? formatPercent(c.inputs.marginalTaxRate, 2)
+              : NA,
+        },
+        {
+          label: "Rental income — final month",
+          value: (c) =>
+            c.inputs.houseHackEnabled && c.last
+              ? formatCurrency(c.last.houseHackRentalIncomeMonthly)
+              : NA,
+        },
+        {
+          label: "Depreciation benefit — final month",
+          value: (c) =>
+            c.inputs.rentalDepreciationTaxBenefitEnabled && c.last
+              ? formatCurrency(c.last.rentalDepreciationTaxBenefitMonthly)
+              : NA,
+        },
+      ],
+    },
+    {
       title: "Rent & market",
       rows: [
         {

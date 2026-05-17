@@ -241,6 +241,10 @@ export function Home() {
                       mortgageInterestTaxDeductionEnabled={
                         deferredInputs.mortgageInterestTaxDeductionEnabled
                       }
+                      houseHackEnabled={deferredInputs.houseHackEnabled}
+                      rentalDepreciationTaxBenefitEnabled={
+                        deferredInputs.rentalDepreciationTaxBenefitEnabled
+                      }
                     />
                   </Box>
                 </Suspense>

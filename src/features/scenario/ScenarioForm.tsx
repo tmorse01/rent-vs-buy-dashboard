@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm } from "@mantine/form";
 import {
   NumberInput,
@@ -23,7 +23,13 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { InfoCircle } from "tabler-icons-react";
 import type { ScenarioInputs } from "./ScenarioInputs";
-import { saveScenario, loadScenario, listScenarios } from "./scenarioStorage";
+import {
+  saveScenario,
+  loadScenario,
+  listScenarios,
+  getActiveSavedScenarioName,
+  setActiveSavedScenarioName,
+} from "./scenarioStorage";
 import { useScenario } from "../../context/ScenarioContext";
 import {
   getScenarioFromUrl,
@@ -38,6 +44,13 @@ interface ScenarioFormProps {
 
 const MORTGAGE_INTEREST_TAX_HELP =
   "If you itemize, you can deduct qualifying mortgage interest from taxable income—that effectively recoups part of your interest via a lower tax bill. This option approximates that savings as interest × your combined marginal rate. It does not model standard deduction vs itemizing, deductible loan limits, or SALT caps.";
+
+const HOUSE_HACK_HELP =
+  'Offset buy-side monthly costs with gross rent from part of the home (classic “house hack”). Does not subtract vacancy or expenses; compares to gross rent collected. Uses the same annual step pacing as tenant rent inputs.';
+
+const RENTAL_DEPRECIATION_TAX_HELP =
+  "Approximates the cash-flow value of rental-use depreciation as (building basis × rented sq-ft share ÷ 27.5 years) × marginal tax rate ÷ 12. Building basis excludes land (% of purchase price). Ignores depreciation recapture on sale and mid-month convention—see Documentation → House hack. Not tax advice.";
+
 
 const inputHelpIconStyle = {
   cursor: "help" as const,
@@ -86,7 +99,14 @@ export function ScenarioForm({
   const [saveAsName, setSaveAsName] = useState("");
   const [selectedSavedScenario, setSelectedSavedScenario] = useState<
     string | null
-  >(null);
+  >(() => {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get(SAVED_SCENARIO_QUERY_KEY);
+    if (fromUrl) return fromUrl;
+    const active = getActiveSavedScenarioName();
+    return active && listScenarios().includes(active) ? active : null;
+  });
   const [inputsSnapshot, setInputsSnapshot] = useState<ScenarioInputs | null>(
     null,
   );
@@ -152,12 +172,66 @@ export function ScenarioForm({
         value >= 0 && value <= 50
           ? null
           : "Marginal tax rate must be between 0% and 50%",
+      houseHackMonthlyRent: (value, values) =>
+        values.houseHackEnabled && value < 0 ? "Must be >= 0" : null,
+      houseHackRentGrowthAnnualPercent: (value, values) => {
+        if (!values.houseHackEnabled) return null;
+        if (value >= -5 && value <= 20) return null;
+        return "Rental income growth must be between -5% and 20%";
+      },
+      rentalSquareFootage: (value, values) => {
+        if (
+          !values.houseHackEnabled ||
+          !values.rentalDepreciationTaxBenefitEnabled
+        ) {
+          return null;
+        }
+        if (value <= 0) return "Rental sq ft must be greater than 0";
+        if (value > values.totalSquareFootage) {
+          return "Rental sq ft cannot exceed total sq ft";
+        }
+        return null;
+      },
+      totalSquareFootage: (value, values) => {
+        if (
+          !values.houseHackEnabled ||
+          !values.rentalDepreciationTaxBenefitEnabled
+        ) {
+          return null;
+        }
+        if (value <= 0) return "Total sq ft must be greater than 0";
+        return null;
+      },
+      landValuePercentOfPurchase: (value, values) => {
+        if (
+          !values.houseHackEnabled ||
+          !values.rentalDepreciationTaxBenefitEnabled
+        ) {
+          return null;
+        }
+        if (value >= 0 && value <= 50) return null;
+        return "Land % must be between 0% and 50%";
+      },
     },
   });
 
   const [debouncedInputs] = useDebouncedValue(form.values, 500);
 
+  const rentableFloorPlanPct = useMemo(() => {
+    const total = form.values.totalSquareFootage;
+    const rental = form.values.rentalSquareFootage;
+    if (!(total > 0) || !(rental >= 0)) return null;
+    return (rental / total) * 100;
+  }, [form.values.rentalSquareFootage, form.values.totalSquareFootage]);
+
+  const marginalRateAppliesTaxModeling =
+    form.values.mortgageInterestTaxDeductionEnabled ||
+    (form.values.houseHackEnabled &&
+      form.values.rentalDepreciationTaxBenefitEnabled);
+
   const savedParam = searchParams.get(SAVED_SCENARIO_QUERY_KEY);
+  /** Avoid re-applying `?saved=` when the user clears the Scenario dropdown before the URL updates. */
+  const lastSyncedSavedParamRef = useRef<string | null>(null);
 
   const syncSavedNameToUrl = (name: string | null) => {
     if (location.pathname !== "/") return;
@@ -194,9 +268,13 @@ export function ScenarioForm({
       return;
     }
 
-    if (!savedParam) return;
+    if (!savedParam) {
+      lastSyncedSavedParamRef.current = null;
+      return;
+    }
 
     if (!savedScenarios.includes(savedParam)) {
+      lastSyncedSavedParamRef.current = null;
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
@@ -208,16 +286,12 @@ export function ScenarioForm({
       return;
     }
 
-    const loaded = loadScenario(savedParam);
-    if (!loaded) return;
-
-    if (
-      selectedSavedScenario === savedParam &&
-      inputsSnapshot &&
-      JSON.stringify(inputsSnapshot) === JSON.stringify(loaded)
-    ) {
+    if (lastSyncedSavedParamRef.current === savedParam) {
       return;
     }
+
+    const loaded = loadScenario(savedParam);
+    if (!loaded) return;
 
     form.setValues(loaded);
     startTransition(() => {
@@ -226,14 +300,40 @@ export function ScenarioForm({
     setSelectedSavedScenario(savedParam);
     setInputsSnapshot(loaded);
     setSaveAsName(savedParam);
+    setActiveSavedScenarioName(savedParam);
+    lastSyncedSavedParamRef.current = savedParam;
+  }, [
+    location.pathname,
+    savedParam,
+    savedScenarios,
+    setSearchParams,
+    setContextInputs,
+  ]);
+
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    if (savedParam) return;
+    if (getScenarioFromUrl() !== null) return;
+
+    const activeName = getActiveSavedScenarioName();
+    if (!activeName || !savedScenarios.includes(activeName)) return;
+    if (selectedSavedScenario === activeName && inputsSnapshot) return;
+
+    const loaded = loadScenario(activeName);
+    if (!loaded) {
+      setActiveSavedScenarioName(null);
+      return;
+    }
+
+    setSelectedSavedScenario(activeName);
+    setInputsSnapshot(loaded);
+    setSaveAsName(activeName);
   }, [
     location.pathname,
     savedParam,
     savedScenarios,
     selectedSavedScenario,
     inputsSnapshot,
-    setSearchParams,
-    setContextInputs,
   ]);
 
   useEffect(() => {
@@ -263,6 +363,7 @@ export function ScenarioForm({
     ) {
       setSelectedSavedScenario(null);
       setInputsSnapshot(null);
+      setActiveSavedScenarioName(null);
     }
   }, [savedScenarios, selectedSavedScenario]);
 
@@ -301,6 +402,8 @@ export function ScenarioForm({
     setSavedScenarios(updated);
     setSelectedSavedScenario(name);
     setInputsSnapshot(form.values);
+    setActiveSavedScenarioName(name);
+    lastSyncedSavedParamRef.current = name;
     syncSavedNameToUrl(name);
     notifications.show({
       title: "Scenario saved",
@@ -319,6 +422,8 @@ export function ScenarioForm({
       setSelectedSavedScenario(name);
       setInputsSnapshot(inputs);
       setSaveAsName(name);
+      setActiveSavedScenarioName(name);
+      lastSyncedSavedParamRef.current = name;
       syncSavedNameToUrl(name);
       notifications.show({
         title: "Scenario loaded",
@@ -336,8 +441,11 @@ export function ScenarioForm({
 
   const handleSidebarScenarioChange = (value: string | null) => {
     if (value === null) {
+      lastSyncedSavedParamRef.current = null;
       setSelectedSavedScenario(null);
       setInputsSnapshot(null);
+      setSaveAsName("");
+      setActiveSavedScenarioName(null);
       syncSavedNameToUrl(null);
       return;
     }
@@ -563,12 +671,122 @@ export function ScenarioForm({
         max={50}
         step={0.5}
         decimalScale={2}
-        disabled={!form.values.mortgageInterestTaxDeductionEnabled}
+        disabled={!marginalRateAppliesTaxModeling}
         {...form.getInputProps("marginalTaxRate")}
         rightSection={
-          <InfoTooltip label="Roughly federal plus state marginal tax on income. Applied to deductible mortgage interest (the write-off) when the toggle is on." />
+          <InfoTooltip label="Roughly federal plus state marginal tax on ordinary income. Used when modeling mortgage-interest tax savings and/or rental depreciation tax savings." />
         }
       />
+
+      <Accordion variant="separated">
+        <Accordion.Item value="house-hack">
+          <Accordion.Control>House hack (rent rooms / units)</Accordion.Control>
+          <Accordion.Panel>
+            <Stack gap="sm">
+              <Switch
+                label={
+                  <Group gap={6} align="center" wrap="nowrap">
+                    <span>Model house hack</span>
+                    <InfoTooltip label={HOUSE_HACK_HELP} multiline maw={360} />
+                  </Group>
+                }
+                {...form.getInputProps("houseHackEnabled", { type: "checkbox" })}
+              />
+              <NumberInput
+                label="Monthly gross rental income"
+                prefix="$"
+                min={0}
+                thousandSeparator=","
+                disabled={!form.values.houseHackEnabled}
+                {...form.getInputProps("houseHackMonthlyRent")}
+                rightSection={
+                  <InfoTooltip label="Gross rent tenants pay toward your unit(s). Costs, vacancy, and management are not subtracted." />
+                }
+              />
+              <NumberInput
+                label="Rental income growth (annual)"
+                suffix="%"
+                min={-5}
+                max={20}
+                step={0.1}
+                decimalScale={2}
+                disabled={!form.values.houseHackEnabled}
+                {...form.getInputProps("houseHackRentGrowthAnnualPercent")}
+                rightSection={
+                  <InfoTooltip label="Increases once per year (same pacing as tenant rent inputs)." />
+                }
+              />
+              <Switch
+                label={
+                  <Group gap={6} align="center" wrap="nowrap">
+                    <span>Model rental depreciation tax savings</span>
+                    <InfoTooltip
+                      label={RENTAL_DEPRECIATION_TAX_HELP}
+                      multiline
+                      maw={400}
+                      ariaLabel="How rental depreciation is modeled"
+                    />
+                  </Group>
+                }
+                disabled={!form.values.houseHackEnabled}
+                {...form.getInputProps("rentalDepreciationTaxBenefitEnabled", {
+                  type: "checkbox",
+                })}
+              />
+              <NumberInput
+                label="Rented square footage"
+                suffix="sq ft"
+                min={1}
+                step={50}
+                disabled={
+                  !form.values.houseHackEnabled ||
+                  !form.values.rentalDepreciationTaxBenefitEnabled
+                }
+                {...form.getInputProps("rentalSquareFootage")}
+              />
+              <NumberInput
+                label="Total home square footage"
+                suffix="sq ft"
+                min={1}
+                step={50}
+                disabled={
+                  !form.values.houseHackEnabled ||
+                  !form.values.rentalDepreciationTaxBenefitEnabled
+                }
+                {...form.getInputProps("totalSquareFootage")}
+              />
+              {rentableFloorPlanPct !== null &&
+              form.values.houseHackEnabled &&
+              form.values.rentalDepreciationTaxBenefitEnabled ? (
+                <Text size="sm" c="dimmed">
+                  Rented fraction of floor plan →{" "}
+                  <Text span fw={600}>
+                    {rentableFloorPlanPct.toFixed(2)}%
+                  </Text>
+                  {" "}
+                  (example: 1,300 of 3,000 is ~43.3%, not 30%).
+                </Text>
+              ) : null}
+              <NumberInput
+                label="Estimated land (% of purchase price)"
+                suffix="%"
+                min={0}
+                max={50}
+                step={0.5}
+                decimalScale={2}
+                disabled={
+                  !form.values.houseHackEnabled ||
+                  !form.values.rentalDepreciationTaxBenefitEnabled
+                }
+                {...form.getInputProps("landValuePercentOfPurchase")}
+                rightSection={
+                  <InfoTooltip label="Land is not depreciated; only the building portion of purchase basis is allocated to rental depreciation. Tax assessments vary—tune per your deed or appraisal allocation." />
+                }
+              />
+            </Stack>
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
 
       <Accordion variant="separated">
         <Accordion.Item value="additional-details">

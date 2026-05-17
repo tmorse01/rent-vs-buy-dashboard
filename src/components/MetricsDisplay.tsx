@@ -23,9 +23,26 @@ export function MetricsDisplay({
   timeline,
   inputs,
 }: MetricsDisplayProps) {
-  const ownerAfterTaxInterestNote = inputs.mortgageInterestTaxDeductionEnabled
-    ? " Owner unrecoverable totals treat part of mortgage interest as recouped through taxes: modeled as the write-off (deductible interest × combined marginal rate)."
-    : "";
+  const ownerAfterTaxInterestNote = (() => {
+    const chunks: string[] = [];
+    if (inputs.mortgageInterestTaxDeductionEnabled) {
+      chunks.push(
+        "Mortgage-interest tax modeling is applied (deductible interest × marginal rate).",
+      );
+    }
+    if (inputs.houseHackEnabled) {
+      chunks.push(
+        "Gross rental income from the modeled house hack reduces owner burdens.",
+      );
+    }
+    if (inputs.rentalDepreciationTaxBenefitEnabled) {
+      chunks.push(
+        "A simplified rental depreciation shield (building basis × rented sq-ft ÷ 27.5 yrs × marginal rate) further reduces burdens.",
+      );
+    }
+    if (chunks.length === 0) return "";
+    return ` ${chunks.join(" ")}`;
+  })();
   // Generate sparkline data for net worth delta over time (yearly)
   const netWorthDeltaData: number[] = [];
   for (let year = 1; year <= Math.ceil(timeline.length / 12); year++) {

@@ -361,6 +361,12 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
                       {inputs.mortgageInterestTaxDeductionEnabled
                         ? " When the interest write-off is modeled, deductible interest lowers the owner’s counted cost by the estimated tax savings."
                         : ""}
+                      {inputs.houseHackEnabled
+                        ? " When house hacking is modeled, gross rental income lowers the counted owner burden; it is not vacancy- or expense-adjusted."
+                        : ""}
+                      {inputs.rentalDepreciationTaxBenefitEnabled
+                        ? " Rental depreciation modeling further lowers burdens as a simplified tax shield (see Documentation)."
+                        : ""}
                     </Text>
                   </Stack>
                 }

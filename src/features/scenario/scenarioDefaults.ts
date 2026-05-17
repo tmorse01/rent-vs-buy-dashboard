@@ -20,6 +20,13 @@ export const DEFAULT_SCENARIO_INPUTS: ScenarioInputs = {
   extraPrincipalPayment: 0,
   mortgageInterestTaxDeductionEnabled: false,
   marginalTaxRate: 24,
+  houseHackEnabled: false,
+  houseHackMonthlyRent: 1200,
+  houseHackRentGrowthAnnualPercent: 3,
+  rentalSquareFootage: 1300,
+  totalSquareFootage: 3000,
+  landValuePercentOfPurchase: 20,
+  rentalDepreciationTaxBenefitEnabled: false,
 };
 
 export function mergeScenarioInputs(

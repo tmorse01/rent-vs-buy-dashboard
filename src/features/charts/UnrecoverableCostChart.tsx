@@ -5,11 +5,15 @@ import type { TimelinePoint } from "../scenario/ScenarioInputs";
 interface UnrecoverableCostChartProps {
   timeline: TimelinePoint[];
   mortgageInterestTaxDeductionEnabled?: boolean;
+  houseHackEnabled?: boolean;
+  rentalDepreciationTaxBenefitEnabled?: boolean;
 }
 
 export function UnrecoverableCostChart({
   timeline,
   mortgageInterestTaxDeductionEnabled = false,
+  houseHackEnabled = false,
+  rentalDepreciationTaxBenefitEnabled = false,
 }: UnrecoverableCostChartProps) {
   // Calculate average monthly unrecoverable cost per year
   const yearlyData = [];
@@ -45,7 +49,13 @@ export function UnrecoverableCostChart({
             Compare owner's monthly unrecoverable costs vs renter's monthly rent
             over time.
             {mortgageInterestTaxDeductionEnabled
-              ? " Owner totals reflect interest you may recoup via the mortgage-interest deduction (write-off) on taxes, modeled as after-tax interest."
+              ? " Owner totals reflect mortgage-interest tax modeling (deductible interest × marginal rate). "
+              : ""}
+            {houseHackEnabled
+              ? " Gross rental income reduces modeled owner burdens. "
+              : ""}
+            {rentalDepreciationTaxBenefitEnabled
+              ? " Modeled depreciation on the rented building share further reduces burdens (annual deduction ÷ 27.5 years × marginal rate). Does not capture recapture. "
               : ""}
           </Text>
         </Box>

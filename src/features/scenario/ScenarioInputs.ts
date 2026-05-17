@@ -36,6 +36,20 @@ export interface ScenarioInputs {
   mortgageInterestTaxDeductionEnabled: boolean;
   /** Combined marginal rate (percent) applied to deductible interest when enabled. */
   marginalTaxRate: number;
+
+  /** Model living in part of the home and renting the rest (“house hack”). */
+  houseHackEnabled: boolean;
+  /** Monthly gross rental income while house hack mode is enabled. */
+  houseHackMonthlyRent: number;
+  /** Annual percentage step growth applied to rental income (same pacing as tenant rent inputs). */
+  houseHackRentGrowthAnnualPercent: number;
+  /** Depreciated rental-use square footage (must be ≤ totalSquareFootage when depreciation is on). */
+  rentalSquareFootage: number;
+  totalSquareFootage: number;
+  /** Land as % of purchase price (non‑depreciable); building ≈ remainder. */
+  landValuePercentOfPurchase: number;
+  /** Estimate tax shield from residential rental depreciation (27.5-year straight-line approximation). */
+  rentalDepreciationTaxBenefitEnabled: boolean;
 }
 
 export interface TimelinePoint {
@@ -54,6 +68,10 @@ export interface TimelinePoint {
   mortgageBalance: number;
   /** Monthly tax savings from mortgage interest deduction (0 if disabled or no loan). */
   mortgageInterestTaxBenefitMonthly: number;
+  /** Gross rental income for this month when house hack is enabled (0 otherwise). */
+  houseHackRentalIncomeMonthly: number;
+  /** Monthly tax savings modeled from rental depreciation (0 if disabled). */
+  rentalDepreciationTaxBenefitMonthly: number;
 
   // Rent
   rentMonthly: number;

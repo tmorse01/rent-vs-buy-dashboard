@@ -101,7 +101,12 @@ export function NetWorthStackComparison({
                       <Text size="sm">
                         {inputs.mortgageInterestTaxDeductionEnabled
                           ? "• Mortgage-interest tax write-off is modeled elsewhere (monthly snapshot, unrecoverable); not duplicated in these net-worth stack figures"
-                          : "• No tax benefits included"}
+                          : "• Mortgage-interest taxes are not included in equity figures"}
+                      </Text>
+                      <Text size="sm">
+                        {inputs.houseHackEnabled
+                          ? "• House hacking (rent offsets + depreciation tax shield when enabled) is modeled in monthly cash-loss math only; not flowed into these stack figures"
+                          : "• Optional house hacking is not modeled in this breakdown"}
                       </Text>
                       <Text size="sm">• No refinance scenarios</Text>
                       <Text size="sm">• Modest market returns on investments</Text>
