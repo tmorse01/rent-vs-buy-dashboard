@@ -165,6 +165,41 @@ export function getDataColors(isDark = false) {
   };
 }
 
+export type ThemeNeutralColors = {
+  bgPrimary: string;
+  bgSecondary: string;
+  bgTertiary: string;
+  borderLight: string;
+  borderMedium: string;
+  borderDark: string;
+  textPrimary: string;
+  textSecondary: string;
+  textTertiary: string;
+  textDisabled: string;
+};
+
+const DARK_CHART_COLORS = {
+  reference: "#94a3b8",
+  grid: "#334155",
+  zeroLine: "#475569",
+} as const;
+
+/**
+ * Chart chrome colors (grid, reference lines) that adapt to color scheme.
+ * Segment/data colors stay vivid in both modes.
+ */
+export function getChartColors(isDark = false) {
+  return {
+    reference: isDark ? DARK_CHART_COLORS.reference : COLORS.chart.reference,
+    grid: isDark ? DARK_CHART_COLORS.grid : COLORS.chart.grid,
+    zeroLine: isDark ? DARK_CHART_COLORS.zeroLine : COLORS.chart.zeroLine,
+    ownerUnrecoverable: COLORS.chart.ownerUnrecoverable,
+    principal: COLORS.chart.principal,
+    appreciation: COLORS.chart.appreciation,
+    interest: COLORS.chart.interest,
+  };
+}
+
 /**
  * Mantine color scale mapping
  * Maps our custom colors to Mantine's color system

@@ -7,22 +7,7 @@ import {
   computeHorizonUnrecoverableStacks,
 } from "../../calculations/unrecoverableBreakdown";
 import { formatCurrency, formatCurrencyTooltip } from "../../utils/formatting";
-import { COLORS } from "../../theme/colors";
-
-const { ownerUnrecoverable: BUY } = COLORS.chart;
-
-const STACK_SERIES = [
-  {
-    name: "mortgageInterest",
-    label: "Mortgage interest",
-    color: BUY.mortgageInterest,
-  },
-  { name: "propertyTax", label: "Property tax", color: BUY.propertyTax },
-  { name: "insurance", label: "Insurance", color: BUY.insurance },
-  { name: "maintenance", label: "Maintenance", color: BUY.maintenance },
-  { name: "pmi", label: "PMI", color: BUY.pmi },
-  { name: "rent", label: "Rent", color: BUY.rent },
-] as const;
+import { useThemeColors } from "../../theme/useThemeColors";
 
 interface UnrecoverableCostChartProps {
   timeline: TimelinePoint[];
@@ -39,6 +24,26 @@ export function UnrecoverableCostChart({
   rentalDepreciationTaxBenefitEnabled = false,
   chartHeight = 400,
 }: UnrecoverableCostChartProps) {
+  const { chart: chartColors } = useThemeColors();
+  const buy = chartColors.ownerUnrecoverable;
+
+  const stackSeries = useMemo(
+    () =>
+      [
+        {
+          name: "mortgageInterest",
+          label: "Mortgage interest",
+          color: buy.mortgageInterest,
+        },
+        { name: "propertyTax", label: "Property tax", color: buy.propertyTax },
+        { name: "insurance", label: "Insurance", color: buy.insurance },
+        { name: "maintenance", label: "Maintenance", color: buy.maintenance },
+        { name: "pmi", label: "PMI", color: buy.pmi },
+        { name: "rent", label: "Rent", color: buy.rent },
+      ] as const,
+    [buy],
+  );
+
   const stacks = useMemo(
     () => computeHorizonUnrecoverableStacks(timeline),
     [timeline],
@@ -97,7 +102,7 @@ export function UnrecoverableCostChart({
             data={chartData}
             dataKey="side"
             type="stacked"
-            series={[...STACK_SERIES]}
+            series={[...stackSeries]}
             withLegend
             withTooltip
             withXAxis

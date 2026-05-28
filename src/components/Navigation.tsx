@@ -49,7 +49,9 @@ export function Navigation() {
               aria-current={isActive ? "page" : undefined}
               styles={{
                 root: {
-                  color: isActive ? theme.colors.blue[6] : theme.colors.gray[7],
+                  color: isActive
+                    ? theme.colors.blue[6]
+                    : "var(--mantine-color-dimmed)",
                   height: 40,
                   paddingInline: 16,
                   borderRadius: theme.radius.md,
@@ -88,7 +90,9 @@ export function Navigation() {
               variant="subtle"
               aria-label={item.label}
               style={{
-                color: isActive ? theme.colors.blue[6] : theme.colors.gray[7],
+                color: isActive
+                  ? theme.colors.blue[6]
+                  : "var(--mantine-color-dimmed)",
                 backgroundColor: isActive
                   ? rgba(theme.colors.blue[6], 0.12)
                   : "transparent",

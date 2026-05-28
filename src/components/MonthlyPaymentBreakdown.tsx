@@ -4,7 +4,7 @@ import type {
   TimelinePoint,
 } from "../features/scenario/ScenarioInputs";
 import { formatCurrency, formatPercent } from "../utils/formatting";
-import { COLORS } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import {
   monthlyMortgageInterestTaxBenefit,
   RESIDENTIAL_RENTAL_MACRS_YEARS,
@@ -24,6 +24,8 @@ export function MonthlyPaymentBreakdown({
   snapshotPoint,
   inputs,
 }: MonthlyPaymentBreakdownProps) {
+  const { data: dataColors } = useThemeColors();
+
   if (!snapshotPoint) {
     return (
       <Paper p="xl" withBorder radius="md" shadow="sm" style={{ width: "100%" }}>
@@ -113,7 +115,7 @@ export function MonthlyPaymentBreakdown({
 
         <Grid gutter="lg">
           <Grid.Col span={{ base: 12, md: 6 }}>
-            <Text fw={600} size="sm" mb="sm" style={{ color: COLORS.owner.primary }}>
+            <Text fw={600} size="sm" mb="sm" style={{ color: dataColors.owner }}>
               Owner (buy)
             </Text>
             <Stack gap={6}>
@@ -243,7 +245,7 @@ export function MonthlyPaymentBreakdown({
                       <GroupRow
                         label="− Principal (builds equity)"
                         value={p.mortgagePrincipal}
-                        valueColor={COLORS.owner.primary}
+                        valueColor={dataColors.owner}
                         prefix="−"
                       />
                       <Text size="xs" c="dimmed" mt={-4}>
@@ -274,7 +276,7 @@ export function MonthlyPaymentBreakdown({
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 6 }}>
-            <Text fw={600} size="sm" mb="sm" style={{ color: COLORS.renter.primary }}>
+            <Text fw={600} size="sm" mb="sm" style={{ color: dataColors.renter }}>
               Renter
             </Text>
             <Stack gap={6}>
@@ -294,13 +296,13 @@ export function MonthlyPaymentBreakdown({
               label="Rent"
               amount={renterMonthly}
               max={chartMax}
-              color={COLORS.renter.primary}
+              color={dataColors.renter}
             />
             <ComparisonBar
               label="Owner — cash"
               amount={ownerCashMonthly}
               max={chartMax}
-              color={COLORS.owner.primary}
+              color={dataColors.owner}
             />
             {showComparableBreakdown ? (
               <ComparisonBar

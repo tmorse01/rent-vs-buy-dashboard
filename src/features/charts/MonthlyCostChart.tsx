@@ -2,12 +2,14 @@ import { LineChart } from "@mantine/charts";
 import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 import { formatCurrencyTooltip } from "../../utils/formatting";
+import { useThemeColors } from "../../theme/useThemeColors";
 
 interface MonthlyCostChartProps {
   timeline: TimelinePoint[];
 }
 
 export function MonthlyCostChart({ timeline }: MonthlyCostChartProps) {
+  const { data: dataColors } = useThemeColors();
   // Convert to yearly data for readability
   const yearlyData = [];
 
@@ -59,7 +61,7 @@ export function MonthlyCostChart({ timeline }: MonthlyCostChartProps) {
             }}
             valueFormatter={(value: number) => formatCurrencyTooltip(value)}
             tooltipProps={{
-              cursor: { stroke: "blue", strokeWidth: 1 },
+              cursor: { stroke: dataColors.owner, strokeWidth: 1 },
             }}
             tooltipAnimationDuration={200}
           />

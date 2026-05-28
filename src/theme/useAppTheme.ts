@@ -1,7 +1,9 @@
-import { rgba, useMantineTheme } from "@mantine/core";
+import { rgba, useComputedColorScheme, useMantineTheme } from "@mantine/core";
 
 export function useAppTheme() {
   const theme = useMantineTheme();
+  const computedColorScheme = useComputedColorScheme("light");
+  const isDark = computedColorScheme === "dark";
 
   const gradients = {
     owner: `linear-gradient(135deg, ${theme.colors.blue[6]} 0%, ${theme.colors.blue[8]} 100%)`,
@@ -22,28 +24,36 @@ export function useAppTheme() {
       `0 1px 2px ${rgba(theme.black, 0.45)}`,
       `0 6px 16px ${rgba(theme.black, 0.35)}`,
     ].join(", "),
-    pill: [
-      `inset 0 1px 0 ${rgba(theme.white, 0.92)}`,
-      `0 1px 2px ${rgba(theme.black, 0.04)}`,
-      `0 4px 12px ${rgba(theme.black, 0.1)}`,
-      `0 10px 28px ${rgba(theme.black, 0.08)}`,
-    ].join(", "),
+    pill: isDark
+      ? [
+          `inset 0 1px 0 ${rgba(theme.white, 0.08)}`,
+          `0 1px 2px ${rgba(theme.black, 0.35)}`,
+          `0 4px 12px ${rgba(theme.black, 0.25)}`,
+          `0 10px 28px ${rgba(theme.black, 0.2)}`,
+        ].join(", ")
+      : [
+          `inset 0 1px 0 ${rgba(theme.white, 0.92)}`,
+          `0 1px 2px ${rgba(theme.black, 0.04)}`,
+          `0 4px 12px ${rgba(theme.black, 0.1)}`,
+          `0 10px 28px ${rgba(theme.black, 0.08)}`,
+        ].join(", "),
     pillNegative: [
       `inset 0 1px 0 ${rgba(theme.white, 0.22)}`,
       `inset 0 0 0 1px ${rgba(theme.colors.red[9], 0.45)}`,
       `0 2px 6px ${rgba(theme.colors.red[9], 0.22)}`,
       `0 10px 24px ${rgba(theme.black, 0.14)}`,
     ].join(", "),
-    textShadow: `0 1px 2px ${rgba(theme.black, 0.35)}`,
+    textShadow: `0 1px 2px ${rgba(theme.black, isDark ? 0.5 : 0.35)}`,
   } as const;
 
   const borders = {
-    subtleLight: `1px solid ${rgba(theme.white, 0.2)}`,
-    subtleDark: `1px solid ${rgba(theme.black, 0.08)}`,
+    subtleLight: `1px solid ${rgba(theme.white, isDark ? 0.12 : 0.2)}`,
+    subtleDark: `1px solid ${rgba(theme.black, isDark ? 0.2 : 0.08)}`,
   } as const;
 
   return {
     theme,
+    isDark,
     gradients,
     palette,
     shadows,

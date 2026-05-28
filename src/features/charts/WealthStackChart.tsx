@@ -2,12 +2,14 @@ import { BarChart } from "@mantine/charts";
 import { Paper, Title, Stack, Box, Text } from "@mantine/core";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 import { formatCurrencyTooltip } from "../../utils/formatting";
+import { useThemeColors } from "../../theme/useThemeColors";
 
 interface WealthStackChartProps {
   timeline: TimelinePoint[];
 }
 
 export function WealthStackChart({ timeline }: WealthStackChartProps) {
+  const { data: dataColors } = useThemeColors();
   const milestones = [5, 10, 15];
   const data = [];
   const initialHomeValue = timeline[0]?.homeValue || 0;
@@ -77,7 +79,7 @@ export function WealthStackChart({ timeline }: WealthStackChartProps) {
             }}
             valueFormatter={(value: number) => formatCurrencyTooltip(value)}
             tooltipProps={{
-              cursor: { stroke: "blue", strokeWidth: 1 },
+              cursor: { stroke: dataColors.owner, strokeWidth: 1 },
             }}
             tooltipAnimationDuration={200}
           />

@@ -105,3 +105,12 @@
     animation: none;
   }
 }
+
+[data-mantine-color-scheme="dark"] .header-shimmer::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+}

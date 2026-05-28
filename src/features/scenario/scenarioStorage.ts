@@ -117,3 +117,93 @@ export function getScenarioMetadata(name: string): SavedScenario | null {
   }
 }
 
+export interface ScenarioExportPayload {
+  version: 1;
+  exportedAt: string;
+  scenarios: SavedScenario[];
+}
+
+export function exportAllScenarios(): ScenarioExportPayload {
+  const scenarios = listScenarios()
+    .map((name) => getScenarioMetadata(name))
+    .filter((scenario): scenario is SavedScenario => scenario !== null);
+
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    scenarios,
+  };
+}
+
+function isSavedScenario(value: unknown): value is SavedScenario {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<SavedScenario>;
+  return (
+    typeof candidate.name === 'string' &&
+    typeof candidate.savedAt === 'string' &&
+    typeof candidate.inputs === 'object' &&
+    candidate.inputs !== null
+  );
+}
+
+function isScenarioExportPayload(value: unknown): value is ScenarioExportPayload {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<ScenarioExportPayload>;
+  return (
+    candidate.version === 1 &&
+    typeof candidate.exportedAt === 'string' &&
+    Array.isArray(candidate.scenarios) &&
+    candidate.scenarios.every(isSavedScenario)
+  );
+}
+
+export interface ImportScenariosOptions {
+  merge?: boolean;
+}
+
+export interface ImportScenariosResult {
+  imported: number;
+  skipped: number;
+}
+
+export function importScenarios(
+  json: unknown,
+  options: ImportScenariosOptions = {},
+): ImportScenariosResult {
+  if (!isScenarioExportPayload(json)) {
+    throw new Error('Invalid scenario export file.');
+  }
+
+  const merge = options.merge ?? false;
+  let imported = 0;
+  let skipped = 0;
+
+  for (const scenario of json.scenarios) {
+    const existingNames = listScenarios();
+    if (existingNames.includes(scenario.name) && !merge) {
+      skipped += 1;
+      continue;
+    }
+
+    saveScenario(scenario.name, mergeScenarioInputs(scenario.inputs));
+    imported += 1;
+  }
+
+  return { imported, skipped };
+}
+
+export function clearAllScenarios(): void {
+  for (const name of listScenarios()) {
+    localStorage.removeItem(`${STORAGE_KEY_PREFIX}${name}`);
+  }
+
+  localStorage.removeItem(SCENARIO_LIST_KEY);
+  setActiveSavedScenarioName(null);
+}
+

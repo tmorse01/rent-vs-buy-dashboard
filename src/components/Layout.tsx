@@ -34,6 +34,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { ScenarioForm } from "../features/scenario/ScenarioForm";
 import { Navigation } from "./Navigation";
 import { useScenario } from "../context/ScenarioContext";
+import { useUserProfile } from "../context/UserProfileContext";
 import { COLORS, SOLID_COLORS } from "../theme/colors";
 import { DOC_PAGES } from "../data/docsPages";
 import {
@@ -79,6 +80,7 @@ export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { setInputs } = useScenario();
+  const { initials, displayName } = useUserProfile();
   const [, setScenarioListVersion] = useState(0);
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [
@@ -168,8 +170,8 @@ export function Layout({ children }: LayoutProps) {
         px="md"
         className="header-shimmer"
         style={{
-          background: COLORS.neutral.bgPrimary,
-          borderBottom: `1px solid ${COLORS.neutral.borderLight}`,
+          background: "var(--mantine-color-body)",
+          borderBottom: "1px solid var(--mantine-color-default-border)",
           overflow: "hidden",
         }}
       >
@@ -201,7 +203,6 @@ export function Layout({ children }: LayoutProps) {
                 <Text
                   fw={700}
                   size="lg"
-                  c={COLORS.neutral.textPrimary}
                   visibleFrom="sm"
                   style={{ letterSpacing: "-0.02em" }}
                 >
@@ -220,6 +221,8 @@ export function Layout({ children }: LayoutProps) {
           </Group>
           <Group gap="xs" wrap="nowrap">
             <ActionIcon
+              component={Link}
+              to="/settings"
               size="lg"
               radius="xl"
               variant="subtle"
@@ -238,16 +241,28 @@ export function Layout({ children }: LayoutProps) {
                   aria-label="Profile menu"
                 >
                   <Avatar size={28} radius="xl" color="blue" variant="filled">
-                    <UserCircle size={20} color={theme.white} />
+                    {displayName.trim() ? (
+                      initials
+                    ) : (
+                      <UserCircle size={20} color={theme.white} />
+                    )}
                   </Avatar>
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Label>Profile</Menu.Label>
-                <Menu.Item leftSection={<UserCircle size={16} />}>
+                <Menu.Item
+                  component={Link}
+                  to="/profile"
+                  leftSection={<UserCircle size={16} />}
+                >
                   View profile
                 </Menu.Item>
-                <Menu.Item leftSection={<Settings size={16} />}>
+                <Menu.Item
+                  component={Link}
+                  to="/settings"
+                  leftSection={<Settings size={16} />}
+                >
                   Account settings
                 </Menu.Item>
               </Menu.Dropdown>
@@ -260,8 +275,8 @@ export function Layout({ children }: LayoutProps) {
       {showNavbar && (
         <AppShell.Navbar
           style={{
-            background: theme.colors.gray[0],
-            borderRight: `1px solid ${theme.colors.gray[2]}`,
+            background: "var(--mantine-color-body)",
+            borderRight: "1px solid var(--mantine-color-default-border)",
             top: `${HEADER_HEIGHT}px`,
             height: `calc(100vh - ${HEADER_HEIGHT}px)`,
             transition:
@@ -341,7 +356,6 @@ export function Layout({ children }: LayoutProps) {
                         withBorder
                         radius="sm"
                         p="xs"
-                        style={{ backgroundColor: theme.white }}
                       >
                         <Stack gap={6}>
                           <Checkbox
@@ -427,6 +441,8 @@ export function Layout({ children }: LayoutProps) {
                     { to: "/dashboard", label: "Dashboard" },
                     { to: "/scenarios", label: "Scenarios" },
                     { to: "/docs/overview", label: "Documentation" },
+                    { to: "/profile", label: "Profile" },
+                    { to: "/settings", label: "Settings" },
                   ].map((item) => (
                     <NavLink
                       key={item.to}
@@ -447,7 +463,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Main Content */}
       <AppShell.Main
         style={{
-          background: theme.colors.gray[0],
+          background: "var(--mantine-color-body)",
           paddingTop: `${HEADER_HEIGHT}px`,
           height: "100vh",
           transition:
@@ -467,7 +483,7 @@ export function Layout({ children }: LayoutProps) {
               bottom: 24,
               left: 24,
               zIndex: 200,
-              backgroundColor: theme.white,
+              backgroundColor: "var(--mantine-color-body)",
               color: SOLID_COLORS.hero,
               boxShadow: theme.shadows.md,
             }}
@@ -475,7 +491,14 @@ export function Layout({ children }: LayoutProps) {
             <LayoutSidebar size={20} />
           </ActionIcon>
         )}
-        <ScrollArea h={`calc(100vh - ${HEADER_HEIGHT}px)`}>
+        <ScrollArea
+          h={`calc(100vh - ${HEADER_HEIGHT}px)`}
+          styles={{
+            root: { background: "var(--mantine-color-body)" },
+            viewport: { background: "var(--mantine-color-body)" },
+            content: { background: "var(--mantine-color-body)" },
+          }}
+        >
           {children}
         </ScrollArea>
         {!onboardingDismissed && (
@@ -491,7 +514,6 @@ export function Layout({ children }: LayoutProps) {
               bottom: isMobile ? 16 : 24,
               width: isMobile ? "auto" : 360,
               zIndex: 300,
-              backgroundColor: theme.white,
             }}
           >
             <Group justify="space-between" align="flex-start" wrap="nowrap">

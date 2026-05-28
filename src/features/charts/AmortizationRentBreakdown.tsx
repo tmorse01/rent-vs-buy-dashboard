@@ -12,6 +12,7 @@ import {
 import { useMemo, useState } from "react";
 import type { TimelinePoint } from "../scenario/ScenarioInputs";
 import { formatCurrencyTooltip } from "../../utils/formatting";
+import { useThemeColors } from "../../theme/useThemeColors";
 
 interface AmortizationRentBreakdownProps {
   timeline: TimelinePoint[];
@@ -29,6 +30,7 @@ function formatTableCurrency(value: number): string {
 export function AmortizationRentBreakdown({
   timeline,
 }: AmortizationRentBreakdownProps) {
+  const { data: dataColors } = useThemeColors();
   const [view, setView] = useState<"chart" | "schedule">("chart");
 
   const yearlyChartData = useMemo(() => {
@@ -126,7 +128,7 @@ export function AmortizationRentBreakdown({
               }}
               valueFormatter={(value: number) => formatCurrencyTooltip(value)}
               tooltipProps={{
-                cursor: { stroke: "blue", strokeWidth: 1 },
+                cursor: { stroke: dataColors.owner, strokeWidth: 1 },
               }}
               tooltipAnimationDuration={200}
             />
