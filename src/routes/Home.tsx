@@ -36,14 +36,9 @@ const NetWorthStackComparison = lazy(() =>
     default: module.NetWorthStackComparison,
   })),
 );
-const NetWorthChart = lazy(() =>
-  import("../features/charts/NetWorthChart").then((module) => ({
-    default: module.NetWorthChart,
-  })),
-);
-const WealthStackChart = lazy(() =>
-  import("../features/charts/WealthStackChart").then((module) => ({
-    default: module.WealthStackChart,
+const WealthOverTimeChart = lazy(() =>
+  import("../features/charts/WealthOverTimeChart").then((module) => ({
+    default: module.WealthOverTimeChart,
   })),
 );
 const UnrecoverableCostChart = lazy(() =>
@@ -219,25 +214,32 @@ export function Home() {
                 />
               </Box>
             </Suspense>
-            <Suspense fallback={<ChartFallback label="Net Worth" />}>
-              <NetWorthChart timeline={timeline} />
-            </Suspense>
-            <Grid gutter="lg">
+            <Grid gutter="lg" align="stretch">
               <Grid.Col span={{ base: 12, md: 6 }}>
-                <Suspense fallback={<ChartFallback label="Wealth Stack" />}>
-                  <WealthStackChart timeline={timeline} />
+                <Suspense fallback={<ChartFallback label="Wealth over time" />}>
+                  <Box
+                    id={DASHBOARD_SECTION_IDS.wealthOverTime}
+                    style={{ ...sectionAnchorStyle, height: "100%" }}
+                  >
+                    <WealthOverTimeChart
+                      timeline={timeline}
+                      inputs={deferredInputs}
+                      chartHeight={360}
+                    />
+                  </Box>
                 </Suspense>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6 }}>
                 <Suspense
-                  fallback={<ChartFallback label="Unrecoverable Cost" />}
+                  fallback={<ChartFallback label="Unrecoverable costs" />}
                 >
                   <Box
                     id={DASHBOARD_SECTION_IDS.unrecoverableCosts}
-                    style={sectionAnchorStyle}
+                    style={{ ...sectionAnchorStyle, height: "100%" }}
                   >
                     <UnrecoverableCostChart
                       timeline={timeline}
+                      chartHeight={360}
                       mortgageInterestTaxDeductionEnabled={
                         deferredInputs.mortgageInterestTaxDeductionEnabled
                       }
@@ -270,7 +272,10 @@ export function Home() {
         <Divider />
 
         {/* Detailed Metrics */}
-        <Box>
+        <Box
+          id={DASHBOARD_SECTION_IDS.detailedMetrics}
+          style={sectionAnchorStyle}
+        >
           <Title order={2} mb="lg" fw={600}>
             Detailed Metrics
           </Title>

@@ -75,6 +75,15 @@ export const COLORS = {
     principal: "#2563eb", // Blue 600 - Principal paid (wealth stack)
     appreciation: "#10b981", // Emerald 500 - Net appreciation
     interest: "#f59e0b", // Amber 500 - Interest paid (narrative)
+    /** Buying bar segments — owner blues + accent violet + interest amber */
+    ownerUnrecoverable: {
+      mortgageInterest: "#f59e0b", // Amber 500 — largest unrecoverable slice
+      propertyTax: "#6366f1", // Indigo 500 — tax / gov
+      insurance: "#3b82f6", // Blue 500 — owner family mid
+      maintenance: "#7c3aed", // Violet 600 — brand accent
+      pmi: "#1e40af", // Blue 800 — owner dark
+      rent: "#0891b2", // Cyan 600 — renter (renting bar only)
+    },
   },
 } as const;
 

@@ -1,7 +1,9 @@
 /** DOM ids for dashboard sections (Home). Key Insights cards link here. */
 export const DASHBOARD_SECTION_IDS = {
   netWorthComparison: "section-net-worth-comparison",
+  wealthOverTime: "section-wealth-over-time",
   unrecoverableCosts: "section-unrecoverable-costs",
+  detailedMetrics: "section-detailed-metrics",
   breakEven: "section-break-even-recommendation",
 } as const;
 

@@ -453,7 +453,7 @@ export function KeyInsights({ metrics, timeline, inputs }: KeyInsightsProps) {
               underline="always"
               style={cardJumpLinkStyle}
             >
-              View unrecoverable cost chart
+              View cumulative unrecoverable spend
             </Anchor>
           </Stack>
         </ColorAccentCard>
